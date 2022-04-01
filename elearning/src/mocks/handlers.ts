@@ -1,15 +1,17 @@
 import { rest } from 'msw';
+import { authHandlers } from './auth';
 
 export const handlers = [
-  rest.post('/login', (req, res, ctx) => {
-    // Persist user's authentication in the session
-    sessionStorage.setItem('is-authenticated', 'true');
+  // rest.post('/login', (req, res, ctx) => {
+  //   // Persist user's authentication in the session
+  //   sessionStorage.setItem('is-authenticated', 'true');
 
-    return res(
-      // Respond with a 200 status code
-      ctx.status(200)
-    );
-  }),
+  //   return res(
+  //     // Respond with a 200 status code
+  //     ctx.status(200)
+  //   );
+  // }),
+  ...authHandlers,
 
   rest.get('/user', (req, res, ctx) => {
     // Check if the user is authenticated in this session
