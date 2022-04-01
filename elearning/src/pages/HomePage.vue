@@ -1,13 +1,9 @@
 <template>
-	<div class="app">
+	<div class="home-page">
 		<RouterView />
 	</div>
 </template>
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 </script>
-<style lang="scss" scoped>
-.app {
-	display: flex;
-}
-</style>
+<style></style>
