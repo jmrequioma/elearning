@@ -6,4 +6,8 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 </script>
-<style></style>
+<style>
+.home-page {
+	display: flex;
+}
+</style>
