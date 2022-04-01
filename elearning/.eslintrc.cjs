@@ -21,6 +21,7 @@ module.exports = {
   rules: {
     "semi": ["error", "always"],
     "max-len": ["error", {"code": 120}],
-    "space-before-blocks": ["error"]
+    "space-before-blocks": ["error"],
+    'prettier/prettier': ['error', { singleQuote: true }]
   }
 };
