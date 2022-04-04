@@ -20,17 +20,19 @@ describe('Login', () => {
 		const passwordField = wrapper.find('#password');
 		const loginBtn = wrapper.find('#login-btn');
 
-		emailField.wrapperElement.value = 'johndoe@test.com';
-		passwordField.wrapperElement.value = 'pass';
+		let emailValue = (emailField.element as HTMLInputElement).value;
+		emailValue = 'johndoe@test.com';
+		let passwordValue = (passwordField.element as HTMLInputElement).value;
+		passwordValue = 'pass';
 		await loginBtn.trigger('click');
 
 		try {
 			const res = await apiClient.post('/user', {
-				email: emailField.wrapperElement.value,
-				password: passwordField.wrapperElement.value,
+				email: emailValue,
+				password: passwordValue,
 			});
-			expect(res.data.email).toEqual(emailField.wrapperElement.value);
-			expect(res.data.password).toEqual(passwordField.wrapperElement.value);
+			expect(res.data.email).toEqual(emailValue);
+			expect(res.data.password).toEqual(passwordValue);
 		} catch (error) {
 			console.error('logging in user failed', error);
 		}
