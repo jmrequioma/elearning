@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_URL } from '@/constants';
 import { getAccessToken } from '@/utils/auth';
 
 const apiClient = axios.create({
-	baseURL: import.meta.env.VITE_APP_ROOT_API,
+	baseURL: API_URL,
 	timeout: 5000,
 });
 

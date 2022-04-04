@@ -1,10 +1,13 @@
 <template>
 	<div class="home-page">
-		<Login />
+		<Login v-if="!authStore.isAuthenticated" />
 	</div>
 </template>
 <script setup lang="ts">
 import Login from '@/components/Login.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 </script>
 <style>
 .home-page {

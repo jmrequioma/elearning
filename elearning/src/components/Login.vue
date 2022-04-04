@@ -2,7 +2,13 @@
 	<ui-card class="login-card">
 		<h4>eLearning Portal</h4>
 		<h6>LOGIN TO YOUR ACCOUNT</h6>
-		<ui-textfield v-model="email" class="field" outlined with-trailing-icon>
+		<ui-textfield
+			id="email"
+			v-model="email"
+			class="field"
+			outlined
+			with-trailing-icon
+		>
 			Email
 			<template #after="{ iconClass }">
 				<span :class="iconClass">
@@ -10,7 +16,14 @@
 				</span>
 			</template>
 		</ui-textfield>
-		<ui-textfield v-model="password" class="field" outlined with-trailing-icon>
+		<ui-textfield
+			v-model="password"
+			id="password"
+			class="field"
+			input-type="password"
+			outlined
+			with-trailing-icon
+		>
 			Password
 			<template #after="{ iconClass }">
 				<span :class="iconClass">
@@ -22,9 +35,11 @@
 			Forgot Password
 		</router-link>
 		<ui-button
+			id="login-btn"
 			class="button button--filled"
 			unelevated
 			:disabled="!fieldsAreFilled"
+			@click="login"
 		>
 			Login
 		</ui-button>
@@ -38,13 +53,24 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 
 const email = ref('');
 const password = ref('');
 
+const authStore = useAuthStore();
+
 const fieldsAreFilled = computed(() => {
 	return email.value && password.value;
 });
+
+function login() {
+	let data = {
+		email: email.value,
+		password: password.value,
+	};
+	authStore.login(data);
+}
 </script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';
