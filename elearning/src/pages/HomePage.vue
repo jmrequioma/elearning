@@ -1,14 +1,9 @@
 <template>
 	<div class="home-page">
-		<Login v-if="!authStore.isAuthenticated" />
+		<router-view />
 	</div>
 </template>
-<script setup lang="ts">
-import Login from '@/components/Login.vue';
-import { useAuthStore } from '@/stores/auth';
-
-const authStore = useAuthStore();
-</script>
+<script setup lang="ts"></script>
 <style>
 .home-page {
 	display: flex;

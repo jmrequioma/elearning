@@ -12,24 +12,34 @@ export const authHandlers = [
 	rest.post<LoginBody>(`${API_URL}/user`, (req, res, ctx) => {
 		const { email, password } = req.body;
 		const user = checkUser(email, password);
-		return res(
-			ctx.delay(DELAY),
-			ctx.status(200),
-			ctx.json({
-				...user,
-			})
-		);
+		if (user) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(200),
+				ctx.json({
+					...user,
+				})
+			);
+		} else {
+			// return 401
+			return res(ctx.delay(DELAY), ctx.status(401));
+		}
 	}),
 
 	rest.get(`${API_URL}/me`, (req, res, ctx) => {
 		const user = getUserDetails('accessToken1');
-		return res(
-			ctx.delay(DELAY),
-			ctx.status(200),
-			ctx.json({
-				...user,
-			})
-		);
+		if (user) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(200),
+				ctx.json({
+					...user,
+				})
+			);
+		} else {
+			// return 401
+			return res(ctx.delay(DELAY), ctx.status(401));
+		}
 	}),
 ];
 
@@ -39,6 +49,8 @@ function checkUser(email: string, password: string) {
 	const foundUser = users.find(
 		(user) => user.email === email && user.password === password
 	);
+
+	console.log(foundUser);
 
 	return foundUser;
 }

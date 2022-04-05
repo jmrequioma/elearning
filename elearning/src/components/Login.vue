@@ -31,7 +31,8 @@
 				</span>
 			</template>
 		</ui-textfield>
-		<router-link class="forgot" :to="{ name: 'home' }">
+		<p v-if="invalidCreds" class="alert">Invalid Credentials.</p>
+		<router-link class="link link--secondary" :to="{ name: 'login' }">
 			Forgot Password
 		</router-link>
 		<ui-button
@@ -48,15 +49,18 @@
 			<p>OR</p>
 			<div class="line"></div>
 		</div>
-		<ui-button class="button"> Create an account </ui-button>
+		<router-link class="link" :to="{ name: 'create-account' }"
+			>Create an account
+		</router-link>
 	</ui-card>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 
 const email = ref('');
 const password = ref('');
+const invalidCreds = ref(false);
 
 const authStore = useAuthStore();
 
@@ -64,12 +68,20 @@ const fieldsAreFilled = computed(() => {
 	return email.value && password.value;
 });
 
-function login() {
+watch([email, password], () => {
+	// reset alert
+	invalidCreds.value = false;
+});
+
+async function login() {
 	let data = {
 		email: email.value,
 		password: password.value,
 	};
-	authStore.login(data);
+	const res = await authStore.login(data);
+	if (!res) {
+		invalidCreds.value = true;
+	}
 }
 </script>
 <style scoped lang="scss">
@@ -94,21 +106,33 @@ function login() {
 h6 {
 	margin-top: 24px;
 	margin-bottom: 24px;
+	text-align: center;
 }
 
 .field {
 	margin-top: 16px;
 }
 
-.forgot {
-	font-size: 14px;
-	color: $gray-1;
-	font-weight: 500;
-	text-align: right;
-	margin-top: 24px;
-	margin-bottom: 12px;
+.link {
 	text-decoration: none;
+	align-self: center;
+	color: $primary;
+	font-weight: 500;
 	cursor: pointer;
+
+	&--secondary {
+		font-size: 14px;
+		color: $gray-1;
+		text-align: right;
+		margin-top: 24px;
+		margin-bottom: 12px;
+		align-self: unset;
+	}
+}
+
+.alert {
+	color: $error;
+	font-size: 12px;
 }
 
 .separator {

@@ -24,6 +24,7 @@ export const useAuthStore = defineStore({
 					// set token in local storage
 					setAccessToken(res.data.accessToken);
 				}
+				return res;
 			} catch (error) {
 				console.error('logging in user failed', error);
 			}
