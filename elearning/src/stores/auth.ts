@@ -30,6 +30,27 @@ export const useAuthStore = defineStore({
 			}
 		},
 
+		async signup(data: SignUpBody) {
+			try {
+				const res = await apiClient.post('/signup', {
+					email: data.email,
+					password: data.password,
+					verifyPassword: data.verifyPassword,
+					role: data.role,
+					firstName: data.firstName,
+					lastName: data.lastName,
+				});
+				this.user = res.data;
+				if (!res.data.errorMessage) {
+					// log the user in
+					this.login(data);
+				}
+				return res;
+			} catch (error) {
+				console.error('signing up user failed', error);
+			}
+		},
+
 		async getLoggedInUserInfo() {
 			try {
 				const res = await apiClient.get('/me', {

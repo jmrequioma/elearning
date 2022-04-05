@@ -2,6 +2,7 @@ import { rest } from 'msw';
 import { API_URL } from '@/constants';
 import { users } from '../mockedData';
 import { DELAY } from '@/mocks/constants';
+import { db } from '@/mocks/db';
 
 interface LoginBody {
 	email: string;
@@ -19,7 +20,16 @@ interface SignUpBody {
 
 export const authHandlers = [
 	rest.post<LoginBody>(`${API_URL}/user`, (req, res, ctx) => {
-		const user = checkUser(req.body);
+		const user = db.user.findFirst({
+			where: {
+				email: {
+					equals: req.body.email,
+				},
+				password: {
+					equals: req.body.password,
+				},
+			},
+		});
 		if (user) {
 			return res(
 				ctx.delay(DELAY),
@@ -41,7 +51,13 @@ export const authHandlers = [
 	}),
 
 	rest.post<SignUpBody>(`${API_URL}/signup`, (req, res, ctx) => {
-		const foundUser = checkExistingEmail(req.body);
+		const foundUser = db.user.findFirst({
+			where: {
+				email: {
+					equals: req.body.email,
+				},
+			},
+		});
 
 		if (foundUser) {
 			return res(
@@ -78,26 +94,6 @@ export const authHandlers = [
 	}),
 ];
 
-function checkUser(body: LoginBody) {
-	// do a simple checking just to return mocked data
-	// implementation of this should be done at backend
-	const { email, password } = body;
-	const foundUser = users.find(
-		(user) => user.email === email && user.password === password
-	);
-
-	return foundUser;
-}
-
-function checkExistingEmail(body: LoginBody) {
-	// do a simple checking just to return mocked data
-	// implementation of this should be done at backend
-	const { email } = body;
-	const foundUser = users.find((user) => user.email === email);
-
-	return foundUser;
-}
-
 function getUserDetails(accessToken: string) {
 	// do a simple checking just to return mocked data
 	// implementation of this should be done at backend
@@ -107,14 +103,23 @@ function getUserDetails(accessToken: string) {
 }
 
 function createUser(body: SignUpBody) {
-	const { email, password, verifyPassword, role, firstName, lastName } = body;
+	const { email, password, role, firstName, lastName } = body;
 
-	return {
+	const date = new Date().toISOString();
+
+	const data = {
 		email: email,
 		password: password,
-		verifyPassword: verifyPassword,
-		role: role,
 		firstName: firstName,
 		lastName: lastName,
+		role: role,
+		isActive: true,
+		createdAt: date,
+		updatedAt: date,
+	};
+	// create user
+	db.user.create(data);
+	return {
+		...body,
 	};
 }

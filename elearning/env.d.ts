@@ -23,3 +23,12 @@ type LoginBody = {
 	email: string;
 	password: string;
 };
+
+type SignUpBody = {
+	email: string;
+	password: string;
+	verifyPassword: string;
+	role: string;
+	firstName: string;
+	lastName: string;
+};

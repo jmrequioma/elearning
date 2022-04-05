@@ -107,7 +107,6 @@ describe('CreateAccount', () => {
 			lastName: lnameValue,
 		});
 
-		console.log(res.data.message);
 		expect(res.data.errorMessage).toBe('The email is already registered.');
 	});
 });

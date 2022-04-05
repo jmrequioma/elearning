@@ -124,6 +124,7 @@
 <script setup lang="ts">
 import { ROLES } from '@/constants';
 import { ref, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 
 const selectedRole = ref('');
 const options = [...ROLES];
@@ -139,6 +140,8 @@ const confPassword = ref('');
 
 const emailFormat = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$';
 const notBlankFormat = '.{1,}';
+
+const authStore = useAuthStore();
 
 const fieldsAreFilled = computed(() => {
 	return (
@@ -172,13 +175,29 @@ function validatePasswords() {
 	}
 }
 
-function register() {
+async function register() {
 	// validate user inputs
 	validateEmail();
 	validatePasswords();
 
 	if (!emailError.value && !passwordError.value) {
 		// validation passed, register new user now
+		const data = {
+			email: email.value,
+			password: password.value,
+			verifyPassword: confPassword.value,
+			role: selectedRole.value,
+			firstName: firstName.value,
+			lastName: lastName.value,
+		};
+
+		const res = await authStore.signup(data);
+		if (res?.data.errorMessage === 'The email is already registered.') {
+			emailError.value = true;
+			emailErrorMsg.value = 'The email is already registered.';
+		} else {
+			// redirect user to the dashboard
+		}
 	}
 }
 </script>
