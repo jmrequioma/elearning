@@ -108,6 +108,6 @@ describe('CreateAccount', () => {
 		});
 
 		console.log(res.data.message);
-		expect(res.data.message).toBe('The email is already registered.');
+		expect(res.data.errorMessage).toBe('The email is already registered.');
 	});
 });

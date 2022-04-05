@@ -47,7 +47,7 @@ export const authHandlers = [
 			return res(
 				ctx.delay(DELAY),
 				ctx.status(200),
-				ctx.json({ message: 'The email is already registered.' })
+				ctx.json({ errorMessage: 'The email is already registered.' })
 			);
 		} else {
 			const newUser = createUser(req.body);
