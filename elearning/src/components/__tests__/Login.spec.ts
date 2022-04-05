@@ -26,15 +26,33 @@ describe('Login', () => {
 		passwordValue = 'pass';
 		await loginBtn.trigger('click');
 
+		const res = await apiClient.post('/user', {
+			email: emailValue,
+			password: passwordValue,
+		});
+		expect(res.data.email).toEqual(emailValue);
+		expect(res.data.password).toEqual(passwordValue);
+		expect(res.status).toBe(200);
+	});
+
+	it('returns an error when user creds is invalid', async () => {
+		const emailField = wrapper.find('#email');
+		const passwordField = wrapper.find('#password');
+		const loginBtn = wrapper.find('#login-btn');
+
+		let emailValue = (emailField.element as HTMLInputElement).value;
+		emailValue = 'johndoe12@test.com';
+		let passwordValue = (passwordField.element as HTMLInputElement).value;
+		passwordValue = 'pass';
+		await loginBtn.trigger('click');
+
 		try {
-			const res = await apiClient.post('/user', {
+			await apiClient.post('/user', {
 				email: emailValue,
 				password: passwordValue,
 			});
-			expect(res.data.email).toEqual(emailValue);
-			expect(res.data.password).toEqual(passwordValue);
 		} catch (error) {
-			console.error('logging in user failed', error);
+			expect((error as Error).message).toContain('401');
 		}
 	});
 });

@@ -4,9 +4,11 @@
 		<h6>LOGIN TO YOUR ACCOUNT</h6>
 		<ui-textfield
 			id="email"
-			v-model="email"
+			v-model.trim="email"
 			class="field"
+			input-type="email"
 			outlined
+			pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
 			with-trailing-icon
 		>
 			Email
@@ -17,7 +19,7 @@
 			</template>
 		</ui-textfield>
 		<ui-textfield
-			v-model="password"
+			v-model.trim="password"
 			id="password"
 			class="field"
 			input-type="password"
@@ -103,6 +105,10 @@ async function login() {
 	}
 }
 
+h4 {
+	text-align: center;
+}
+
 h6 {
 	margin-top: 24px;
 	margin-bottom: 24px;
@@ -133,6 +139,7 @@ h6 {
 .alert {
 	color: $error;
 	font-size: 12px;
+	padding-left: 12px;
 }
 
 .separator {
