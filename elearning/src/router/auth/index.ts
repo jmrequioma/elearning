@@ -43,6 +43,16 @@ export default [
 					hideWhenAuthenticated: true,
 				},
 			},
+			{
+				path: '/change-password',
+				name: 'change-password',
+				component: () => import('@/components/ChangePassword.vue'),
+				meta: {
+					title: 'Change Password - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
 		],
 	},
 ];
