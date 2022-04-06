@@ -100,16 +100,17 @@ describe('CreateAccount', () => {
 		confPasswordValue = generatedPass;
 
 		await registerBtn.trigger('click');
-
-		const res = await authStore.signup({
-			email: emailValue,
-			password: passwordValue,
-			verifyPassword: confPasswordValue,
-			role: roleValue,
-			firstName: fnameValue,
-			lastName: lnameValue,
-		});
-
-		expect(res?.data.errorMessage).toBe('The email is already registered.');
+		try {
+			await authStore.signup({
+				email: emailValue,
+				password: passwordValue,
+				verifyPassword: confPasswordValue,
+				role: roleValue,
+				firstName: fnameValue,
+				lastName: lnameValue,
+			});
+		} catch (error) {
+			expect((error as Error).message).toContain('404');
+		}
 	});
 });
