@@ -9,3 +9,4 @@ export const ROLES = [
 		value: 'instructor',
 	},
 ];
+export const TOKEN_SECRET = import.meta.env.VITE_APP_TOKEN_SECRET;

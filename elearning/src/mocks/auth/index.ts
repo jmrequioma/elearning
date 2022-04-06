@@ -66,10 +66,11 @@ export const authHandlers = [
 				ctx.json({ errorMessage: 'The email is already registered.' })
 			);
 		} else {
+			// create new user
 			const newUser = createUser(req.body);
 			return res(
 				ctx.delay(DELAY),
-				ctx.status(200),
+				ctx.status(201),
 				ctx.json({
 					...newUser,
 				})
@@ -108,6 +109,7 @@ function createUser(body: SignUpBody) {
 	const date = new Date().toISOString();
 
 	const data = {
+		id: db.user.count() + 1, // increment id
 		email: email,
 		password: password,
 		firstName: firstName,
