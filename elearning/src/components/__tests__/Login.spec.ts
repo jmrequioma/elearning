@@ -3,7 +3,6 @@ import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import apiClient from '@/lib/axios-api';
 import { setupTests } from '@/utils/setupTests';
-import { db } from '@/mocks/db';
 
 import Login from '../Login.vue';
 

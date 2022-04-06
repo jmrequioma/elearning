@@ -109,6 +109,9 @@
 					<small class="alert">{{ passwordErrorMsg }}</small>
 				</ui-textfield-helper>
 			</ui-form-field>
+			<ui-alert v-if="emailError || passwordError" state="error"
+				>One or more fields contain invalid values.</ui-alert
+			>
 		</ui-form>
 		<ui-button
 			id="register-btn"
@@ -120,11 +123,22 @@
 			Register
 		</ui-button>
 	</ui-card>
+	<AlertModal v-if="accountCreated">
+		<template v-slot:content>
+			<p>
+				{{ dialogText }}
+			</p>
+		</template>
+		<template v-slot:actions>
+			<ui-button @click="$router.push({ name: 'login' })">Ok</ui-button>
+		</template>
+	</AlertModal>
 </template>
 <script setup lang="ts">
 import { ROLES } from '@/constants';
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import AlertModal from './AlertModal.vue';
 
 const selectedRole = ref('');
 const options = [...ROLES];
@@ -137,6 +151,7 @@ const password = ref('');
 const passwordError = ref(false);
 const passwordErrorMsg = ref('');
 const confPassword = ref('');
+const accountCreated = ref(false);
 
 const emailFormat = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$';
 const notBlankFormat = '.{1,}';
@@ -152,6 +167,12 @@ const fieldsAreFilled = computed(() => {
 		password.value &&
 		confPassword.value
 	);
+});
+
+const dialogText = computed(() => {
+	let role = selectedRole.value == 'student' ? 'a student' : 'an instructor';
+	return `You’ve successfully registered as ${role}. Please check your email
+				to activate your account.`;
 });
 
 function validateEmail() {
@@ -196,7 +217,8 @@ async function register() {
 			emailError.value = true;
 			emailErrorMsg.value = 'The email is already registered.';
 		} else {
-			// redirect user to the dashboard
+			// show alert modal
+			accountCreated.value = true;
 		}
 	}
 }
@@ -207,7 +229,7 @@ async function register() {
 .account-card {
 	margin: auto;
 	padding: 64px 32px;
-	min-width: 400px;
+	max-width: 90%;
 }
 
 .form-item {

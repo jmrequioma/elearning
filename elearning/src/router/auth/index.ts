@@ -23,6 +23,16 @@ export default [
 					hideWhenAuthenticated: true,
 				},
 			},
+			{
+				path: '/recover-password',
+				name: 'recover-password',
+				component: () => import('@/components/RecoverPassword.vue'),
+				meta: {
+					title: 'Password Recovery - E-Learning',
+					authRequired: false,
+					hideWhenAuthenticated: true,
+				},
+			},
 		],
 	},
 ];

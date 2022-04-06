@@ -30,15 +30,7 @@ export const authHandlers = [
 				},
 			},
 		});
-		if (user) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(200),
-				ctx.json({
-					...user,
-				})
-			);
-		} else {
+		if (!user) {
 			// return 401
 			return res(
 				ctx.delay(DELAY),
@@ -48,6 +40,14 @@ export const authHandlers = [
 				})
 			);
 		}
+
+		return res(
+			ctx.delay(DELAY),
+			ctx.status(200),
+			ctx.json({
+				...user,
+			})
+		);
 	}),
 
 	rest.post<SignUpBody>(`${API_URL}/signup`, (req, res, ctx) => {
@@ -65,33 +65,60 @@ export const authHandlers = [
 				ctx.status(200),
 				ctx.json({ errorMessage: 'The email is already registered.' })
 			);
-		} else {
-			// create new user
-			const newUser = createUser(req.body);
+		}
+		// create new user
+		const newUser = createUser(req.body);
+		return res(
+			ctx.delay(DELAY),
+			ctx.status(201),
+			ctx.json({
+				...newUser,
+			})
+		);
+	}),
+
+	// request a password reset
+	rest.get(`${API_URL}/password`, (req, res, ctx) => {
+		const email = req.url.searchParams.get('email');
+		const foundUser = db.user.findFirst({
+			where: {
+				email: {
+					equals: email as string,
+				},
+			},
+		});
+		if (!foundUser) {
 			return res(
 				ctx.delay(DELAY),
-				ctx.status(201),
+				ctx.status(404),
 				ctx.json({
-					...newUser,
+					errorMessage: 'Email was not found in our records.',
 				})
 			);
 		}
+
+		return res(
+			ctx.delay(DELAY),
+			ctx.json({
+				status: 'success',
+			})
+		);
 	}),
 
 	rest.get(`${API_URL}/me`, (req, res, ctx) => {
 		const user = getUserDetails('accessToken1');
-		if (user) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(200),
-				ctx.json({
-					...user,
-				})
-			);
-		} else {
+		if (!user) {
 			// return 401
 			return res(ctx.delay(DELAY), ctx.status(401));
 		}
+
+		return res(
+			ctx.delay(DELAY),
+			ctx.status(200),
+			ctx.json({
+				...user,
+			})
+		);
 	}),
 ];
 
@@ -115,7 +142,7 @@ function createUser(body: SignUpBody) {
 		firstName: firstName,
 		lastName: lastName,
 		role: role,
-		isActive: true,
+		isActive: false,
 		createdAt: date,
 		updatedAt: date,
 	};

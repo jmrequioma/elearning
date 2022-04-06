@@ -14,6 +14,7 @@ router.beforeEach(async (to, from) => {
 	} else if (to.meta.hideWhenAuthenticated) {
 		// return user's homepage
 	}
+	document.title = to.meta.title as string;
 });
 
 export default router;

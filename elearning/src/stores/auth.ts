@@ -42,12 +42,22 @@ export const useAuthStore = defineStore({
 				});
 				this.user = res.data;
 				if (!res.data.errorMessage) {
-					// log the user in
-					this.login(data);
+					// send verification email
 				}
 				return res;
 			} catch (error) {
 				console.error('signing up user failed', error);
+			}
+		},
+
+		async requestPasswordReset(data: object) {
+			try {
+				const res = await apiClient.get('/password', {
+					params: data,
+				});
+				return res;
+			} catch (error) {
+				console.error('requesting password reset failed.');
 			}
 		},
 

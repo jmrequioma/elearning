@@ -34,7 +34,10 @@
 			</template>
 		</ui-textfield>
 		<p v-if="invalidCreds" class="alert">Invalid Credentials.</p>
-		<router-link class="link link--secondary" :to="{ name: 'login' }">
+		<router-link
+			class="link link--secondary"
+			:to="{ name: 'recover-password' }"
+		>
 			Forgot Password
 		</router-link>
 		<ui-button
