@@ -40,8 +40,10 @@ describe('RecoverPassword', () => {
 		emailValue = 'johndoe12@test.com';
 		await resetBtn.trigger('click');
 
-		const res = await authStore.requestPasswordReset({ email: emailValue });
-
-		expect(res).toBeUndefined();
+		try {
+			authStore.requestPasswordReset({ email: emailValue });
+		} catch (error) {
+			expect((error as Error).message).toContain('404');
+		}
 	});
 });

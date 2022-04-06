@@ -34,12 +34,14 @@
 			</template>
 		</ui-textfield>
 		<p v-if="invalidCreds" class="alert">Invalid Credentials.</p>
-		<router-link
-			class="link link--secondary"
-			:to="{ name: 'recover-password' }"
-		>
-			Forgot Password
-		</router-link>
+		<div class="flex-right">
+			<router-link
+				class="link link--secondary"
+				:to="{ name: 'recover-password' }"
+			>
+				Forgot Password
+			</router-link>
+		</div>
 		<ui-button
 			id="login-btn"
 			class="button button--filled"
@@ -122,6 +124,10 @@ h6 {
 	margin-top: 16px;
 }
 
+.flex-right {
+	display: flex;
+	justify-content: flex-end;
+}
 .link {
 	text-decoration: none;
 	align-self: center;
@@ -132,7 +138,6 @@ h6 {
 	&--secondary {
 		font-size: 14px;
 		color: $gray-1;
-		text-align: right;
 		margin-top: 24px;
 		margin-bottom: 12px;
 		align-self: unset;

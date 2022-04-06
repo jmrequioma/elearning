@@ -33,6 +33,16 @@ export default [
 					hideWhenAuthenticated: true,
 				},
 			},
+			{
+				path: '/set-password',
+				name: 'set-password',
+				component: () => import('@/components/SetPassword.vue'),
+				meta: {
+					title: 'Set Password - E-Learning',
+					authRequired: false,
+					hideWhenAuthenticated: true,
+				},
+			},
 		],
 	},
 ];

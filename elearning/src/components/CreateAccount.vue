@@ -50,7 +50,6 @@
 					class="field"
 					outlined
 					required
-					helper-text-id="fname-helper-text"
 				>
 					First Name
 				</ui-textfield>
@@ -62,7 +61,6 @@
 					class="field"
 					outlined
 					required
-					helper-text-id="lname-helper-text"
 				>
 					Last Name
 				</ui-textfield>
@@ -76,7 +74,6 @@
 					outlined
 					required
 					:pattern="notBlankFormat"
-					helper-text-id="pword-helper-text"
 					with-trailing-icon
 				>
 					Password
@@ -102,7 +99,7 @@
 				</ui-textfield>
 				<ui-textfield-helper
 					v-if="passwordError"
-					id="lname-helper-text"
+					id="pword-helper-text"
 					visible
 					validMsg
 				>
