@@ -142,6 +142,9 @@ export const authHandlers = [
 		// check if password provided matches with the one on the db
 		const passwordMatch = db.user.findFirst({
 			where: {
+				accessToken: {
+					equals: accessToken,
+				},
 				password: {
 					equals: req.body.currPassword,
 				},

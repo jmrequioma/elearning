@@ -5,7 +5,7 @@
 		<ui-form>
 			<ui-form-field class="form-item">
 				<ui-textfield
-					id="password"
+					id="curr-password"
 					v-model="currPassword"
 					class="field"
 					input-type="password"
