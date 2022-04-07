@@ -20,7 +20,7 @@
 			</template>
 		</ui-textfield>
 		<ui-textfield-helper
-			v-if="emailError"
+			v-if="emailErrorMsg"
 			id="email-helper-text"
 			visible
 			validMsg
@@ -52,7 +52,6 @@ import { useAuthStore } from '@/stores/auth';
 import AlertModal from './AlertModal.vue';
 
 const email = ref('');
-const emailError = ref(false);
 const emailErrorMsg = ref('');
 const emailFormat = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$';
 const authStore = useAuthStore();
@@ -61,27 +60,23 @@ const showSuccessModal = ref(false);
 function validateEmail() {
 	// validate Email input
 	if (email.value && email.value.match(emailFormat)) {
-		emailError.value = false;
 		emailErrorMsg.value = '';
 	} else {
-		emailError.value = true;
 		emailErrorMsg.value = 'Email should be in the format "example@domain.com"';
 	}
 }
 
 async function sendRequest() {
 	validateEmail();
-	if (!emailError.value) {
+	if (!emailErrorMsg.value) {
 		let data = {
 			email: email.value,
 		};
 		const res = await authStore.requestPasswordReset(data);
-		if (!res) {
-			emailError.value = true;
-			emailErrorMsg.value = 'Email was not found in our records.';
-		}
+
 		if (res?.data.status == 'success') {
 			showSuccessModal.value = true;
+			emailErrorMsg.value = '';
 		}
 	}
 }
