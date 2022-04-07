@@ -1,14 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
-import { setupTests } from '@/utils/setupTests';
 
 import Login from '../Login.vue';
 import { useAuthStore } from '@/stores/auth';
 
 describe('Login', () => {
 	let wrapper: VueWrapper;
-	setupTests();
 
 	beforeEach(() => {
 		setActivePinia(createPinia());

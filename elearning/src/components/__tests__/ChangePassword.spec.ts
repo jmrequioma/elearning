@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
-import { setupTests } from '@/utils/setupTests';
 import { users } from '@/mocks/mockedData';
 import { useAuthStore } from '@/stores/auth';
 
@@ -16,7 +15,6 @@ type MockStorage = {
 
 describe('ChangePassword', () => {
 	let wrapper: VueWrapper;
-	setupTests();
 	// mock local storage
 	let mockStorage: MockStorage = {};
 
