@@ -20,6 +20,7 @@ export const useAuthStore = defineStore({
 				if (res.data) {
 					// set token in local storage
 					setAccessToken(res.data.accessToken);
+					this.accessToken = res.data.accessToken;
 				}
 				return res;
 			} catch (error) {
