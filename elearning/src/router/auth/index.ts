@@ -1,7 +1,7 @@
 export default [
 	{
 		path: '/',
-		component: () => import('@/pages/HomePage.vue'),
+		component: () => import('@/pages/LandingPage.vue'),
 		children: [
 			{
 				path: '',
