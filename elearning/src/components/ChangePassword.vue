@@ -2,59 +2,75 @@
 	<ui-card class="password-card">
 		<h4>eLearning Portal</h4>
 		<h6>CHANGE PASSWORD</h6>
-		<ui-textfield
-			id="password"
-			v-model.trim="password"
-			class="field"
-			input-type="password"
-			outlined
-			:pattern="notBlankFormat"
-			helper-text-id="pword-helper-text"
-			with-trailing-icon
-		>
-			Current Password
-			<template #after="{ iconClass }">
-				<span :class="iconClass">
-					<ui-icon outlined>vpn_key</ui-icon>
-				</span>
-			</template>
-		</ui-textfield>
-		<ui-textfield
-			id="password"
-			v-model.trim="password"
-			class="field"
-			input-type="password"
-			outlined
-			:pattern="notBlankFormat"
-			helper-text-id="pword-helper-text"
-		>
-			New Password
-		</ui-textfield>
-		<ui-textfield
-			id="conf-password"
-			v-model.trim="confPassword"
-			class="field"
-			input-type="password"
-			outlined
-			:pattern="notBlankFormat"
-			helper-text-id="pword-helper-text"
-		>
-			Confirm Password
-		</ui-textfield>
-		<ui-textfield-helper
-			v-if="passwordError"
-			id="pword-helper-text"
-			visible
-			validMsg
-		>
-			<small class="alert">{{ passwordErrorMsg }}</small>
-		</ui-textfield-helper>
+		<ui-form>
+			<ui-form-field class="form-item">
+				<ui-textfield
+					id="password"
+					v-model="currPassword"
+					class="field"
+					input-type="password"
+					outlined
+					:pattern="notBlankFormat"
+					helper-text-id="curr-pword-helper-text"
+					with-trailing-icon
+				>
+					Current Password
+					<template #after="{ iconClass }">
+						<span :class="iconClass">
+							<ui-icon outlined>vpn_key</ui-icon>
+						</span>
+					</template>
+				</ui-textfield>
+				<ui-textfield-helper
+					v-if="currPasswordErrorMsg"
+					id="curr-pword-helper-text"
+					visible
+					validMsg
+				>
+					<small class="alert">{{ currPasswordErrorMsg }}</small>
+				</ui-textfield-helper>
+			</ui-form-field>
+			<ui-form-field class="form-item">
+				<ui-textfield
+					id="password"
+					v-model="password"
+					class="field"
+					input-type="password"
+					outlined
+					:pattern="notBlankFormat"
+					helper-text-id="pword-helper-text"
+				>
+					New Password
+				</ui-textfield>
+			</ui-form-field>
+			<ui-form-field class="form-item">
+				<ui-textfield
+					id="conf-password"
+					v-model="confPassword"
+					class="field"
+					input-type="password"
+					outlined
+					:pattern="notBlankFormat"
+					helper-text-id="pword-helper-text"
+				>
+					Confirm Password
+				</ui-textfield>
+				<ui-textfield-helper
+					v-if="passwordErrorMsg"
+					id="pword-helper-text"
+					visible
+					validMsg
+				>
+					<small class="alert">{{ passwordErrorMsg }}</small>
+				</ui-textfield-helper>
+			</ui-form-field>
+		</ui-form>
 		<ui-button
 			id="save-btn"
 			class="button button--filled"
 			unelevated
 			:disabled="!password || !confPassword"
-			@click="setPassword"
+			@click="changePassword"
 		>
 			Save Changes
 		</ui-button>
@@ -72,31 +88,45 @@
 	</AlertModal>
 </template>
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 import AlertModal from './AlertModal.vue';
 
+const currPassword = ref('');
+const currPasswordErrorMsg = ref('');
 const password = ref('');
 const confPassword = ref('');
-const passwordError = ref(false);
 const passwordErrorMsg = ref('');
 const notBlankFormat = '.{1,}';
 const showSuccessModal = ref(false);
+const authStore = useAuthStore();
 
 function validatePasswords() {
 	if (password.value === confPassword.value) {
-		passwordError.value = false;
 		passwordErrorMsg.value = '';
 	} else {
-		passwordError.value = true;
 		passwordErrorMsg.value = 'Passwords do not match.';
 	}
 }
 
-async function setPassword() {
+async function changePassword() {
 	validatePasswords();
-	// the user's email should be derived from the link given by the backend
-	if (!passwordError.value) {
-		showSuccessModal.value = true;
+
+	if (!passwordErrorMsg.value) {
+		const res = await authStore.changePassword({
+			currPassword: currPassword.value,
+			password: password.value,
+			verifyPassword: confPassword.value,
+		});
+
+		if (res?.data.errorMessage) {
+			currPasswordErrorMsg.value = res.data.errorMessage;
+		}
+
+		if (res?.data.status == 'success') {
+			currPasswordErrorMsg.value = '';
+			showSuccessModal.value = true;
+		}
 	}
 }
 </script>
@@ -118,8 +148,13 @@ h6 {
 	text-align: center;
 }
 
-.field {
+.form-item {
 	margin-bottom: 12px;
+	display: block;
+}
+
+.field {
+	width: 100%;
 }
 
 .alert {

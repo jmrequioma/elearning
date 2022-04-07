@@ -32,3 +32,9 @@ type SignUpBody = {
 	firstName: string;
 	lastName: string;
 };
+
+type ChangePasswordBody = {
+	currPassword: string;
+	password: string;
+	verifyPassword: string;
+};

@@ -35,7 +35,7 @@
 					</template>
 				</ui-textfield>
 				<ui-textfield-helper
-					v-if="emailError"
+					v-if="emailErrorMsg"
 					id="email-helper-text"
 					visible
 					validMsg
@@ -68,7 +68,7 @@
 			<ui-form-field class="form-item">
 				<ui-textfield
 					id="password"
-					v-model.trim="password"
+					v-model="password"
 					class="field"
 					input-type="password"
 					outlined
@@ -87,7 +87,7 @@
 			<ui-form-field class="form-item">
 				<ui-textfield
 					id="conf-password"
-					v-model.trim="confPassword"
+					v-model="confPassword"
 					class="field"
 					input-type="password"
 					outlined
@@ -98,7 +98,7 @@
 					Confirm Password
 				</ui-textfield>
 				<ui-textfield-helper
-					v-if="passwordError"
+					v-if="passwordErrorMsg"
 					id="pword-helper-text"
 					visible
 					validMsg
@@ -106,7 +106,7 @@
 					<small class="alert">{{ passwordErrorMsg }}</small>
 				</ui-textfield-helper>
 			</ui-form-field>
-			<ui-alert v-if="emailError || passwordError" state="error"
+			<ui-alert v-if="emailErrorMsg || passwordErrorMsg" state="error"
 				>One or more fields contain invalid values.</ui-alert
 			>
 		</ui-form>
@@ -140,12 +140,10 @@ import AlertModal from './AlertModal.vue';
 const selectedRole = ref('');
 const options = [...ROLES];
 const email = ref('');
-const emailError = ref(false);
 const emailErrorMsg = ref('');
 const firstName = ref('');
 const lastName = ref('');
 const password = ref('');
-const passwordError = ref(false);
 const passwordErrorMsg = ref('');
 const confPassword = ref('');
 const accountCreated = ref(false);
@@ -175,20 +173,16 @@ const dialogText = computed(() => {
 function validateEmail() {
 	// validate Email input
 	if (email.value && email.value.match(emailFormat)) {
-		emailError.value = false;
 		emailErrorMsg.value = '';
 	} else {
-		emailError.value = true;
 		emailErrorMsg.value = 'Email should be in the format "example@domain.com"';
 	}
 }
 
 function validatePasswords() {
 	if (password.value === confPassword.value) {
-		passwordError.value = false;
 		passwordErrorMsg.value = '';
 	} else {
-		passwordError.value = true;
 		passwordErrorMsg.value = 'Passwords do not match.';
 	}
 }
@@ -198,7 +192,7 @@ async function register() {
 	validateEmail();
 	validatePasswords();
 
-	if (!emailError.value && !passwordError.value) {
+	if (!emailErrorMsg.value && !passwordErrorMsg.value) {
 		// validation passed, register new user now
 		const data = {
 			email: email.value,
@@ -211,10 +205,10 @@ async function register() {
 
 		const res = await authStore.signup(data);
 		if (res?.data.errorMessage === 'The email is already registered.') {
-			emailError.value = true;
 			emailErrorMsg.value = 'The email is already registered.';
 		} else {
 			// show alert modal
+			emailErrorMsg.value = '';
 			accountCreated.value = true;
 		}
 	}

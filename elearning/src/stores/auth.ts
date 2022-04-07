@@ -15,10 +15,7 @@ export const useAuthStore = defineStore({
 	actions: {
 		async login(data: LoginBody) {
 			try {
-				const res = await apiClient.post('/user', {
-					email: data.email,
-					password: data.password,
-				});
+				const res = await apiClient.post('/user', data);
 				this.user = res.data;
 				if (res.data) {
 					// set token in local storage
@@ -32,14 +29,7 @@ export const useAuthStore = defineStore({
 
 		async signup(data: SignUpBody) {
 			try {
-				const res = await apiClient.post('/signup', {
-					email: data.email,
-					password: data.password,
-					verifyPassword: data.verifyPassword,
-					role: data.role,
-					firstName: data.firstName,
-					lastName: data.lastName,
-				});
+				const res = await apiClient.post('/signup', data);
 				this.user = res.data;
 				if (!res.data.errorMessage) {
 					// send verification email
@@ -57,7 +47,16 @@ export const useAuthStore = defineStore({
 				});
 				return res;
 			} catch (error) {
-				console.error('requesting password reset failed.');
+				console.error('requesting password reset failed.', error);
+			}
+		},
+
+		async changePassword(data: ChangePasswordBody) {
+			try {
+				const res = await apiClient.post('/password', data);
+				return res;
+			} catch (error) {
+				console.error('changing password failed. ', error);
 			}
 		},
 

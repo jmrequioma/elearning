@@ -3,6 +3,7 @@ import { API_URL } from '@/constants';
 import { users } from '../mockedData';
 import { DELAY } from '@/mocks/constants';
 import { db } from '@/mocks/db';
+import { checkAuth, extractAccessToken } from '../utils';
 
 interface LoginBody {
 	email: string;
@@ -16,6 +17,12 @@ interface SignUpBody {
 	role: string;
 	firstName: string;
 	lastName: string;
+}
+
+interface ChangePasswordBody {
+	currPassword: string;
+	password: string;
+	verifyPassword: string;
 }
 
 export const authHandlers = [
@@ -99,6 +106,73 @@ export const authHandlers = [
 
 		return res(
 			ctx.delay(DELAY),
+			ctx.status(200),
+			ctx.json({
+				status: 'success',
+			})
+		);
+	}),
+
+	// change password
+	rest.post<ChangePasswordBody>(`${API_URL}/password`, (req, res, ctx) => {
+		const accessToken = extractAccessToken(req);
+
+		if (!accessToken) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(401),
+				ctx.json({
+					errorMessage: 'No token provided.',
+				})
+			);
+		}
+
+		const user = checkAuth(accessToken);
+
+		if (!user) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(401),
+				ctx.json({
+					errorMessage: 'Unauthorized user.',
+				})
+			);
+		}
+
+		// check if password provided matches with the one on the db
+		const passwordMatch = db.user.findFirst({
+			where: {
+				password: {
+					equals: req.body.currPassword,
+				},
+			},
+		});
+
+		if (!passwordMatch) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(200),
+				ctx.json({
+					errorMessage: 'Current password is incorrect.',
+				})
+			);
+		}
+
+		// change the password
+		db.user.update({
+			where: {
+				accessToken: {
+					equals: accessToken,
+				},
+			},
+			data: {
+				password: req.body.password,
+			},
+		});
+
+		return res(
+			ctx.delay(DELAY),
+			ctx.status(200),
 			ctx.json({
 				status: 'success',
 			})
