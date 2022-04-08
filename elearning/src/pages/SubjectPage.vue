@@ -58,6 +58,70 @@
 						<ui-icon-button icon="more_vert"></ui-icon-button>
 					</td>
 				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
+				<tr>
+					<td>Backend Development</td>
+					<td>4 Courses</td>
+					<td class="row-action">
+						Draft
+						<ui-icon-button icon="more_vert"></ui-icon-button>
+					</td>
+				</tr>
 			</table>
 		</div>
 	</div>
@@ -124,10 +188,12 @@ h6 {
 .subject-main {
 	border-radius: 10px 10px 0px 0px;
 	background-color: $white;
-	// min-height: 100%;
+	height: calc(100vh - 216px);
 	border-radius: 10px 10px 0px 0px;
 	margin: -48px 24px 4px;
 	padding-top: 24px;
+	box-sizing: border-box;
+	overflow-y: scroll;
 }
 
 .subjects-table {

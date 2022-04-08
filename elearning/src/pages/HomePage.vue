@@ -1,58 +1,5 @@
 <template>
 	<div class="homepage">
-		<!-- Drawer -->
-		<!-- <ui-drawer class="nav-drawer" type="dismissible" viewport-height nav-id="homepage-menu">
-			<ui-drawer-header class="nav-drawer__header">
-				<div class="nav-drawer__header__left">
-					<img src="@/assets/media/arcanys-logo.png" alt="arcanys-logo" />
-					<ui-drawer-title class="nav-drawer__title"
-						>eLearning Portal</ui-drawer-title
-					>
-				</div>
-				<ui-icon class="header-icon">menu</ui-icon>
-			</ui-drawer-header>
-			<ui-drawer-content class="nav-drawer__content">
-				<ui-nav>
-					<div class="nav-item-header">
-						<p>MANAGEMENT</p>
-					</div>
-					<ui-nav-item :active="subjectRoute" class="nav-drawer__item">
-						<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-						Subjects
-					</ui-nav-item>
-					<ui-nav-item :active="courseRoute" class="nav-drawer__item">
-						<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-						Courses
-					</ui-nav-item>
-					<ui-nav-item :active="courseRoute" class="nav-drawer__item">
-						<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-						Modules
-					</ui-nav-item>
-					<ui-nav-item :active="courseRoute" class="nav-drawer__item">
-						<ui-icon>supervised_user_circle</ui-icon>
-						Users
-					</ui-nav-item>
-				</ui-nav>
-			</ui-drawer-content>
-		</ui-drawer> -->
-		<!-- Content -->
-		<!-- <ui-drawer-app-content class="homepage-content"> -->
-		<!-- App bar -->
-		<!-- <ui-top-app-bar
-				class="homepage-appbar"
-				content-selector=".main"
-				:nav-icon="false"
-				nav-id="homepage-menu"
-			>
-				<template #toolbar="{}">
-					<p>j.smith@arcanys.com</p>
-				</template>
-			</ui-top-app-bar> -->
-		<!-- App content -->
-		<!-- <div class="main">
-				<router-view />
-			</div>
-		</ui-drawer-app-content> -->
 		<aside>
 			<div class="nav-drawer">
 				<div class="nav-drawer__header">
@@ -68,21 +15,50 @@
 							<p>MANAGEMENT</p>
 						</div>
 						<div class="drawer-items">
-							<div class="nav-drawer__item">
-								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-								Subjects
+							<div :class="[subjectRoute ? 'active' : '', 'nav-drawer__item']">
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'subjects' }"
+								>
+									<img
+										src="@/assets/media/bookshelf.png"
+										alt="bookshelf-icon"
+									/>
+									Subjects
+								</router-link>
 							</div>
 							<div class="nav-drawer__item">
-								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-								Courses
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'subjects' }"
+								>
+									<img
+										src="@/assets/media/bookshelf.png"
+										alt="bookshelf-icon"
+									/>
+									Courses
+								</router-link>
 							</div>
 							<div class="nav-drawer__item">
-								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-								Modules
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'subjects' }"
+								>
+									<img
+										src="@/assets/media/bookshelf.png"
+										alt="bookshelf-icon"
+									/>
+									Modules
+								</router-link>
 							</div>
 							<div class="nav-drawer__item">
-								<ui-icon>supervised_user_circle</ui-icon>
-								Users
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'subjects' }"
+								>
+									<ui-icon>supervised_user_circle</ui-icon>
+									Users
+								</router-link>
 							</div>
 						</div>
 					</nav>
@@ -189,16 +165,17 @@ const courseRoute = computed(() => {
 			margin-right: 8px;
 		}
 	}
+
+	&__link {
+		text-decoration: none;
+		color: $white;
+		display: flex;
+		width: 100%;
+	}
 }
 
-.mdc-drawer {
-	.mdc-deprecated-list-item {
-		margin: 0;
-		border-radius: 0;
-		&--activated {
-			background-color: $accent;
-		}
-	}
+.active {
+	background-color: $accent;
 }
 
 .header-icon {
@@ -217,21 +194,5 @@ const courseRoute = computed(() => {
 
 .main {
 	height: 100%;
-}
-
-.mdc-top-app-bar__section--align-end {
-	min-width: 400px;
-	flex: 0 1 auto;
-	padding-right: 40px;
-	justify-content: flex-start;
-	color: $gray-2;
-}
-
-.mdc-top-app-bar__section .mdc-top-app-bar__section--align-end {
-	min-width: 400px;
-	flex: 0 1 auto;
-	padding-right: 40px;
-	justify-content: flex-start;
-	color: $gray-2;
 }
 </style>
