@@ -69,12 +69,14 @@
 .subject-page {
 	background-color: $gray-4;
 	padding-bottom: 4px;
+	height: calc(100vh - 68px);
+	box-sizing: border-box;
 }
 
 .subject-top-container {
 	min-height: 188px;
 	background-color: $accent;
-	padding-top: 52px;
+	padding-top: 32px;
 	box-sizing: border-box;
 }
 
@@ -122,11 +124,10 @@ h6 {
 .subject-main {
 	border-radius: 10px 10px 0px 0px;
 	background-color: $white;
-	min-height: 100%;
+	// min-height: 100%;
 	border-radius: 10px 10px 0px 0px;
 	margin: -48px 24px 4px;
 	padding-top: 24px;
-	min-height: 100vh;
 }
 
 .subjects-table {

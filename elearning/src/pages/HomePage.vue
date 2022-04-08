@@ -1,12 +1,7 @@
 <template>
 	<div class="homepage">
 		<!-- Drawer -->
-		<ui-drawer
-			class="nav-drawer"
-			type="dismissible"
-			viewport-height
-			nav-id="homepage-menu"
-		>
+		<!-- <ui-drawer class="nav-drawer" type="dismissible" viewport-height nav-id="homepage-menu">
 			<ui-drawer-header class="nav-drawer__header">
 				<div class="nav-drawer__header__left">
 					<img src="@/assets/media/arcanys-logo.png" alt="arcanys-logo" />
@@ -39,11 +34,11 @@
 					</ui-nav-item>
 				</ui-nav>
 			</ui-drawer-content>
-		</ui-drawer>
+		</ui-drawer> -->
 		<!-- Content -->
-		<ui-drawer-app-content class="homepage-content">
-			<!-- App bar -->
-			<ui-top-app-bar
+		<!-- <ui-drawer-app-content class="homepage-content"> -->
+		<!-- App bar -->
+		<!-- <ui-top-app-bar
 				class="homepage-appbar"
 				content-selector=".main"
 				:nav-icon="false"
@@ -52,12 +47,52 @@
 				<template #toolbar="{}">
 					<p>j.smith@arcanys.com</p>
 				</template>
-			</ui-top-app-bar>
-			<!-- App content -->
-			<div class="main">
+			</ui-top-app-bar> -->
+		<!-- App content -->
+		<!-- <div class="main">
 				<router-view />
 			</div>
-		</ui-drawer-app-content>
+		</ui-drawer-app-content> -->
+		<aside>
+			<div class="nav-drawer">
+				<div class="nav-drawer__header">
+					<div class="nav-drawer__header__left">
+						<img src="@/assets/media/arcanys-logo.png" alt="arcanys-logo" />
+						<p class="nav-drawer__title">eLearning Portal</p>
+					</div>
+					<ui-icon class="header-icon">menu</ui-icon>
+				</div>
+				<div class="nav-drawer__content">
+					<nav>
+						<div class="nav-item-header">
+							<p>MANAGEMENT</p>
+						</div>
+						<div class="drawer-items">
+							<div class="nav-drawer__item">
+								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
+								Subjects
+							</div>
+							<div class="nav-drawer__item">
+								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
+								Courses
+							</div>
+							<div class="nav-drawer__item">
+								<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
+								Modules
+							</div>
+							<div class="nav-drawer__item">
+								<ui-icon>supervised_user_circle</ui-icon>
+								Users
+							</div>
+						</div>
+					</nav>
+				</div>
+			</div>
+		</aside>
+		<div class="main">
+			<div class="homepage-appbar"></div>
+			<router-view />
+		</div>
 	</div>
 </template>
 <script setup lang="ts">
@@ -77,24 +112,37 @@ const courseRoute = computed(() => {
 
 .homepage {
 	width: 100%;
+	display: flex;
+	height: 100%;
 }
 
 .homepage-appbar {
 	background-color: $gray-4;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+	height: 64px;
+	width: calc(100vw - 256px);
+	margin-bottom: 4px;
 }
 
 .nav-drawer {
 	border-right: 0;
+	height: 100vh;
+	width: 256px;
+
 	&__header {
 		background-color: $black;
 		display: flex;
+		height: 64px;
 		align-items: center;
 		align-content: center;
 		justify-content: space-between;
+		padding-left: 16px;
+		padding-right: 16px;
 
 		&__left {
 			display: flex;
+			align-items: center;
+			align-content: left;
 		}
 
 		img {
@@ -112,12 +160,26 @@ const courseRoute = computed(() => {
 
 	&__content {
 		background-color: $dark-gray;
+		height: calc(100vh - 64px);
+		box-sizing: border-box;
+		overflow-y: auto;
+
+		p {
+			margin-block-start: 0;
+			margin-block-end: 0;
+		}
+
+		.nav-item-header {
+			color: $white-3;
+			padding: 16px 16px 8px;
+		}
 	}
 
 	&__item {
 		color: $white;
 		font-weight: 400;
 		display: flex;
+		padding: 12px 16px;
 
 		img {
 			margin-right: 12px;
@@ -137,11 +199,6 @@ const courseRoute = computed(() => {
 			background-color: $accent;
 		}
 	}
-}
-
-.nav-item-header {
-	margin-left: 12px;
-	color: $white-3;
 }
 
 .header-icon {
