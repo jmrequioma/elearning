@@ -193,7 +193,7 @@ h6 {
 	margin: -48px 24px 4px;
 	padding-top: 24px;
 	box-sizing: border-box;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .subjects-table {
@@ -205,6 +205,15 @@ h6 {
 		padding: 12px 32px;
 		text-align: left;
 		border-bottom: 2px solid $gray-5;
+		box-sizing: border-box;
+
+		&:nth-child(2) {
+			width: 240px;
+		}
+
+		&:nth-child(3) {
+			width: 220px;
+		}
 	}
 
 	td {
@@ -212,6 +221,7 @@ h6 {
 		padding-right: 12px;
 		text-align: left;
 		border-bottom: 2px solid $gray-5;
+		max-height: 40px;
 	}
 
 	.row-action {
