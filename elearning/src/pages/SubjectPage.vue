@@ -40,7 +40,7 @@
 						<td>2 Courses</td>
 						<td class="row-action">
 							Published
-							<ui-icon-button icon="more_vert"></ui-icon-button>
+							<ui-icon class="icon">more_vert</ui-icon>
 						</td>
 					</tr>
 				</table>
@@ -59,7 +59,7 @@
 					</div>
 					<div class="table-control__pagination">
 						1 - 10 of 20
-						<ui-icon class="icon--disabled">navigate_before</ui-icon>
+						<ui-icon class="icon icon--disabled">navigate_before</ui-icon>
 						<ui-icon class="icon">navigate_next</ui-icon>
 					</div>
 				</div>
@@ -149,6 +149,15 @@ h6 {
 	height: 85%;
 }
 
+.icon {
+	color: $gray-1;
+	cursor: pointer;
+
+	&--disabled {
+		color: $gray-2;
+	}
+}
+
 .subjects-table {
 	width: 100%;
 	color: $gray-1;
@@ -170,8 +179,7 @@ h6 {
 	}
 
 	td {
-		padding-left: 32px;
-		padding-right: 12px;
+		padding: 12px 12px 12px 32px;
 		text-align: left;
 		border-bottom: 2px solid $gray-5;
 		max-height: 40px;
@@ -221,14 +229,6 @@ h6 {
 		justify-content: space-between;
 		color: $gray-2;
 		align-items: center;
-
-		.icon {
-			color: $gray-1;
-		}
-
-		&--disabled {
-			color: $gray-2;
-		}
 	}
 }
 

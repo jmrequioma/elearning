@@ -66,15 +66,50 @@
 			</div>
 		</aside>
 		<div class="main">
-			<div class="homepage-appbar"></div>
+			<div class="homepage-appbar">
+				<div class="user">
+					<div class="user__details">
+						<img src="@/assets/media/avatar.png" class="user__avatar" />
+						j.smith@arcanys.com
+					</div>
+					<div class="user__menu">
+						<ui-icon class="icon" @click="openUserDropdown = true"
+							>keyboard_arrow_down</ui-icon
+						>
+						<ui-menu-anchor absolute>
+							<ui-menu v-model="openUserDropdown">
+								<ui-menuitem>
+									<ui-menuitem-icon
+										><ui-icon outlined
+											>account_circle</ui-icon
+										></ui-menuitem-icon
+									>
+									<ui-menuitem-text>My Profile</ui-menuitem-text>
+								</ui-menuitem>
+								<ui-menuitem>
+									<ui-menuitem-icon><ui-icon>lock</ui-icon></ui-menuitem-icon>
+									<ui-menuitem-text>Change Password</ui-menuitem-text>
+								</ui-menuitem>
+								<ui-menuitem>
+									<ui-menuitem-icon
+										><ui-icon outlined>logout</ui-icon></ui-menuitem-icon
+									>
+									<ui-menuitem-text>Logout</ui-menuitem-text>
+								</ui-menuitem>
+							</ui-menu>
+						</ui-menu-anchor>
+					</div>
+				</div>
+			</div>
 			<router-view />
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+const openUserDropdown = ref(false);
 const route = useRoute();
 const subjectRoute = computed(() => {
 	return route.name === 'subjects';
@@ -93,11 +128,47 @@ const courseRoute = computed(() => {
 }
 
 .homepage-appbar {
+	display: flex;
+	box-sizing: border-box;
+	padding-right: 12px;
+	font-size: 14px;
+	font-weight: 500;
+	color: $gray-2;
+	align-items: center;
+	justify-content: flex-end;
 	background-color: $gray-4;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	height: 64px;
 	width: calc(100vw - 256px);
 	margin-bottom: 4px;
+}
+
+.icon {
+	cursor: pointer;
+}
+
+.user {
+	display: flex;
+	align-items: center;
+	width: 244px;
+	justify-content: space-between;
+
+	&__details {
+		display: flex;
+		align-items: center;
+	}
+
+	&__avatar {
+		border-radius: 50%;
+		height: 40px;
+		width: 40px;
+		border: 1px solid $gray-1;
+		margin-right: 12px;
+	}
+
+	&__menu {
+		position: relative;
+	}
 }
 
 .nav-drawer {
