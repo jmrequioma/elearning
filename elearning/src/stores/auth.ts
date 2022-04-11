@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios-api';
-import { setAccessToken } from '@/utils/auth';
+import { setAccessToken, setAuthHeaderToken } from '@/utils/auth';
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore({
@@ -20,6 +20,7 @@ export const useAuthStore = defineStore({
 				if (res.data) {
 					// set token in local storage
 					setAccessToken(res.data.accessToken);
+					setAuthHeaderToken(res.data.accessToken);
 					this.accessToken = res.data.accessToken;
 				}
 				return res;

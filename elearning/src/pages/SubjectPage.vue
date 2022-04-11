@@ -7,7 +7,7 @@
 					<h6>Subjects</h6>
 				</div>
 				<div class="subject-header__content">
-					<ui-textfield class="search" with-leading-icon>
+					<ui-textfield v-model="search" class="search" with-leading-icon>
 						Search
 						<template #before="{ iconClass }">
 							<span :class="iconClass">
@@ -35,12 +35,18 @@
 						<th>Courses</th>
 						<th>Status</th>
 					</tr>
-					<tr v-for="i in selectedOption" :key="i">
-						<td>Frontend Development</td>
+					<tr
+						v-for="subject in subjectsStore.fetchedSubjects"
+						:key="subject.id"
+					>
+						<td>{{ subject.title }}</td>
 						<td>2 Courses</td>
 						<td class="row-action">
-							Published
-							<ui-icon class="icon">more_vert</ui-icon>
+							<template v-if="subject.isPublished"> Published </template>
+							<template v-else> Draft </template>
+							<div class="row-action__menu">
+								<DropdownMenu :items="populateDropdownItems()" />
+							</div>
 						</td>
 					</tr>
 				</table>
@@ -48,9 +54,9 @@
 			<div class="table-control">
 				<div class="table-control__container">
 					<div class="table-control__dropdown">
-						<label for="cars">Items per page:</label>
+						<label for="items">Items per page:</label>
 						<div class="select">
-							<select name="cars" v-model="selectedOption">
+							<select name="items" v-model="selectedLimit">
 								<option v-for="option in options" :value="option" :key="option">
 									{{ option }}
 								</option>
@@ -58,7 +64,7 @@
 						</div>
 					</div>
 					<div class="table-control__pagination">
-						1 - 10 of 20
+						1 - 10 of {{ subjectsStore.totalCount }}
 						<ui-icon class="icon icon--disabled">navigate_before</ui-icon>
 						<ui-icon class="icon">navigate_next</ui-icon>
 					</div>
@@ -69,10 +75,29 @@
 </template>
 <script setup lang="ts">
 import { PAGINATION_OPTIONS } from '@/constants';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useSubjectsStore } from '@/stores/subject';
+import DropdownMenu from '@/components/DropdownMenu.vue';
 
 const options = PAGINATION_OPTIONS;
-const selectedOption = ref(options[0]);
+const search = ref('');
+const selectedLimit = ref(25);
+const subjectsStore = useSubjectsStore();
+
+function populateDropdownItems() {
+	return ['Publish', 'Edit', 'Delete'];
+}
+
+onMounted(() => {
+	fetchSubjects();
+});
+
+function fetchSubjects() {
+	let data = {
+		limit: selectedLimit.value,
+	};
+	subjectsStore.fetchSubjects(data);
+}
 </script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';
@@ -190,6 +215,11 @@ h6 {
 		align-items: center;
 		align-content: center;
 		justify-content: space-between;
+		height: 40px;
+
+		&__menu {
+			position: relative;
+		}
 	}
 }
 
@@ -214,7 +244,7 @@ h6 {
 		align-items: center;
 		align-content: center;
 		padding-right: 24px;
-		width: 332px;
+		width: 324px;
 		justify-content: space-between;
 	}
 
@@ -237,7 +267,7 @@ select {
 	appearance: none;
 	background-color: transparent;
 	border: none;
-	padding: 4px 24px 4px 0;
+	padding: 4px 20px 4px 4px;
 	margin: 0;
 	width: 100%;
 	font-family: inherit;

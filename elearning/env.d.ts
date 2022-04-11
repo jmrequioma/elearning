@@ -19,6 +19,15 @@ type User = {
 	updatedAt: string;
 };
 
+type Subject = {
+	id: number;
+	title: string;
+	isPublished: string;
+	createdAt: string;
+	updatedAt: string;
+	ownerId: number;
+};
+
 type LoginBody = {
 	email: string;
 	password: string;

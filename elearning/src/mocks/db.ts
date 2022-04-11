@@ -17,6 +17,15 @@ export const db = factory({
 		updatedAt: String,
 		accessToken: faker.datatype.uuid, // should be taken from the backend
 	},
+
+	subject: {
+		id: primaryKey(Number),
+		title: String,
+		isPublished: Boolean,
+		createdAt: String,
+		updatedAt: String,
+		ownerId: Number,
+	},
 });
 
 function seedUsers() {
@@ -25,8 +34,26 @@ function seedUsers() {
 	});
 }
 
+function seedSubjects() {
+	const user = users[0];
+
+	// create 10 subjects
+	for (let i = 0; i < 10; i++) {
+		const id = i + 1;
+		db.subject.create({
+			id: id,
+			title: faker.random.words(2),
+			isPublished: true,
+			createdAt: '2022-03-01T20:35:47.402Z',
+			updatedAt: '2022-03-01T20:35:47.402Z',
+			ownerId: user.id,
+		});
+	}
+}
+
 function seed() {
 	seedUsers();
+	seedSubjects();
 }
 
 seed();
