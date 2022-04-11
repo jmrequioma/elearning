@@ -51,6 +51,7 @@
 					input-type="password"
 					outlined
 					:pattern="notBlankFormat"
+					@keyup.enter="changePassword"
 					helper-text-id="pword-helper-text"
 				>
 					Confirm Password

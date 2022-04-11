@@ -28,105 +28,52 @@
 			</div>
 		</div>
 		<div class="subject-main">
-			<table class="subjects-table">
-				<tr>
-					<th>Title</th>
-					<th>Courses</th>
-					<th>Status</th>
-				</tr>
-				<tr>
-					<td>Frontend Development</td>
-					<td>2 Courses</td>
-					<td class="row-action">
-						Published
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>UI/UX</td>
-					<td>6 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-				<tr>
-					<td>Backend Development</td>
-					<td>4 Courses</td>
-					<td class="row-action">
-						Draft
-						<ui-icon-button icon="more_vert"></ui-icon-button>
-					</td>
-				</tr>
-			</table>
+			<div class="table-container">
+				<table class="subjects-table">
+					<tr>
+						<th>Title</th>
+						<th>Courses</th>
+						<th>Status</th>
+					</tr>
+					<tr v-for="i in selectedOption" :key="i">
+						<td>Frontend Development</td>
+						<td>2 Courses</td>
+						<td class="row-action">
+							Published
+							<ui-icon-button icon="more_vert"></ui-icon-button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="table-control">
+				<div class="table-control__container">
+					<div class="table-control__dropdown">
+						<label for="cars">Items per page:</label>
+						<div class="select">
+							<select name="cars" v-model="selectedOption">
+								<option v-for="option in options" :value="option" :key="option">
+									{{ option }}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="table-control__pagination">
+						1 - 10 of 20
+						<ui-icon class="icon--disabled">navigate_before</ui-icon>
+						<ui-icon class="icon">navigate_next</ui-icon>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { PAGINATION_OPTIONS } from '@/constants';
+import { ref } from 'vue';
+
+const options = PAGINATION_OPTIONS;
+const selectedOption = ref(options[0]);
+</script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';
 
@@ -193,7 +140,13 @@ h6 {
 	margin: -48px 24px 4px;
 	padding-top: 24px;
 	box-sizing: border-box;
+	position: relative;
+}
+
+.table-container {
 	overflow-y: auto;
+	margin-right: 20px;
+	height: 85%;
 }
 
 .subjects-table {
@@ -229,6 +182,117 @@ h6 {
 		align-items: center;
 		align-content: center;
 		justify-content: space-between;
+	}
+}
+
+.table-control {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	position: absolute;
+	font-size: 12px;
+	border-top: 1px solid $gray-4;
+	width: 100%;
+	bottom: 0;
+	height: 40px;
+
+	p,
+	label {
+		color: $gray-2;
+	}
+
+	&__container {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		padding-right: 24px;
+		width: 332px;
+		justify-content: space-between;
+	}
+
+	&__dropdown {
+		display: flex;
+		align-items: center;
+	}
+
+	&__pagination {
+		display: flex;
+		width: 140px;
+		justify-content: space-between;
+		color: $gray-2;
+		align-items: center;
+
+		.icon {
+			color: $gray-1;
+		}
+
+		&--disabled {
+			color: $gray-2;
+		}
+	}
+}
+
+select {
+	// A reset of styles, including removing the default dropdown arrow
+	appearance: none;
+	background-color: transparent;
+	border: none;
+	padding: 4px 24px 4px 0;
+	margin: 0;
+	width: 100%;
+	font-family: inherit;
+	font-size: 12px;
+	border-bottom: 1px solid $gray-1;
+	color: $gray-1;
+	cursor: inherit;
+	line-height: inherit;
+
+	// Stack above custom arrow
+	z-index: 1;
+	&::-ms-expand {
+		display: none;
+	}
+
+	// Remove focus outline, will add on alternate element
+	outline: none;
+
+	// Custom arrow
+	&:not(.select--multiple)::after {
+		content: '';
+		justify-self: end;
+		width: 0.8em;
+		height: 0.5em;
+		background-color: var(--select-arrow);
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	}
+}
+
+.select {
+	display: grid;
+	grid-template-areas: 'select';
+	align-items: center;
+	font-size: 12px;
+	position: relative;
+
+	select {
+		grid-area: select;
+	}
+
+	padding: 0.25em 0.5em;
+
+	font-size: 1.25rem;
+	cursor: pointer;
+	line-height: 1.1;
+
+	// Custom arrow
+	&::after {
+		grid-area: select;
+		content: '';
+		justify-self: end;
+		width: 10px;
+		height: 6px;
+		background-color: $gray-1;
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
 	}
 }
 </style>

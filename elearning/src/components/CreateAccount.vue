@@ -102,6 +102,7 @@
 					id="pword-helper-text"
 					visible
 					validMsg
+					@keyup.enter="register"
 				>
 					<small class="alert">{{ passwordErrorMsg }}</small>
 				</ui-textfield-helper>
