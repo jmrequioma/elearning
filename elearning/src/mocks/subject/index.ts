@@ -2,14 +2,14 @@ import { rest } from 'msw';
 import { API_URL } from '@/constants';
 import { DELAY } from '@/mocks/constants';
 import { db } from '@/mocks/db';
-import { checkAuth, extractAccessToken } from '../utils';
+import { validateAuth } from '../utils';
 
 const DEFAULT_LIMIT = 25;
 const DEFAULT_PAGE = 1;
 
 export const subjectHandlers = [
 	rest.get(`${API_URL}/subjects`, (req, res, ctx) => {
-		const accessToken = extractAccessToken(req);
+		const auth = validateAuth(req);
 		const limit = Number(req.url.searchParams.get('limit')) || DEFAULT_LIMIT;
 		const page = Number(req.url.searchParams.get('page')) || DEFAULT_PAGE;
 		const keyword = req.url.searchParams.get('keyword') || '';
@@ -17,26 +17,8 @@ export const subjectHandlers = [
 
 		const skip = (page - 1) * limit;
 
-		if (!accessToken) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(401),
-				ctx.json({
-					errorMessage: 'No token provided.',
-				})
-			);
-		}
-
-		const user = checkAuth(accessToken);
-
-		if (!user) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(401),
-				ctx.json({
-					errorMessage: 'Unauthorized user.',
-				})
-			);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
 
 		// return the list of subjects
