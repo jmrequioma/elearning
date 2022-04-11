@@ -23,6 +23,7 @@
 			id="password"
 			class="field"
 			input-type="password"
+			@keyup.enter="login"
 			outlined
 			with-trailing-icon
 		>
