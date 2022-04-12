@@ -7,7 +7,7 @@
 					<h6>Subjects</h6>
 				</div>
 				<div class="subject-header__content">
-					<ui-textfield v-model="search" class="search" with-leading-icon>
+					<ui-textfield v-model.trim="search" class="search" with-leading-icon>
 						Search
 						<template #before="{ iconClass }">
 							<span :class="iconClass">
@@ -15,10 +15,35 @@
 							</span>
 						</template>
 					</ui-textfield>
-					<ui-icon-button
-						class="filter-btn"
-						icon="filter_list"
-					></ui-icon-button>
+					<div class="dropdown-container">
+						<ui-icon-button
+							class="filter-btn"
+							icon="filter_list"
+							@click="openFilter = true"
+						></ui-icon-button>
+						<ui-menu-anchor absolute>
+							<ui-menu v-model="openFilter">
+								<ui-menuitem>
+									<ui-menuitem-text>Filter by Status</ui-menuitem-text>
+								</ui-menuitem>
+								<ui-menuitem-divider></ui-menuitem-divider>
+								<ui-menuitem>
+									<ui-checkbox
+										v-model="checkedPublished"
+										input-id="published"
+									></ui-checkbox>
+									<label for="published">Published</label>
+								</ui-menuitem>
+								<ui-menuitem>
+									<ui-checkbox
+										v-model="checkedDraft"
+										input-id="draft"
+									></ui-checkbox>
+									<label for="draft">Draft</label>
+								</ui-menuitem>
+							</ui-menu>
+						</ui-menu-anchor>
+					</div>
 				</div>
 				<div class="subject-header__content">
 					<ui-button class="add-subject-btn" unelevated
@@ -45,7 +70,7 @@
 							<template v-if="subject.isPublished"> Published </template>
 							<template v-else> Draft </template>
 							<div class="row-action__menu">
-								<DropdownMenu :items="populateDropdownItems()" />
+								<DropdownMenu :items="populateDropdownItems(subject)" />
 							</div>
 						</td>
 					</tr>
@@ -85,17 +110,9 @@
 import { onMounted, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { usePagination } from '@/composables/pagination';
+import type { Subject } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
-
-type Subject = {
-	id: number;
-	title: string;
-	isPublished: string;
-	createdAt: string;
-	updatedAt: string;
-	ownerId: number;
-	courses: Array<object>;
-};
+import _ from 'lodash';
 
 const search = ref('');
 const {
@@ -109,31 +126,61 @@ const {
 	goPrev,
 	goNext,
 } = usePagination();
+const openFilter = ref(false);
 const subjectsStore = useSubjectsStore();
+const checkedPublished = ref(false);
+const checkedDraft = ref(false);
 
-watch(currPage, () => {
-	fetchSubjects();
-});
+watch(
+	currPage,
+	_.debounce(() => {
+		fetchSubjects();
+	}, 500)
+);
 
-watch(selectedLimit, () => {
-	// reset the page to 1
-	currPage.value = 1;
-	fetchSubjects();
-});
+watch(
+	[selectedLimit, checkedPublished, checkedDraft, search],
+	_.debounce(() => {
+		// reset the page to 1
+		currPage.value = 1;
+		fetchSubjects();
+	}, 500)
+);
 
 onMounted(() => {
 	fetchSubjects();
 });
 
 function fetchSubjects() {
-	let data = {
+	type filter = {
+		limit: number;
+		page: number;
+		keyword: string;
+		published?: boolean;
+	};
+
+	let data: filter = {
 		limit: selectedLimit.value,
 		page: currPage.value,
+		keyword: search.value,
 	};
+
+	if (checkedPublished.value && !checkedDraft.value) {
+		// fetch published only
+		data['published'] = checkedPublished.value;
+	}
+
+	if (!checkedPublished.value && checkedDraft.value) {
+		// fetch draft only
+		data['published'] = checkedPublished.value;
+	}
 	subjectsStore.fetchSubjects(data);
 }
 
-function populateDropdownItems() {
+function populateDropdownItems(subject: Subject) {
+	if (subject.isPublished) {
+		return ['Unpublish', 'Edit', 'Delete'];
+	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 

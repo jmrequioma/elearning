@@ -81,11 +81,16 @@ function seedRelatedEntities() {
 
 	// create 100 subjects
 	for (let i = 0; i < 100; i++) {
+		let published = true;
+		if (i % 2 != 0) {
+			// make alternating published/draft statuses
+			published = false;
+		}
 		const id = i + 1;
 		db.subject.create({
 			id: id,
-			title: `${faker.random.word()} Subject`,
-			isPublished: true,
+			title: `${faker.unique(faker.random.word)} Subject`,
+			isPublished: published,
 			createdAt: '2022-03-01T20:35:47.402Z',
 			updatedAt: '2022-03-01T20:35:47.402Z',
 			ownerId: user.id,

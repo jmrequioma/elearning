@@ -1,5 +1,6 @@
 import apiClient from '@/lib/axios-api';
 import { setAccessToken, setAuthHeaderToken } from '@/utils/auth';
+import type { LoginBody, SignUpBody, ChangePasswordBody } from '@/types';
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore({
