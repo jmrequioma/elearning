@@ -82,13 +82,11 @@
 	</div>
 </template>
 <script setup lang="ts">
-// import { PAGINATION_OPTIONS } from '@/constants';
 import { onMounted, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { usePagination } from '@/composables/pagination';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 
-// const options = PAGINATION_OPTIONS;
 const search = ref('');
 const {
 	options,
@@ -104,12 +102,10 @@ const {
 const subjectsStore = useSubjectsStore();
 
 watch(currPage, () => {
-	console.log('currpage change');
 	fetchSubjects();
 });
 
 watch(selectedLimit, () => {
-	console.log('selectedlimit change');
 	// reset the page to 1
 	currPage.value = 1;
 	fetchSubjects();
