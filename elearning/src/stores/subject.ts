@@ -1,5 +1,6 @@
 import apiClient from '@/lib/axios-api';
 import { defineStore } from 'pinia';
+import type { Subject, SubjectBody } from '@/types/index';
 
 export const useSubjectsStore = defineStore({
 	id: 'subject',
@@ -27,6 +28,14 @@ export const useSubjectsStore = defineStore({
 				return res;
 			} catch (error) {
 				console.error('fetching subjects failed', error);
+			}
+		},
+
+		async updateSubject(data: SubjectBody) {
+			try {
+				await apiClient.patch(`/subjects/${data.id}`, data);
+			} catch (error) {
+				console.error('updating subject failed ', error);
 			}
 		},
 	},

@@ -2,19 +2,27 @@
 	<ui-icon class="icon" @click="isOpen = true">more_vert</ui-icon>
 	<ui-menu-anchor absolute>
 		<ui-menu v-model="isOpen">
-			<ui-menuitem v-for="item in items" :key="item">
-				<ui-menuitem-text>{{ item }}</ui-menuitem-text>
-			</ui-menuitem>
+			<template v-for="item in items" :key="item">
+				<ui-menuitem @click="handleAction(item as string)">
+					<ui-menuitem-text>{{ item }}</ui-menuitem-text>
+				</ui-menuitem>
+			</template>
 		</ui-menu>
 	</ui-menu-anchor>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps({
+defineProps({
 	items: Array,
 });
+
+const emit = defineEmits(['handleAction']);
 const isOpen = ref(false);
+
+function handleAction(action: string) {
+	emit('handleAction', action);
+}
 </script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';

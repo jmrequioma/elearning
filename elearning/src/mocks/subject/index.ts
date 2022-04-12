@@ -8,6 +8,7 @@ const DEFAULT_LIMIT = 25;
 const DEFAULT_PAGE = 1;
 
 export const subjectHandlers = [
+	// get subjects
 	rest.get(`${API_URL}/subjects`, (req, res, ctx) => {
 		const auth = validateAuth(req);
 		const limit = Number(req.url.searchParams.get('limit')) || DEFAULT_LIMIT;
@@ -61,5 +62,32 @@ export const subjectHandlers = [
 		};
 
 		return res(ctx.delay(DELAY), ctx.status(200), ctx.json(response));
+	}),
+
+	// update subject
+	rest.patch(`${API_URL}/subjects/:id`, (req, res, ctx) => {
+		validateAuth(req);
+		const { title, isPublished } = req.body as {
+			title: string;
+			isPublished: boolean;
+		};
+		const id = Number(req.params.id);
+
+		const newSubject = db.subject.update({
+			where: { id: { equals: id } },
+			data: { title, isPublished },
+		});
+
+		if (!newSubject) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Subject not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(newSubject));
 	}),
 ];

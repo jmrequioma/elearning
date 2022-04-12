@@ -15,11 +15,17 @@ export type User = {
 export type Subject = {
 	id: number;
 	title: string;
-	isPublished: string;
+	isPublished: boolean;
 	createdAt: string;
 	updatedAt: string;
 	ownerId: number;
-	courses: Array<object>;
+	courses?: Array<object>;
+};
+
+export type SubjectBody = {
+	id: number;
+	title: string;
+	isPublished: boolean;
 };
 
 export type LoginBody = {

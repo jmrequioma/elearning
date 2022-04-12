@@ -63,6 +63,7 @@
 					<tr
 						v-for="subject in subjectsStore.fetchedSubjects"
 						:key="subject.id"
+						@click="selectSubject(subject)"
 					>
 						<td>{{ subject.title }}</td>
 						<td>{{ getCoursesCount(subject) }} Courses</td>
@@ -70,7 +71,10 @@
 							<template v-if="subject.isPublished"> Published </template>
 							<template v-else> Draft </template>
 							<div class="row-action__menu">
-								<DropdownMenu :items="populateDropdownItems(subject)" />
+								<DropdownMenu
+									:items="populateDropdownItems(subject)"
+									@handle-action="handleAction"
+								/>
 							</div>
 						</td>
 					</tr>
@@ -107,7 +111,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { usePagination } from '@/composables/pagination';
 import type { Subject } from '@/types';
@@ -126,6 +130,15 @@ const {
 	goPrev,
 	goNext,
 } = usePagination();
+
+const selectedSubject: Subject = reactive({
+	id: 0,
+	title: '',
+	isPublished: false,
+	createdAt: '',
+	updatedAt: '',
+	ownerId: 0,
+});
 const openFilter = ref(false);
 const subjectsStore = useSubjectsStore();
 const checkedPublished = ref(false);
@@ -185,7 +198,32 @@ function populateDropdownItems(subject: Subject) {
 }
 
 function getCoursesCount(subject: Subject) {
-	return subject.courses.length;
+	return subject.courses?.length;
+}
+
+async function handleSubjectStatus() {
+	// publish/unpublish the subject
+	let data = {
+		id: selectedSubject.id,
+		title: selectedSubject.title,
+		isPublished: !selectedSubject.isPublished,
+	};
+	await subjectsStore.updateSubject(data);
+	fetchSubjects();
+}
+
+function handleAction(action: string) {
+	if (action === 'Publish' || action === 'Unpublish') {
+		handleSubjectStatus();
+	} else if (action === 'Edit') {
+		// handle Edit
+	}
+}
+
+function selectSubject(subject: Subject) {
+	selectedSubject.id = subject.id;
+	selectedSubject.title = subject.title;
+	selectedSubject.isPublished = subject.isPublished;
 }
 </script>
 <style scoped lang="scss">
