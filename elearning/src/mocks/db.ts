@@ -38,7 +38,7 @@ function seedSubjects() {
 	const user = users[0];
 
 	// create 10 subjects
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 100; i++) {
 		const id = i + 1;
 		db.subject.create({
 			id: id,

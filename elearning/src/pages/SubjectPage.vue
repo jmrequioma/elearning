@@ -64,9 +64,17 @@
 						</div>
 					</div>
 					<div class="table-control__pagination">
-						1 - 10 of {{ subjectsStore.totalCount }}
-						<ui-icon class="icon icon--disabled">navigate_before</ui-icon>
-						<ui-icon class="icon">navigate_next</ui-icon>
+						{{ currStart }} - {{ currTotal }} of {{ subjectsStore.totalCount }}
+						<ui-icon
+							:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
+							@click="goPrev()"
+							>navigate_before</ui-icon
+						>
+						<ui-icon
+							:class="[nextIsDisabled ? 'icon--disabled' : '', 'icon']"
+							@click="goNext()"
+							>navigate_next</ui-icon
+						>
 					</div>
 				</div>
 			</div>
@@ -74,15 +82,38 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { PAGINATION_OPTIONS } from '@/constants';
-import { onMounted, ref } from 'vue';
+// import { PAGINATION_OPTIONS } from '@/constants';
+import { onMounted, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
+import { usePagination } from '@/composables/pagination';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 
-const options = PAGINATION_OPTIONS;
+// const options = PAGINATION_OPTIONS;
 const search = ref('');
-const selectedLimit = ref(25);
+const {
+	options,
+	selectedLimit,
+	currPage,
+	currTotal,
+	currStart,
+	prevIsDisabled,
+	nextIsDisabled,
+	goPrev,
+	goNext,
+} = usePagination();
 const subjectsStore = useSubjectsStore();
+
+watch(currPage, () => {
+	console.log('currpage change');
+	fetchSubjects();
+});
+
+watch(selectedLimit, () => {
+	console.log('selectedlimit change');
+	// reset the page to 1
+	currPage.value = 1;
+	fetchSubjects();
+});
 
 function populateDropdownItems() {
 	return ['Publish', 'Edit', 'Delete'];
@@ -95,6 +126,7 @@ onMounted(() => {
 function fetchSubjects() {
 	let data = {
 		limit: selectedLimit.value,
+		page: currPage.value,
 	};
 	subjectsStore.fetchSubjects(data);
 }
@@ -170,7 +202,6 @@ h6 {
 
 .table-container {
 	overflow-y: auto;
-	margin-right: 20px;
 	height: 85%;
 }
 
