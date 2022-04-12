@@ -26,6 +26,7 @@ type Subject = {
 	createdAt: string;
 	updatedAt: string;
 	ownerId: number;
+	courses: Array<object>;
 };
 
 type LoginBody = {

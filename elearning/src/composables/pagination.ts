@@ -10,12 +10,14 @@ export function usePagination() {
 
 	const currTotal = computed(() => {
 		// current total count for the currently fetched on pagination display
-		return currPage.value * selectedLimit.value;
+		return subjectsStore.fetchedSubjects?.length
+			? currPage.value * selectedLimit.value
+			: 0;
 	});
 
 	const currStart = computed(() => {
 		// current start count for the currently fetched on pagination display
-		return currTotal.value - selectedLimit.value + 1;
+		return currTotal.value ? currTotal.value - selectedLimit.value + 1 : 0;
 	});
 
 	const prevIsDisabled = computed(() => {

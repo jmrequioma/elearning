@@ -40,7 +40,7 @@
 						:key="subject.id"
 					>
 						<td>{{ subject.title }}</td>
-						<td>2 Courses</td>
+						<td>{{ getCoursesCount(subject) }} Courses</td>
 						<td class="row-action">
 							<template v-if="subject.isPublished"> Published </template>
 							<template v-else> Draft </template>
@@ -87,6 +87,16 @@ import { useSubjectsStore } from '@/stores/subject';
 import { usePagination } from '@/composables/pagination';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 
+type Subject = {
+	id: number;
+	title: string;
+	isPublished: string;
+	createdAt: string;
+	updatedAt: string;
+	ownerId: number;
+	courses: Array<object>;
+};
+
 const search = ref('');
 const {
 	options,
@@ -111,10 +121,6 @@ watch(selectedLimit, () => {
 	fetchSubjects();
 });
 
-function populateDropdownItems() {
-	return ['Publish', 'Edit', 'Delete'];
-}
-
 onMounted(() => {
 	fetchSubjects();
 });
@@ -125,6 +131,14 @@ function fetchSubjects() {
 		page: currPage.value,
 	};
 	subjectsStore.fetchSubjects(data);
+}
+
+function populateDropdownItems() {
+	return ['Publish', 'Edit', 'Delete'];
+}
+
+function getCoursesCount(subject: Subject) {
+	return subject.courses.length;
 }
 </script>
 <style scoped lang="scss">
