@@ -4,7 +4,7 @@
 		<ui-menu v-model="isOpen">
 			<template v-for="item in items" :key="item">
 				<ui-menuitem @click="handleAction(item as string)">
-					<ui-menuitem-text>{{ item }}</ui-menuitem-text>
+					<ui-menuitem-text id="menu-item-text">{{ item }}</ui-menuitem-text>
 				</ui-menuitem>
 			</template>
 		</ui-menu>

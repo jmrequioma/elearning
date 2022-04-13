@@ -3,15 +3,12 @@ import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import { users } from '@/mocks/mockedData';
 import { useAuthStore } from '@/stores/auth';
-
-import ChangePassword from '../ChangePassword.vue';
 import faker from '@faker-js/faker';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
+import type { MockStorage } from '@/types/index';
 
-type MockStorage = {
-	[key: string]: string;
-};
+import ChangePassword from '../ChangePassword.vue';
 
 describe('ChangePassword', () => {
 	let wrapper: VueWrapper;

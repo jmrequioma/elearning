@@ -47,3 +47,7 @@ export type ChangePasswordBody = {
 	password: string;
 	verifyPassword: string;
 };
+
+export type MockStorage = {
+	[key: string]: string;
+};
