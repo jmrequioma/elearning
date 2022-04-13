@@ -3,9 +3,10 @@ import { useAuthStore } from '@/stores/auth';
 import authRoutes from './auth/index';
 import internalRoutes from './internal/index';
 
+export const routes = [...authRoutes, ...internalRoutes];
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
-	routes: [...authRoutes, ...internalRoutes],
+	routes: routes,
 });
 
 router.beforeEach(async (to, from) => {

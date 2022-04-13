@@ -53,7 +53,10 @@
 			</div>
 		</div>
 		<div class="subject-main">
-			<div class="table-container">
+			<div v-if="search && !subjectsStore.fetchedSubjects.length" class="empty">
+				No results found.
+			</div>
+			<div v-else class="table-container">
 				<table class="subjects-table">
 					<tr>
 						<th>Title</th>
@@ -450,5 +453,10 @@ select {
 		background-color: $gray-1;
 		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
 	}
+}
+
+.empty {
+	display: flex;
+	justify-content: center;
 }
 </style>
