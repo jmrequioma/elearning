@@ -39,12 +39,6 @@ const model = {
 		updatedAt: String,
 		subjectId: Number,
 		authorId: Number,
-		// subject: {
-		//   id: Number,
-		//   title: String,
-		// },
-		// author: String,
-		// duration: Number,
 	},
 };
 

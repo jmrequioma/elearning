@@ -11,3 +11,13 @@ export const ROLES = [
 ];
 export const TOKEN_SECRET = import.meta.env.VITE_APP_TOKEN_SECRET;
 export const PAGINATION_OPTIONS = [10, 25, 100];
+export const STATUS_OPTIONS = [
+	{
+		label: 'Draft',
+		value: 'draft',
+	},
+	{
+		label: 'Published',
+		value: 'published',
+	},
+];

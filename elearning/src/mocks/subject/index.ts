@@ -90,4 +90,41 @@ export const subjectHandlers = [
 
 		return res(ctx.delay(DELAY), ctx.json(newSubject));
 	}),
+
+	// add subject
+	rest.post(`${API_URL}/subjects`, (req, res, ctx) => {
+		validateAuth(req);
+		const { title } = req.body as { title: string };
+
+		const existingSubject = db.subject.findFirst({
+			where: {
+				title: {
+					equals: title,
+				},
+			},
+		});
+
+		if (existingSubject) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(409),
+				ctx.json({
+					errorMessage: 'Title must be unique.',
+				})
+			);
+		}
+
+		const lastId = db.subject.count();
+
+		const date = new Date().toISOString();
+		const subject = {
+			id: lastId + 1,
+			title,
+			isPublished: false,
+			createdAt: date,
+			updatedAt: date,
+		};
+		const newSubject = db.subject.create({ ...subject, courses: [] });
+		return res(ctx.delay(DELAY), ctx.json(newSubject));
+	}),
 ];

@@ -36,8 +36,12 @@ export const useSubjectsStore = defineStore({
 				const res = await apiClient.patch(`/subjects/${data.id}`, data);
 				return res;
 			} catch (error) {
-				console.error('updating subject failed ', error);
+				console.error('updating subject failed', error);
 			}
+		},
+
+		async createSubject(data: SubjectBody) {
+			return await apiClient.post('/subjects', data);
 		},
 	},
 });

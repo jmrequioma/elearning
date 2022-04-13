@@ -52,7 +52,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="subject-main">
+		<div class="subject-page__main">
 			<div v-if="search && !subjectsStore.fetchedSubjects.length" class="empty">
 				No results found.
 			</div>
@@ -230,13 +230,24 @@ function selectSubject(subject: Subject) {
 }
 </script>
 <style scoped lang="scss">
-@import '../assets/scss/abstract/variables.scss';
+@import '@/assets/scss/abstract/variables.scss';
 
 .subject-page {
 	background-color: $gray-4;
 	padding-bottom: 4px;
 	height: calc(100vh - 68px);
 	box-sizing: border-box;
+
+	&__main {
+		border-radius: 10px 10px 0px 0px;
+		background-color: $white;
+		height: calc(100vh - 216px);
+		border-radius: 10px 10px 0px 0px;
+		margin: -48px 24px 4px;
+		padding-top: 24px;
+		box-sizing: border-box;
+		position: relative;
+	}
 }
 
 .subject-top-container {
@@ -285,17 +296,6 @@ h6 {
 	border-radius: 25px;
 	background-color: $white;
 	width: 332px;
-}
-
-.subject-main {
-	border-radius: 10px 10px 0px 0px;
-	background-color: $white;
-	height: calc(100vh - 216px);
-	border-radius: 10px 10px 0px 0px;
-	margin: -48px 24px 4px;
-	padding-top: 24px;
-	box-sizing: border-box;
-	position: relative;
 }
 
 .table-container {

@@ -112,7 +112,7 @@ import { useRoute } from 'vue-router';
 const openUserDropdown = ref(false);
 const route = useRoute();
 const subjectRoute = computed(() => {
-	return route.name === 'subjects';
+	return route.name === 'subjects' || route.name === 'add-subject';
 });
 const courseRoute = computed(() => {
 	return route.name === 'courses';

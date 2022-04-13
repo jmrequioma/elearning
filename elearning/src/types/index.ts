@@ -23,9 +23,9 @@ export type Subject = {
 };
 
 export type SubjectBody = {
-	id: number;
-	title: string;
-	isPublished: boolean;
+	id?: number;
+	title?: string;
+	isPublished?: boolean;
 };
 
 export type LoginBody = {
