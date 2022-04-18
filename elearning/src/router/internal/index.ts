@@ -23,6 +23,17 @@ export default [
 					hideWhenAuthenticated: false,
 				},
 			},
+			{
+				path: '/edit-subject/:id',
+				name: 'edit-subject',
+				component: () => import('@/pages/subject/SubjectDetailsPage.vue'),
+				meta: {
+					title: 'Edit Subject - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+				props: true,
+			},
 		],
 	},
 ];

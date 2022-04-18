@@ -4,7 +4,7 @@
 			<div class="subject-header">
 				<div class="subject-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6>Add a subject</h6>
+					<h6>{{ headerTitle }}</h6>
 				</div>
 				<div class="subject-header__content">
 					<ui-button class="save-btn" unelevated @click="save">Save</ui-button>
@@ -27,6 +27,7 @@
 						required
 						pattern=".{1,}"
 						helper-text-id="title-helper-text"
+						@keyup.enter="save"
 					>
 						Title
 					</ui-textfield>
@@ -41,9 +42,10 @@
 				</div>
 				<ui-select
 					class="field"
+					v-model="selectedStatus"
 					outlined
 					required
-					disabled
+					:disabled="isAddSubjectRoute"
 					fullwidth
 					:options="options"
 				>
@@ -51,17 +53,81 @@
 				</ui-select>
 			</div>
 		</div>
+		<AlertModal v-if="showSuccessModal">
+			<template v-slot:content>
+				<p>{{ successMessage }}</p>
+			</template>
+			<template v-slot:actions>
+				<ui-button @click="$router.push({ name: 'subjects' })">Ok</ui-button>
+			</template>
+		</AlertModal>
 	</div>
 </template>
 <script setup lang="ts">
 import { STATUS_OPTIONS } from '@/constants';
-import { ref } from 'vue';
+import { computed, onMounted, ref, reactive, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
+import AlertModal from '@/components/AlertModal.vue';
+import { useRoute, onBeforeRouteLeave } from 'vue-router';
+import type { Subject } from '@/types';
 
 const options = [...STATUS_OPTIONS];
 const title = ref('');
+const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
+const showSuccessModal = ref(false);
+const route = useRoute();
+const subjectId = ref(0);
+let fetchedSubject: Subject = reactive({
+	id: subjectId,
+	title: '',
+	isPublished: false,
+	createdAt: '',
+	updatedAt: '',
+	ownerId: 0,
+});
+
+const headerTitle = computed(() => {
+	if (isAddSubjectRoute.value) {
+		return 'Add a subject';
+	} else {
+		return fetchedSubject.title;
+	}
+});
+
+const isAddSubjectRoute = computed(() => {
+	return route.name?.toString() === 'add-subject';
+});
+
+const successMessage = computed(() => {
+	if (isAddSubjectRoute.value) {
+		return `Successfully created a subject named ${title.value}.`;
+	} else {
+		return 'Subject is successfully updated.';
+	}
+});
+
+const unsavedChanges = computed(() => {
+	const status = selectedStatus.value === 'Draft' ? false : true;
+	if (!isAddSubjectRoute.value) {
+		return (
+			title.value != fetchedSubject.title ||
+			status != fetchedSubject.isPublished
+		);
+	}
+	return false;
+});
+
+onMounted(() => {
+	// check if page is for adding or editing
+	if (!isAddSubjectRoute.value) {
+		const id = route.params.id;
+		subjectId.value = parseInt(id.toString());
+		// fetch specific subject
+		fetchSpecificSubject();
+	}
+});
 
 function validateTitle() {
 	if (title.value) {
@@ -70,20 +136,72 @@ function validateTitle() {
 		titleErrorMsg.value = 'Title is required.';
 	}
 }
-async function save() {
-	validateTitle();
-	if (!titleErrorMsg.value) {
-		try {
-			const res = await subjectsStore.createSubject({ title: title.value });
-			console.log(res);
-		} catch (error) {
-			console.error('creating subject failed', error);
-			if ((error as Error).message.includes('409')) {
-				titleErrorMsg.value = 'Subject already exists.';
-			}
+
+async function createSubject() {
+	try {
+		const res = await subjectsStore.createSubject({ title: title.value });
+		if (res) {
+			showSuccessModal.value = true;
+		}
+	} catch (error) {
+		console.error('creating subject failed', error);
+		if ((error as Error).message.includes('409')) {
+			titleErrorMsg.value = 'Subject already exists.';
 		}
 	}
 }
+
+function save() {
+	validateTitle();
+	if (!titleErrorMsg.value) {
+		if (isAddSubjectRoute.value) {
+			createSubject();
+		} else {
+			editSubject();
+		}
+	}
+}
+
+async function fetchSpecificSubject() {
+	const data = { id: subjectId.value };
+	// fetch specific subject
+	try {
+		const res = await subjectsStore.fetchSubjectDetails(data);
+		fetchedSubject.title = res.data.title;
+		fetchedSubject.isPublished = res.data.isPublished;
+		// set the text field models
+		title.value = res.data.title;
+		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
+	} catch (error) {
+		console.error('fetching specific subject failed', error);
+	}
+}
+
+async function editSubject() {
+	try {
+		let data = {
+			id: fetchedSubject.id,
+			title: title.value,
+			isPublished: selectedStatus.value === 'Draft' ? false : true,
+		};
+		const res = await subjectsStore.updateSubject(data);
+		if (res) {
+			showSuccessModal.value = true;
+		}
+	} catch (error) {
+		console.error('editing specific subject failed', error);
+	}
+}
+
+onBeforeRouteLeave((to, from) => {
+	if (unsavedChanges.value) {
+		const answer = window.confirm(
+			'Do you really want to leave? you have unsaved changes!'
+		);
+		// cancel the navigation and stay on the same page
+		if (!answer) return false;
+	}
+});
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';

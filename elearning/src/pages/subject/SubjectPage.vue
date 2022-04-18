@@ -46,7 +46,10 @@
 					</div>
 				</div>
 				<div class="subject-header__content">
-					<ui-button class="add-subject-btn" unelevated
+					<ui-button
+						class="add-subject-btn"
+						unelevated
+						@click="$router.push({ name: 'add-subject' })"
 						>Add New Subject</ui-button
 					>
 				</div>
@@ -120,6 +123,7 @@ import { usePagination } from '@/composables/pagination';
 import type { Subject } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 import _ from 'lodash';
+import router from '@/router';
 
 const search = ref('');
 const {
@@ -220,6 +224,12 @@ function handleAction(action: string) {
 		handleSubjectStatus();
 	} else if (action === 'Edit') {
 		// handle Edit
+		router.push({
+			name: 'edit-subject',
+			params: {
+				id: selectedSubject.id,
+			},
+		});
 	}
 }
 

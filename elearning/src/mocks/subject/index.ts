@@ -2,7 +2,7 @@ import { rest } from 'msw';
 import { API_URL } from '@/constants';
 import { DELAY } from '@/mocks/constants';
 import { db } from '@/mocks/db';
-import { validateAuth } from '../utils';
+import { checkAuth, validateAuth, extractAccessToken } from '../utils';
 
 const DEFAULT_LIMIT = 25;
 const DEFAULT_PAGE = 1;
@@ -11,16 +11,16 @@ export const subjectHandlers = [
 	// get subjects
 	rest.get(`${API_URL}/subjects`, (req, res, ctx) => {
 		const auth = validateAuth(req);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+
 		const limit = Number(req.url.searchParams.get('limit')) || DEFAULT_LIMIT;
 		const page = Number(req.url.searchParams.get('page')) || DEFAULT_PAGE;
 		const keyword = req.url.searchParams.get('keyword') || '';
 		const published = req.url.searchParams.get('published') || '';
 
 		const skip = (page - 1) * limit;
-
-		if (auth.errorMessage) {
-			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
-		}
 
 		// return the list of subjects
 		let query = {};
@@ -66,7 +66,10 @@ export const subjectHandlers = [
 
 	// update subject
 	rest.patch(`${API_URL}/subjects/:id`, (req, res, ctx) => {
-		validateAuth(req);
+		const auth = validateAuth(req);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
 		const { title, isPublished } = req.body as {
 			title: string;
 			isPublished: boolean;
@@ -93,7 +96,14 @@ export const subjectHandlers = [
 
 	// add subject
 	rest.post(`${API_URL}/subjects`, (req, res, ctx) => {
-		validateAuth(req);
+		const auth = validateAuth(req);
+		const accessToken = extractAccessToken(req) as string;
+		const loggedInUser = checkAuth(accessToken);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+
 		const { title } = req.body as { title: string };
 
 		const existingSubject = db.subject.findFirst({
@@ -123,8 +133,35 @@ export const subjectHandlers = [
 			isPublished: false,
 			createdAt: date,
 			updatedAt: date,
+			ownerId: loggedInUser?.id,
 		};
 		const newSubject = db.subject.create({ ...subject, courses: [] });
 		return res(ctx.delay(DELAY), ctx.json(newSubject));
+	}),
+
+	// get subject
+	rest.get(`${API_URL}/subjects/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const subject = db.subject.findFirst({
+			where: { id: { equals: id } },
+		});
+
+		if (!subject) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Subject not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(subject));
 	}),
 ];
