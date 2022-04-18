@@ -65,7 +65,7 @@
 </template>
 <script setup lang="ts">
 import { STATUS_OPTIONS } from '@/constants';
-import { computed, onMounted, ref, reactive, watch } from 'vue';
+import { computed, onMounted, ref, reactive } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import AlertModal from '@/components/AlertModal.vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';

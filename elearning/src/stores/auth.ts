@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios-api';
-import { setAccessToken, setAuthHeaderToken } from '@/utils/auth';
+import { setAuthToken, removeAuthToken } from '@/utils/auth';
 import type { LoginBody, SignUpBody, ChangePasswordBody } from '@/types';
 import { defineStore } from 'pinia';
 
@@ -20,8 +20,7 @@ export const useAuthStore = defineStore({
 				this.user = res.data;
 				if (res.data) {
 					// set token in local storage
-					setAccessToken(res.data.accessToken);
-					setAuthHeaderToken(res.data.accessToken);
+					setAuthToken(res.data.accessToken);
 					this.accessToken = res.data.accessToken;
 				}
 				return res;
@@ -75,6 +74,11 @@ export const useAuthStore = defineStore({
 			} catch (error) {
 				console.error('getting logged in user info failed', error);
 			}
+		},
+
+		logout() {
+			removeAuthToken();
+			this.accessToken = '';
 		},
 	},
 });

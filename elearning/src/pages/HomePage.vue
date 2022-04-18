@@ -90,7 +90,7 @@
 									<ui-menuitem-icon><ui-icon>lock</ui-icon></ui-menuitem-icon>
 									<ui-menuitem-text>Change Password</ui-menuitem-text>
 								</ui-menuitem>
-								<ui-menuitem>
+								<ui-menuitem @click="logout">
 									<ui-menuitem-icon
 										><ui-icon outlined>logout</ui-icon></ui-menuitem-icon
 									>
@@ -107,16 +107,24 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const openUserDropdown = ref(false);
 const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 const subjectRoute = computed(() => {
 	return route.name?.toString().includes('subject');
 });
 const courseRoute = computed(() => {
 	return route.name === 'courses';
 });
+
+function logout() {
+	authStore.logout();
+	router.push({ name: 'login' });
+}
 </script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';
