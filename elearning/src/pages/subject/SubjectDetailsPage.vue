@@ -13,44 +13,133 @@
 		</div>
 		<div class="subject-details__main">
 			<div class="tab">
-				<div class="tab__item tab__item--active">Subject</div>
-				<div class="tab__item">Courses</div>
+				<div
+					:class="[
+						selectedTab == 'Subjects' ? 'tab__item--active' : '',
+						'tab__item',
+					]"
+					@click="selectedTab = 'Subjects'"
+				>
+					Subject
+				</div>
+				<div
+					:class="[
+						selectedTab == 'Courses' ? 'tab__item--active' : '',
+						'tab__item',
+					]"
+					@click="selectedTab = 'Courses'"
+				>
+					Courses
+				</div>
 			</div>
 			<div class="content">
-				<div class="field">
-					<ui-textfield
-						id="title"
-						v-model="title"
-						class="title-field"
-						input-type="text"
+				<!-- subjects tab -->
+				<div v-if="selectedTab == 'Subjects'" class="subject">
+					<div class="field">
+						<ui-textfield
+							id="title"
+							v-model="title"
+							class="title-field"
+							input-type="text"
+							outlined
+							required
+							pattern=".{1,}"
+							helper-text-id="title-helper-text"
+							@keyup.enter="save"
+						>
+							Title
+						</ui-textfield>
+						<ui-textfield-helper
+							v-if="titleErrorMsg"
+							id="title-helper-text"
+							visible
+							validMsg
+						>
+							<small class="alert">{{ titleErrorMsg }}</small>
+						</ui-textfield-helper>
+					</div>
+					<ui-select
+						class="field"
+						v-model="selectedStatus"
 						outlined
 						required
-						pattern=".{1,}"
-						helper-text-id="title-helper-text"
-						@keyup.enter="save"
+						:disabled="isAddSubjectRoute"
+						fullwidth
+						:options="statusOptions"
 					>
-						Title
-					</ui-textfield>
-					<ui-textfield-helper
-						v-if="titleErrorMsg"
-						id="title-helper-text"
-						visible
-						validMsg
-					>
-						<small class="alert">{{ titleErrorMsg }}</small>
-					</ui-textfield-helper>
+						Status
+					</ui-select>
 				</div>
-				<ui-select
-					class="field"
-					v-model="selectedStatus"
-					outlined
-					required
-					:disabled="isAddSubjectRoute"
-					fullwidth
-					:options="options"
-				>
-					Status
-				</ui-select>
+				<!-- courses tab -->
+				<div v-else-if="selectedTab == 'Courses'" class="course">
+					<div class="course-header">
+						<ui-button class="alt-btn" unelevated
+							><span class="capitalize">Add New Course</span></ui-button
+						>
+					</div>
+					<div class="course-content">
+						<div class="table-container">
+							<table class="courses-table">
+								<tr>
+									<th>Title</th>
+									<th>Author</th>
+									<th>Modules</th>
+									<th>Duration</th>
+									<th>Status</th>
+								</tr>
+								<tr v-for="course in fetchedSubject.courses" :key="course.id">
+									<td>{{ course.title }}</td>
+									<td>{{ course.authorId }}</td>
+									<td>{{ course.title }}</td>
+									<td>{{ course.duration }} min</td>
+									<!-- <td>{{ getCoursesCount(subject) }} Courses</td> -->
+									<td class="row-action">
+										<template v-if="course.isPublished"> Published </template>
+										<template v-else> Draft </template>
+										<div class="row-action__menu">
+											<!-- <DropdownMenu
+											:items="populateDropdownItems(subject)"
+											@handle-action="handleAction"
+										/> -->
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div class="table-control">
+							<div class="table-control__container">
+								<div class="table-control__dropdown">
+									<label for="items">Items per page:</label>
+									<div class="select">
+										<select name="items" v-model="selectedLimit">
+											<option
+												v-for="option in options"
+												:value="option"
+												:key="option"
+											>
+												{{ option }}
+											</option>
+										</select>
+									</div>
+								</div>
+								<div class="table-control__pagination">
+									{{ currStart }} - {{ currTotal }} of
+									{{ fetchedSubject.courses.length }}
+									<ui-icon
+										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
+										@click="goPrev()"
+										>navigate_before</ui-icon
+									>
+									<ui-icon
+										:class="[nextIsDisabled ? 'icon--disabled' : '', 'icon']"
+										@click="goNext()"
+										>navigate_next</ui-icon
+									>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<AlertModal v-if="showSuccessModal">
@@ -67,11 +156,12 @@
 import { STATUS_OPTIONS } from '@/constants';
 import { computed, onMounted, ref, reactive } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
+import { usePagination } from '@/composables/pagination';
 import AlertModal from '@/components/AlertModal.vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import type { Subject } from '@/types';
 
-const options = [...STATUS_OPTIONS];
+const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
 const selectedStatus = ref('');
 const titleErrorMsg = ref('');
@@ -79,6 +169,8 @@ const subjectsStore = useSubjectsStore();
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
+const selectedTab = ref('Subjects');
+const totalCourseCount = ref(0);
 let fetchedSubject: Subject = reactive({
 	id: subjectId,
 	title: '',
@@ -87,6 +179,18 @@ let fetchedSubject: Subject = reactive({
 	updatedAt: '',
 	ownerId: 0,
 });
+
+const {
+	options,
+	selectedLimit,
+	currPage,
+	currTotal,
+	currStart,
+	prevIsDisabled,
+	nextIsDisabled,
+	goPrev,
+	goNext,
+} = usePagination(totalCourseCount);
 
 const headerTitle = computed(() => {
 	if (isAddSubjectRoute.value) {
@@ -169,6 +273,8 @@ async function fetchSpecificSubject() {
 		const res = await subjectsStore.fetchSubjectDetails(data);
 		fetchedSubject.title = res.data.title;
 		fetchedSubject.isPublished = res.data.isPublished;
+		fetchedSubject.courses = res.data.courses;
+		totalCourseCount.value = fetchedSubject.courses?.length || 0;
 		// set the text field models
 		title.value = res.data.title;
 		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
@@ -194,7 +300,7 @@ async function editSubject() {
 }
 
 onBeforeRouteLeave((to, from) => {
-	if (unsavedChanges.value) {
+	if (!showSuccessModal.value && unsavedChanges.value) {
 		const answer = window.confirm(
 			'Do you really want to leave? you have unsaved changes!'
 		);
@@ -277,9 +383,15 @@ h6 {
 }
 
 .content {
+	box-sizing: border-box;
+	padding: 20px 20px 0;
+}
+
+.subject {
+	margin-top: 14px;
 	display: flex;
 	justify-content: space-between;
-	padding: 40px 20px;
+	width: 100%;
 }
 
 .field {
@@ -288,6 +400,177 @@ h6 {
 
 .title-field {
 	width: 100%;
+}
+
+.course-header {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.alt-btn {
+	background-color: $accent;
+	.capitalize {
+		text-transform: capitalize;
+	}
+}
+.course-content {
+	margin-top: 24px;
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+	border-radius: 6px 6px 0 0;
+}
+
+.table-container {
+	overflow-y: auto;
+	height: 344px;
+}
+
+.courses-table {
+	padding-top: 24px;
+	width: 100%;
+	color: $gray-1;
+	border-spacing: 0;
+
+	th {
+		padding: 12px 32px;
+		text-align: left;
+		border-bottom: 2px solid $gray-5;
+		box-sizing: border-box;
+
+		&:nth-child(1) {
+			width: 436px;
+		}
+	}
+
+	td {
+		padding: 12px 12px 12px 32px;
+		text-align: left;
+		border-bottom: 2px solid $gray-5;
+		max-height: 40px;
+	}
+
+	.row-action {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		justify-content: space-between;
+		height: 40px;
+
+		&__menu {
+			position: relative;
+		}
+	}
+}
+
+.table-control {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	font-size: 12px;
+	border-top: 1px solid $gray-4;
+	width: 100%;
+	bottom: 0;
+	height: 40px;
+	box-sizing: border-box;
+
+	p,
+	label {
+		color: $gray-2;
+	}
+
+	&__container {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		padding-right: 24px;
+		width: 324px;
+		justify-content: space-between;
+	}
+
+	&__dropdown {
+		display: flex;
+		align-items: center;
+	}
+
+	&__pagination {
+		display: flex;
+		width: 140px;
+		justify-content: space-between;
+		color: $gray-2;
+		align-items: center;
+	}
+}
+
+.icon {
+	color: $gray-1;
+	cursor: pointer;
+
+	&--disabled {
+		color: $gray-2;
+	}
+}
+
+select {
+	// A reset of styles, including removing the default dropdown arrow
+	appearance: none;
+	background-color: transparent;
+	border: none;
+	padding: 4px 20px 4px 4px;
+	margin: 0;
+	width: 100%;
+	font-family: inherit;
+	font-size: 12px;
+	border-bottom: 1px solid $gray-1;
+	color: $gray-1;
+	cursor: inherit;
+	line-height: inherit;
+
+	// Stack above custom arrow
+	z-index: 1;
+	&::-ms-expand {
+		display: none;
+	}
+
+	// Remove focus outline, will add on alternate element
+	outline: none;
+
+	// Custom arrow
+	&:not(.select--multiple)::after {
+		content: '';
+		justify-self: end;
+		width: 0.8em;
+		height: 0.5em;
+		background-color: var(--select-arrow);
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	}
+}
+
+.select {
+	display: grid;
+	grid-template-areas: 'select';
+	align-items: center;
+	font-size: 12px;
+	position: relative;
+
+	select {
+		grid-area: select;
+	}
+
+	padding: 0.25em 0.5em;
+
+	font-size: 1.25rem;
+	cursor: pointer;
+	line-height: 1.1;
+
+	// Custom arrow
+	&::after {
+		grid-area: select;
+		content: '';
+		justify-self: end;
+		width: 10px;
+		height: 6px;
+		background-color: $gray-1;
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	}
 }
 
 .alert {

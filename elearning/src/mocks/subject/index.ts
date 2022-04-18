@@ -164,4 +164,30 @@ export const subjectHandlers = [
 
 		return res(ctx.delay(DELAY), ctx.json(subject));
 	}),
+
+	// delete subject
+	rest.delete(`${API_URL}/subjects/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const deletedSubject = db.subject.delete({
+			where: { id: { equals: Number(id) } },
+		});
+
+		if (!deletedSubject) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Subject not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.status(200));
+	}),
 ];

@@ -114,6 +114,18 @@
 				</div>
 			</div>
 		</div>
+		<AlertModal v-if="showDeleteModal">
+			<template v-slot:content>
+				<p>
+					Deleting this subject will also delete the courses and modules added
+					to it.
+				</p>
+			</template>
+			<template v-slot:actions>
+				<ui-button @click="showDeleteModal = false">Cancel</ui-button>
+				<ui-button @click="deleteSubject">Ok</ui-button>
+			</template>
+		</AlertModal>
 	</div>
 </template>
 <script setup lang="ts">
@@ -122,10 +134,13 @@ import { useSubjectsStore } from '@/stores/subject';
 import { usePagination } from '@/composables/pagination';
 import type { Subject } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
+import AlertModal from '@/components/AlertModal.vue';
 import _ from 'lodash';
 import router from '@/router';
 
 const search = ref('');
+const totalCount = ref(0);
+const subjectsStore = useSubjectsStore();
 const {
 	options,
 	selectedLimit,
@@ -136,7 +151,7 @@ const {
 	nextIsDisabled,
 	goPrev,
 	goNext,
-} = usePagination();
+} = usePagination(totalCount);
 
 const selectedSubject: Subject = reactive({
 	id: 0,
@@ -147,9 +162,9 @@ const selectedSubject: Subject = reactive({
 	ownerId: 0,
 });
 const openFilter = ref(false);
-const subjectsStore = useSubjectsStore();
 const checkedPublished = ref(false);
 const checkedDraft = ref(false);
+const showDeleteModal = ref(false);
 
 watch(
 	currPage,
@@ -171,7 +186,7 @@ onMounted(() => {
 	fetchSubjects();
 });
 
-function fetchSubjects() {
+async function fetchSubjects() {
 	type filter = {
 		limit: number;
 		page: number;
@@ -194,7 +209,8 @@ function fetchSubjects() {
 		// fetch draft only
 		data['published'] = checkedPublished.value;
 	}
-	subjectsStore.fetchSubjects(data);
+	await subjectsStore.fetchSubjects(data);
+	totalCount.value = subjectsStore.fetchedTotalCount;
 }
 
 function populateDropdownItems(subject: Subject) {
@@ -230,6 +246,9 @@ function handleAction(action: string) {
 				id: selectedSubject.id,
 			},
 		});
+	} else if (action == 'Delete') {
+		// show double confirmation
+		showDeleteModal.value = true;
 	}
 }
 
@@ -237,6 +256,19 @@ function selectSubject(subject: Subject) {
 	selectedSubject.id = subject.id;
 	selectedSubject.title = subject.title;
 	selectedSubject.isPublished = subject.isPublished;
+}
+
+async function deleteSubject() {
+	try {
+		const res = await subjectsStore.deleteSubject({ id: selectedSubject.id });
+		if (res) {
+			fetchSubjects();
+		}
+	} catch (error) {
+		console.error('Deleting subject failed.', error);
+	} finally {
+		showDeleteModal.value = false;
+	}
 }
 </script>
 <style scoped lang="scss">

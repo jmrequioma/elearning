@@ -1,18 +1,15 @@
-import { ref, computed } from 'vue';
-import { useSubjectsStore } from '@/stores/subject';
+import { ref, computed, type Ref, unref } from 'vue';
 import { PAGINATION_OPTIONS } from '@/constants';
 
-export function usePagination() {
+export function usePagination(totalCount: Ref) {
 	const selectedLimit = ref(25);
 	const currPage = ref(1);
-	const subjectsStore = useSubjectsStore();
+	// const subjectsStore = useSubjectsStore();
 	const options = PAGINATION_OPTIONS;
 
 	const currTotal = computed(() => {
 		// current total count for the currently fetched on pagination display
-		return subjectsStore.fetchedSubjects?.length
-			? currPage.value * selectedLimit.value
-			: 0;
+		return currPage.value * selectedLimit.value;
 	});
 
 	const currStart = computed(() => {
@@ -25,9 +22,7 @@ export function usePagination() {
 	});
 
 	const nextIsDisabled = computed(() => {
-		return (
-			currPage.value * selectedLimit.value >= subjectsStore.fetchedTotalCount
-		);
+		return currPage.value * selectedLimit.value >= unref(totalCount);
 	});
 
 	function goPrev() {

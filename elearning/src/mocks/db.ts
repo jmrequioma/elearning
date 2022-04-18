@@ -33,6 +33,7 @@ const model = {
 		id: primaryKey(Number),
 		title: String,
 		description: String,
+		duration: Number,
 		icon: String,
 		isPublished: Boolean,
 		createdAt: String,
@@ -53,21 +54,23 @@ function seedUsers() {
 
 function seedRelatedEntities() {
 	const user = users[0];
+	const instructor = users[1];
 	const courses: Entity<Model, 'course'>[] = [];
 
-	// create 5 courses
-	for (let i = 0; i < 5; i++) {
+	// create 10 courses
+	for (let i = 0; i < 10; i++) {
 		const id = i + 1;
 		const course = {
 			id: id,
 			title: `${faker.random.word()} Course`,
 			description: faker.lorem.words(),
+			duration: faker.datatype.number({ min: 1, max: 100 }),
 			icon: faker.image.imageUrl(),
 			isPublished: true,
 			createdAt: '2022-03-01T20:35:47.402Z',
 			updatedAt: '2022-03-01T20:35:47.402Z',
 			subjectId: 1,
-			authorId: user.id,
+			authorId: instructor.id,
 		};
 		const newCourse = db.course.create(course);
 		courses.push(newCourse);

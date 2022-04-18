@@ -47,5 +47,9 @@ export const useSubjectsStore = defineStore({
 		async fetchSubjectDetails(data: SubjectBody) {
 			return await apiClient.get(`/subjects/${data.id}`);
 		},
+
+		async deleteSubject(data: SubjectBody) {
+			return await apiClient.delete(`/subjects/${data.id}`);
+		},
 	},
 });

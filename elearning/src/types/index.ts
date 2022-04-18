@@ -19,7 +19,20 @@ export type Subject = {
 	createdAt: string;
 	updatedAt: string;
 	ownerId: number;
-	courses?: Array<object>;
+	courses?: Array<Course>;
+};
+
+export type Course = {
+	id: number;
+	title: string;
+	description: string;
+	duration: number;
+	icon: string;
+	isPublished: boolean;
+	createdAt: string;
+	updatedAt: string;
+	subjectId: number;
+	authorId: number;
 };
 
 export type SubjectBody = {
