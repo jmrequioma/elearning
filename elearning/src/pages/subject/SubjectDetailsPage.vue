@@ -87,7 +87,11 @@
 									<th>Duration</th>
 									<th>Status</th>
 								</tr>
-								<tr v-for="course in courses" :key="course.id">
+								<tr
+									v-for="course in courses"
+									:key="course.id"
+									@click="selectedCourse = course"
+								>
 									<td>{{ course.title }}</td>
 									<td>{{ course.author }}</td>
 									<td>{{ getModulesCount(course) }} Modules</td>
@@ -96,10 +100,10 @@
 										<template v-if="course.isPublished"> Published </template>
 										<template v-else> Draft </template>
 										<div class="row-action__menu">
-											<!-- <DropdownMenu
-											:items="populateDropdownItems(subject)"
-											@handle-action="handleAction"
-										/> -->
+											<DropdownMenu
+												:items="populateDropdownItems(course)"
+												@handle-action="handleAction"
+											/>
 										</div>
 									</td>
 								</tr>
@@ -123,7 +127,7 @@
 								</div>
 								<div class="table-control__pagination">
 									{{ currStart }} - {{ currTotal }} of
-									{{ fetchedSubject.courses.length }}
+									{{ fetchedSubject ? fetchedSubject.courses.length : 0 }}
 									<ui-icon
 										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 										@click="goPrev()"
@@ -153,13 +157,16 @@
 </template>
 <script setup lang="ts">
 import { STATUS_OPTIONS } from '@/constants';
-import { computed, onMounted, ref, reactive } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { useCoursesStore } from '@/stores/course';
 import { usePagination } from '@/composables/pagination';
+import DropdownMenu from '@/components/DropdownMenu.vue';
 import AlertModal from '@/components/AlertModal.vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import type { Course, Subject } from '@/types';
+import _ from 'lodash';
+import router from '@/router';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
@@ -167,20 +174,14 @@ const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
 const courseStore = useCoursesStore();
+const fetchedSubject = ref<Subject>();
 const courses = ref<Course[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
 const selectedTab = ref('Subjects');
 const totalCourseCount = ref(0);
-let fetchedSubject: Subject = reactive({
-	id: subjectId,
-	title: '',
-	isPublished: false,
-	createdAt: '',
-	updatedAt: '',
-	ownerId: 0,
-});
+const selectedCourse = ref<Course>();
 
 const {
 	options,
@@ -194,11 +195,18 @@ const {
 	goNext,
 } = usePagination(totalCourseCount);
 
+watch(
+	currPage,
+	_.debounce(() => {
+		fetchCourses();
+	}, 500)
+);
+
 const headerTitle = computed(() => {
 	if (isAddSubjectRoute.value) {
 		return 'Add a subject';
 	} else {
-		return fetchedSubject.title;
+		return fetchedSubject.value?.title;
 	}
 });
 
@@ -218,20 +226,20 @@ const unsavedChanges = computed(() => {
 	const status = selectedStatus.value === 'Draft' ? false : true;
 	if (!isAddSubjectRoute.value) {
 		return (
-			title.value != fetchedSubject.title ||
-			status != fetchedSubject.isPublished
+			title.value != fetchedSubject.value?.title ||
+			status != fetchedSubject.value?.isPublished
 		);
 	}
 	return false;
 });
 
-onMounted(() => {
+onMounted(async () => {
 	// check if page is for adding or editing
-	if (!isAddSubjectRoute.value) {
+	if (!isAddSubjectRoute?.value) {
 		const id = route.params.id;
-		subjectId.value = parseInt(id.toString());
+		subjectId.value = parseInt(id?.toString());
 		// fetch specific subject
-		fetchSpecificSubject();
+		await fetchSpecificSubject();
 		// fetch related courses
 		fetchCourses();
 	}
@@ -275,10 +283,7 @@ async function fetchSpecificSubject() {
 	// fetch specific subject
 	try {
 		const res = await subjectsStore.fetchSubjectDetails(data);
-		fetchedSubject.title = res.data.title;
-		fetchedSubject.isPublished = res.data.isPublished;
-		fetchedSubject.courses = res.data.courses;
-		totalCourseCount.value = fetchedSubject.courses?.length || 0;
+		fetchedSubject.value = res.data;
 		// set the text field models
 		title.value = res.data.title;
 		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
@@ -289,7 +294,7 @@ async function fetchSpecificSubject() {
 
 async function fetchCourses() {
 	const data = {
-		subjectId: fetchedSubject.id,
+		subjectId: fetchedSubject.value?.id,
 		page: currPage.value,
 		limit: selectedLimit.value,
 	};
@@ -306,7 +311,7 @@ async function fetchCourses() {
 async function editSubject() {
 	try {
 		let data = {
-			id: fetchedSubject.id,
+			id: fetchedSubject.value?.id,
 			title: title.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
 		};
@@ -323,7 +328,61 @@ function getModulesCount(course: Course) {
 	return course.modules?.length;
 }
 
-onBeforeRouteLeave((to, from) => {
+function populateDropdownItems(course: Course) {
+	if (course.isPublished) {
+		return ['Unpublish', 'Edit', 'Delete'];
+	}
+	return ['Publish', 'Edit', 'Delete'];
+}
+
+async function handleCourseStatus() {
+	// publish/unpublish the course
+	let data = {
+		id: selectedCourse.value?.id,
+		title: selectedCourse.value?.title,
+		isPublished: !selectedCourse.value?.isPublished,
+	};
+	try {
+		const res = await courseStore.updateCourse(data);
+		if (res) {
+			fetchCourses();
+		}
+	} catch (error) {
+		console.error('updating course failed', error);
+	}
+}
+
+function handleAction(action: string) {
+	if (action === 'Publish' || action === 'Unpublish') {
+		handleCourseStatus();
+	} else if (action === 'Edit') {
+		// handle Edit
+		router.push({
+			name: 'edit-subject',
+			params: {
+				id: selectedCourse.value?.id,
+			},
+		});
+	} else if (action == 'Delete') {
+		// delete the course
+		deleteCourse();
+	}
+}
+
+async function deleteCourse() {
+	try {
+		const res = await courseStore.deleteCourse({
+			id: selectedCourse.value?.id,
+		});
+		if (res) {
+			fetchCourses();
+		}
+	} catch (error) {
+		console.error('Deleting course failed.', error);
+	}
+}
+
+onBeforeRouteLeave(() => {
 	if (!showSuccessModal.value && unsavedChanges.value) {
 		const answer = window.confirm(
 			'Do you really want to leave? you have unsaved changes!'

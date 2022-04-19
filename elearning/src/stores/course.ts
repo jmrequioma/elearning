@@ -1,6 +1,6 @@
 import apiClient from '@/lib/axios-api';
 import { defineStore } from 'pinia';
-import type { Course } from '@/types/index';
+import type { Course, DataBody } from '@/types/index';
 
 export const useCoursesStore = defineStore({
 	id: 'course',
@@ -15,10 +15,18 @@ export const useCoursesStore = defineStore({
 		fetchedPage: (state) => state.page,
 	},
 	actions: {
-		async fetchCourses(data: object) {
-			return await apiClient.get('/courses', {
+		fetchCourses(data: object) {
+			return apiClient.get('/courses', {
 				params: data,
 			});
+		},
+
+		updateCourse(data: DataBody) {
+			return apiClient.patch(`/courses/${data.id}`, data);
+		},
+
+		deleteCourse(data: DataBody) {
+			return apiClient.delete(`/courses/${data.id}`);
 		},
 	},
 });

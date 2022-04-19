@@ -231,8 +231,12 @@ async function handleSubjectStatus() {
 		title: selectedSubject.title,
 		isPublished: !selectedSubject.isPublished,
 	};
-	await subjectsStore.updateSubject(data);
-	fetchSubjects();
+	try {
+		await subjectsStore.updateSubject(data);
+		fetchSubjects();
+	} catch (error) {
+		console.error('updating subject failed', error);
+	}
 }
 
 function handleAction(action: string) {

@@ -1,6 +1,6 @@
 import apiClient from '@/lib/axios-api';
 import { defineStore } from 'pinia';
-import type { Subject, SubjectBody } from '@/types/index';
+import type { DataBody, Subject } from '@/types/index';
 
 export const useSubjectsStore = defineStore({
 	id: 'subject',
@@ -31,25 +31,20 @@ export const useSubjectsStore = defineStore({
 			}
 		},
 
-		async updateSubject(data: SubjectBody) {
-			try {
-				const res = await apiClient.patch(`/subjects/${data.id}`, data);
-				return res;
-			} catch (error) {
-				console.error('updating subject failed', error);
-			}
+		updateSubject(data: DataBody) {
+			return apiClient.patch(`/subjects/${data.id}`, data);
 		},
 
-		async createSubject(data: SubjectBody) {
-			return await apiClient.post('/subjects', data);
+		createSubject(data: DataBody) {
+			return apiClient.post('/subjects', data);
 		},
 
-		async fetchSubjectDetails(data: SubjectBody) {
-			return await apiClient.get(`/subjects/${data.id}`);
+		fetchSubjectDetails(data: DataBody) {
+			return apiClient.get(`/subjects/${data.id}`);
 		},
 
-		async deleteSubject(data: SubjectBody) {
-			return await apiClient.delete(`/subjects/${data.id}`);
+		deleteSubject(data: DataBody) {
+			return apiClient.delete(`/subjects/${data.id}`);
 		},
 	},
 });

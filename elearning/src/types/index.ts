@@ -48,7 +48,7 @@ export type Module = {
 	courseId: number;
 };
 
-export type SubjectBody = {
+export type DataBody = {
 	id?: number;
 	title?: string;
 	isPublished?: boolean;

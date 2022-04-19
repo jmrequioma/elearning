@@ -93,4 +93,59 @@ export const courseHandlers = [
 
 		return res(ctx.delay(DELAY), ctx.json(response));
 	}),
+
+	// update course
+	rest.patch(`${API_URL}/courses/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const { title, isPublished } = req.body as {
+			title: string;
+			isPublished: boolean;
+		};
+		const id = Number(req.params.id);
+
+		const newCourse = db.course.update({
+			where: { id: { equals: id } },
+			data: { title, isPublished },
+		});
+
+		if (!newCourse) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Course not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(newCourse));
+	}),
+
+	// delete course
+	rest.delete(`${API_URL}/courses/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const deletedCourse = db.course.delete({
+			where: { id: { equals: id } },
+		});
+
+		if (!deletedCourse) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Course not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.status(200));
+	}),
 ];
