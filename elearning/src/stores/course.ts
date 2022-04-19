@@ -28,5 +28,9 @@ export const useCoursesStore = defineStore({
 		deleteCourse(data: DataBody) {
 			return apiClient.delete(`/courses/${data.id}`);
 		},
+
+		createCourse(data: DataBody) {
+			return apiClient.post('/courses/', data);
+		},
 	},
 });

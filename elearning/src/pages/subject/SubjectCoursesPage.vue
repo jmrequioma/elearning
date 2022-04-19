@@ -15,15 +15,6 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Subjects' ? 'tab__item--active' : '',
-						'tab__item',
-					]"
-					@click="selectedTab = 'Subjects'"
-				>
-					Subject
-				</div>
-				<div
-					:class="[
 						selectedTab == 'Courses' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
@@ -31,57 +22,89 @@
 				>
 					Courses
 				</div>
+				<div
+					:class="[
+						selectedTab == 'Modules' ? 'tab__item--active' : '',
+						'tab__item',
+					]"
+					@click="selectedTab = 'Modules'"
+				>
+					Modules
+				</div>
 			</div>
 			<div class="content">
-				<!-- subjects tab -->
-				<div v-if="selectedTab == 'Subjects'" class="subject">
-					<div class="field">
+				<!-- courses tab -->
+				<div v-if="selectedTab == 'Courses'" class="course">
+					<div class="col-2">
+						<div class="field">
+							<ui-textfield
+								id="title"
+								v-model="title"
+								class="title-field"
+								input-type="text"
+								outlined
+								required
+								pattern=".{1,}"
+								helper-text-id="title-helper-text"
+							>
+								Title
+							</ui-textfield>
+							<ui-textfield-helper
+								v-if="titleErrorMsg"
+								id="title-helper-text"
+								visible
+								validMsg
+							>
+								<small class="alert">{{ titleErrorMsg }}</small>
+							</ui-textfield-helper>
+						</div>
+						<ui-select
+							class="field"
+							v-model="selectedStatus"
+							outlined
+							required
+							:disabled="isAddSubjectCourseRoute"
+							fullwidth
+							:options="statusOptions"
+						>
+							Status
+						</ui-select>
+					</div>
+					<div class="col-1">
 						<ui-textfield
 							id="title"
-							v-model="title"
+							v-model="desc"
 							class="title-field"
 							input-type="text"
 							outlined
-							required
-							pattern=".{1,}"
 							helper-text-id="title-helper-text"
 							@keyup.enter="save"
 						>
-							Title
+							Description
 						</ui-textfield>
-						<ui-textfield-helper
-							v-if="titleErrorMsg"
-							id="title-helper-text"
-							visible
-							validMsg
-						>
-							<small class="alert">{{ titleErrorMsg }}</small>
-						</ui-textfield-helper>
 					</div>
-					<ui-select
-						class="field"
-						v-model="selectedStatus"
-						outlined
-						required
-						:disabled="isAddSubjectRoute"
-						fullwidth
-						:options="statusOptions"
-					>
-						Status
-					</ui-select>
+					<div v-if="!uploadedImage" class="image">
+						<label for="file-input">
+							<div class="image__content">
+								<img src="@/assets/media/add-img-icon.png" />
+								<p class="upload-text">Upload course icon</p>
+							</div>
+						</label>
+						<input
+							type="file"
+							accept="image/*"
+							id="file-input"
+							@change="onFileChange"
+						/>
+					</div>
+					<div v-else class="image image--display">
+						<img :src="uploadedImage" />
+					</div>
 				</div>
-				<!-- courses tab -->
-				<div v-else-if="selectedTab == 'Courses'" class="course">
+				<!-- modules tab -->
+				<div v-else-if="selectedTab == 'Modules'" class="module">
 					<div class="course-header">
-						<ui-button
-							class="alt-btn"
-							unelevated
-							@click="
-								router.push({
-									name: 'add-subject-course',
-									params: { subjectId: fetchedSubject?.id },
-								})
-							"
+						<ui-button class="alt-btn" unelevated
 							><span class="capitalize">Add New Course</span></ui-button
 						>
 					</div>
@@ -158,10 +181,9 @@
 				<p>{{ successMessage }}</p>
 			</template>
 			<template v-slot:actions>
-				<ui-button @click="showSuccessModal = false">Ok</ui-button>
+				<ui-button @click="$router.push({ name: 'subjects' })">Ok</ui-button>
 			</template>
 		</AlertModal>
-		<router-view />
 	</div>
 </template>
 <script setup lang="ts">
@@ -179,6 +201,7 @@ import router from '@/router';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
+const desc = ref('');
 const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
@@ -188,9 +211,10 @@ const courses = ref<Course[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
-const selectedTab = ref('Subjects');
+const selectedTab = ref('Courses');
 const totalCourseCount = ref(0);
 const selectedCourse = ref<Course>();
+const uploadedImage = ref('');
 
 const {
 	options,
@@ -212,19 +236,17 @@ watch(
 );
 
 const headerTitle = computed(() => {
-	if (isAddSubjectRoute.value) {
-		return 'Add a subject';
-	} else {
-		return fetchedSubject.value?.title;
-	}
+	return fetchedSubject.value
+		? `${fetchedSubject.value?.title} > Add a course`
+		: '';
 });
 
-const isAddSubjectRoute = computed(() => {
-	return route.name?.toString() === 'add-subject';
+const isAddSubjectCourseRoute = computed(() => {
+	return route.name?.toString() === 'add-subject-course';
 });
 
 const successMessage = computed(() => {
-	if (isAddSubjectRoute.value) {
+	if (isAddSubjectCourseRoute.value) {
 		return `Successfully created a subject named ${title.value}.`;
 	} else {
 		return 'Subject is successfully updated.';
@@ -233,7 +255,7 @@ const successMessage = computed(() => {
 
 const unsavedChanges = computed(() => {
 	const status = selectedStatus.value === 'Draft' ? false : true;
-	if (!isAddSubjectRoute.value) {
+	if (!isAddSubjectCourseRoute.value) {
 		return (
 			title.value != fetchedSubject.value?.title ||
 			status != fetchedSubject.value?.isPublished
@@ -243,15 +265,12 @@ const unsavedChanges = computed(() => {
 });
 
 onMounted(async () => {
-	// check if page is for adding or editing
-	if (!isAddSubjectRoute?.value) {
-		const id = route.params.id;
-		subjectId.value = parseInt(id?.toString());
-		// fetch specific subject
-		await fetchSpecificSubject();
-		// fetch related courses
-		fetchCourses();
-	}
+	const id = route.params.subjectId;
+	subjectId.value = parseInt(id?.toString());
+	// fetch specific subject
+	await fetchSpecificSubject();
+	// fetch related courses
+	fetchCourses();
 });
 
 function validateTitle() {
@@ -262,16 +281,21 @@ function validateTitle() {
 	}
 }
 
-async function createSubject() {
+async function createCourse() {
+	const data = {
+		id: fetchedSubject.value?.id,
+		title: title.value,
+		description: desc.value,
+	};
 	try {
-		const res = await subjectsStore.createSubject({ title: title.value });
+		const res = await courseStore.createCourse(data);
 		if (res) {
-			showSuccessModal.value = true;
+			// showSuccessModal.value = true;
 		}
 	} catch (error) {
-		console.error('creating subject failed', error);
+		console.error('creating course failed', error);
 		if ((error as Error).message.includes('409')) {
-			titleErrorMsg.value = 'Subject already exists.';
+			titleErrorMsg.value = 'Course already exists.';
 		}
 	}
 }
@@ -279,8 +303,8 @@ async function createSubject() {
 function save() {
 	validateTitle();
 	if (!titleErrorMsg.value) {
-		if (isAddSubjectRoute.value) {
-			createSubject();
+		if (isAddSubjectCourseRoute.value) {
+			createCourse();
 		} else {
 			editSubject();
 		}
@@ -294,8 +318,8 @@ async function fetchSpecificSubject() {
 		const res = await subjectsStore.fetchSubjectDetails(data);
 		fetchedSubject.value = res.data;
 		// set the text field models
-		title.value = res.data.title;
-		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
+		// title.value = res.data.title;
+		// selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
 	} catch (error) {
 		console.error('fetching specific subject failed', error);
 	}
@@ -391,6 +415,15 @@ async function deleteCourse() {
 	}
 }
 
+function onFileChange(e: Event) {
+	const input = e.target as HTMLInputElement;
+	if (!input.files?.length) {
+		return;
+	}
+	const file = input.files[0];
+	uploadedImage.value = URL.createObjectURL(file);
+}
+
 onBeforeRouteLeave(() => {
 	if (!showSuccessModal.value && unsavedChanges.value) {
 		const answer = window.confirm(
@@ -479,11 +512,19 @@ h6 {
 	padding: 20px 20px 0;
 }
 
-.subject {
+.module {
 	margin-top: 14px;
+	width: 100%;
+}
+
+.col-2 {
 	display: flex;
 	justify-content: space-between;
-	width: 100%;
+	margin-bottom: 20px;
+}
+
+.col-1 {
+	margin-bottom: 20px;
 }
 
 .field {
@@ -494,6 +535,43 @@ h6 {
 	width: 100%;
 }
 
+.image {
+	display: flex;
+	justify-content: center;
+	padding-top: 44px;
+	box-sizing: border-box;
+	background-color: #c4c4c4;
+	width: 165px;
+	height: 165px;
+	border-radius: 12px;
+	align-items: center;
+	border: 8px solid $gray-4;
+
+	img {
+		max-height: 144px;
+		max-width: 128px;
+	}
+
+	&__content {
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	&--display {
+		padding-top: 0;
+	}
+}
+
+.upload-text {
+	font-size: 16px;
+	color: $gray-1;
+}
+
+#file-input {
+	display: none;
+}
 .course-header {
 	display: flex;
 	justify-content: flex-end;

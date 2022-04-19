@@ -3,6 +3,7 @@ import { API_URL } from '@/constants';
 import { DELAY, DEFAULT_LIMIT, DEFAULT_PAGE } from '@/mocks/constants';
 import { db } from '@/mocks/db';
 import { checkAuth, validateAuth, extractAccessToken } from '../utils';
+import faker from '@faker-js/faker';
 
 export const courseHandlers = [
 	// get courses
@@ -106,9 +107,10 @@ export const courseHandlers = [
 		};
 		const id = Number(req.params.id);
 
+		const date = new Date().toISOString();
 		const newCourse = db.course.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished },
+			data: { title, isPublished, updatedAt: date },
 		});
 
 		if (!newCourse) {
@@ -147,5 +149,57 @@ export const courseHandlers = [
 		}
 
 		return res(ctx.delay(DELAY), ctx.status(200));
+	}),
+
+	// add course
+	rest.post(`${API_URL}/courses`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+		const accessToken = extractAccessToken(req) as string;
+		const loggedInUser = checkAuth(accessToken);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const data = req.body as {
+			id: number;
+			title: string;
+			isPublished: boolean;
+			description: string;
+		};
+
+		const existingCourse = db.course.findFirst({
+			where: {
+				title: {
+					equals: data.title,
+				},
+			},
+		});
+
+		if (existingCourse) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(409),
+				ctx.json({
+					message: 'Title must be unique.',
+				})
+			);
+		}
+
+		const lastId = db.course.count();
+
+		const date = new Date().toISOString();
+		const course = db.course.create({
+			id: lastId + 1,
+			title: data.title,
+			description: data.description,
+			duration: faker.datatype.number({ min: 1, max: 100 }),
+			icon: faker.image.imageUrl(),
+			isPublished: false,
+			createdAt: date,
+			updatedAt: date,
+			subjectId: Number(data.id),
+			authorId: loggedInUser?.id,
+			modules: [],
+		});
+		return res(ctx.delay(DELAY), ctx.json(course));
 	}),
 ];

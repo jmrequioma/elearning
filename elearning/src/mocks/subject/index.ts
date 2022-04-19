@@ -73,9 +73,10 @@ export const subjectHandlers = [
 		};
 		const id = Number(req.params.id);
 
+		const date = new Date().toISOString();
 		const newSubject = db.subject.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished },
+			data: { title, isPublished, updatedAt: date },
 		});
 
 		if (!newSubject) {
