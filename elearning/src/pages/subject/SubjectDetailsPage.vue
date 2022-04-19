@@ -87,12 +87,11 @@
 									<th>Duration</th>
 									<th>Status</th>
 								</tr>
-								<tr v-for="course in fetchedSubject.courses" :key="course.id">
+								<tr v-for="course in courses" :key="course.id">
 									<td>{{ course.title }}</td>
-									<td>{{ course.authorId }}</td>
-									<td>{{ course.title }}</td>
+									<td>{{ course.author }}</td>
+									<td>{{ getModulesCount(course) }} Modules</td>
 									<td>{{ course.duration }} min</td>
-									<!-- <td>{{ getCoursesCount(subject) }} Courses</td> -->
 									<td class="row-action">
 										<template v-if="course.isPublished"> Published </template>
 										<template v-else> Draft </template>
@@ -156,16 +155,19 @@
 import { STATUS_OPTIONS } from '@/constants';
 import { computed, onMounted, ref, reactive } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
+import { useCoursesStore } from '@/stores/course';
 import { usePagination } from '@/composables/pagination';
 import AlertModal from '@/components/AlertModal.vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
-import type { Subject } from '@/types';
+import type { Course, Subject } from '@/types';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
 const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
+const courseStore = useCoursesStore();
+const courses = ref<Course[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
@@ -230,6 +232,8 @@ onMounted(() => {
 		subjectId.value = parseInt(id.toString());
 		// fetch specific subject
 		fetchSpecificSubject();
+		// fetch related courses
+		fetchCourses();
 	}
 });
 
@@ -283,6 +287,22 @@ async function fetchSpecificSubject() {
 	}
 }
 
+async function fetchCourses() {
+	const data = {
+		subjectId: fetchedSubject.id,
+		page: currPage.value,
+		limit: selectedLimit.value,
+	};
+	try {
+		const res = await courseStore.fetchCourses(data);
+		if (res) {
+			courses.value = res.data.data;
+		}
+	} catch (error) {
+		console.error('fetching courses failed', error);
+	}
+}
+
 async function editSubject() {
 	try {
 		let data = {
@@ -297,6 +317,10 @@ async function editSubject() {
 	} catch (error) {
 		console.error('editing specific subject failed', error);
 	}
+}
+
+function getModulesCount(course: Course) {
+	return course.modules?.length;
 }
 
 onBeforeRouteLeave((to, from) => {

@@ -1,11 +1,8 @@
 import { rest } from 'msw';
 import { API_URL } from '@/constants';
-import { DELAY } from '@/mocks/constants';
+import { DELAY, DEFAULT_LIMIT, DEFAULT_PAGE } from '@/mocks/constants';
 import { db } from '@/mocks/db';
 import { checkAuth, validateAuth, extractAccessToken } from '../utils';
-
-const DEFAULT_LIMIT = 25;
-const DEFAULT_PAGE = 1;
 
 export const subjectHandlers = [
 	// get subjects

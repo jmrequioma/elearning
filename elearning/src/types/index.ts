@@ -33,6 +33,19 @@ export type Course = {
 	updatedAt: string;
 	subjectId: number;
 	authorId: number;
+	author?: string;
+	modules?: Array<Module>;
+};
+
+export type Module = {
+	id: number;
+	title: string;
+	description: string;
+	isPublished: boolean;
+	createdAt: string;
+	updatedAt: string;
+	authorId: number;
+	courseId: number;
 };
 
 export type SubjectBody = {

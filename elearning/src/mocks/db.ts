@@ -40,6 +40,18 @@ const model = {
 		updatedAt: String,
 		subjectId: Number,
 		authorId: Number,
+		modules: manyOf('module'),
+	},
+
+	module: {
+		id: primaryKey(Number),
+		title: String,
+		duration: Number,
+		isPublished: Boolean,
+		createdAt: String,
+		updatedAt: String,
+		authorId: Number,
+		courseId: Number,
 	},
 };
 
@@ -52,40 +64,65 @@ function seedUsers() {
 	});
 }
 
-function seedRelatedEntities() {
-	const user = users[0];
-	const instructor = users[1];
-	const courses: Entity<Model, 'course'>[] = [];
-
-	// create 10 courses
-	for (let i = 0; i < 10; i++) {
-		const id = i + 1;
-		const course = {
-			id: id,
-			title: `${faker.random.word()} Course`,
-			description: faker.lorem.words(),
+function seedModules(moduleCount: number, courseId: number) {
+	const modules = [];
+	for (let i = 0; i < moduleCount; i++) {
+		const moduleId = db.module.count() + 1;
+		const module = {
+			id: moduleId,
+			title: `${faker.random.word()} ${moduleId} Module`,
 			duration: faker.datatype.number({ min: 1, max: 100 }),
-			icon: faker.image.imageUrl(),
 			isPublished: true,
 			createdAt: '2022-03-01T20:35:47.402Z',
 			updatedAt: '2022-03-01T20:35:47.402Z',
-			subjectId: 1,
-			authorId: instructor.id,
+			authorId: users[1].id,
+			courseId: courseId,
 		};
-		const newCourse = db.course.create(course);
-		courses.push(newCourse);
+		const newModule = db.module.create(module);
+		modules.push(newModule);
 	}
+	return modules;
+}
 
-	// create 100 subjects
-	for (let i = 0; i < 100; i++) {
+function seedRelatedEntities() {
+	const user = users[0];
+	const instructor = users[1];
+	let modules: Entity<Model, 'module'>[] = [];
+	let courses: Entity<Model, 'course'>[] = [];
+
+	// create 25 subjects
+	for (let i = 0; i < 25; i++) {
 		let published = true;
 		if (i % 2 != 0) {
 			// make alternating published/draft statuses
 			published = false;
 		}
-		const id = i + 1;
+		const subjectId = i + 1;
+
+		// create 5 courses
+		for (let j = 0; j < 5; j++) {
+			const courseId = db.course.count() + 1;
+			// create 3 modules
+			modules = seedModules(3, courseId);
+			const course = {
+				id: courseId,
+				title: `${faker.random.word()} ${courseId} Course`,
+				description: faker.lorem.words(),
+				duration: faker.datatype.number({ min: 1, max: 100 }),
+				icon: faker.image.imageUrl(),
+				isPublished: true,
+				createdAt: '2022-03-01T20:35:47.402Z',
+				updatedAt: '2022-03-01T20:35:47.402Z',
+				subjectId: subjectId,
+				authorId: instructor.id,
+				modules: modules,
+			};
+			const newCourse = db.course.create(course);
+			courses.push(newCourse);
+		}
+
 		db.subject.create({
-			id: id,
+			id: subjectId,
 			title: `${faker.unique(faker.random.word)} Subject`,
 			isPublished: published,
 			createdAt: '2022-03-01T20:35:47.402Z',
@@ -93,6 +130,8 @@ function seedRelatedEntities() {
 			ownerId: user.id,
 			courses: courses,
 		});
+		// empty up courses
+		courses = [];
 	}
 }
 
