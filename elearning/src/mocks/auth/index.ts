@@ -166,7 +166,6 @@ export const authHandlers = [
 
 	rest.get(`${API_URL}/me`, (req, res, ctx) => {
 		const accessToken = req.url.searchParams.get('accessToken') || '';
-		console.log(accessToken);
 		const user = getUserDetails(accessToken);
 		if (!user) {
 			// return 401
@@ -193,8 +192,6 @@ function getUserDetails(accessToken: string) {
 			},
 		},
 	});
-
-	console.log(db.user.getAll());
 
 	return foundUser;
 }

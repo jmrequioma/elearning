@@ -64,34 +64,20 @@
 						Description
 					</ui-textfield>
 				</div>
-				<div v-if="!uploadedImage" class="image">
-					<label for="file-input">
-						<div class="image__content">
-							<img src="@/assets/media/add-img-icon.png" />
-							<p class="upload-text">Upload course icon</p>
-						</div>
-					</label>
-					<input
-						type="file"
-						accept="image/*"
-						id="file-input"
-						@change="onFileChange"
-					/>
-				</div>
-				<div v-else class="image image--display">
-					<img :src="uploadedImage" />
+				<div class="editor">
+					<QuillEditor theme="snow" />
 				</div>
 			</div>
 		</div>
+		<AlertModal v-if="showSuccessModal">
+			<template v-slot:content>
+				<p>{{ successMessage }}</p>
+			</template>
+			<template v-slot:actions>
+				<ui-button @click="returnToSubjects">Ok</ui-button>
+			</template>
+		</AlertModal>
 	</div>
-	<AlertModal v-if="showSuccessModal">
-		<template v-slot:content>
-			<p>{{ successMessage }}</p>
-		</template>
-		<template v-slot:actions>
-			<ui-button @click="returnToSubjects">Ok</ui-button>
-		</template>
-	</AlertModal>
 </template>
 <script setup lang="ts">
 import { STATUS_OPTIONS } from '@/constants';
@@ -105,6 +91,8 @@ import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
 import AlertModal from '@/components/AlertModal.vue';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
@@ -267,69 +255,6 @@ async function editCourse() {
 	}
 }
 
-function populateDropdownItems(module: Module) {
-	if (module.isPublished) {
-		return ['Unpublish', 'Edit', 'Delete'];
-	}
-	return ['Publish', 'Edit', 'Delete'];
-}
-
-async function handleModuleStatus() {
-	// publish/unpublish the module
-	let data = {
-		id: selectedModule.value?.id,
-		title: selectedModule.value?.title,
-		isPublished: !selectedModule.value?.isPublished,
-	};
-	try {
-		const res = await moduleStore.updateModule(data);
-		if (res) {
-			fetchModules();
-		}
-	} catch (error) {
-		console.error('updating module failed', error);
-	}
-}
-
-function handleAction(action: string) {
-	if (action === 'Publish' || action === 'Unpublish') {
-		handleModuleStatus();
-	} else if (action === 'Edit') {
-		// handle Edit
-		router.push({
-			name: 'edit-subject',
-			params: {
-				id: selectedModule.value?.id,
-			},
-		});
-	} else if (action == 'Delete') {
-		// delete the module
-		deleteModule();
-	}
-}
-
-async function deleteModule() {
-	try {
-		const res = await moduleStore.deleteModule({
-			id: selectedModule.value?.id,
-		});
-		if (res) {
-			fetchModules();
-		}
-	} catch (error) {
-		console.error('Deleting module failed.', error);
-	}
-}
-
-function onFileChange(e: Event) {
-	const input = e.target as HTMLInputElement;
-	if (!input.files?.length) {
-		return;
-	}
-	const file = input.files[0];
-	uploadedImage.value = URL.createObjectURL(file);
-}
-
 function returnToSubjects() {
 	if (isEditSubjectAddModuleRoute.value) {
 		router.push({
@@ -441,43 +366,6 @@ h6 {
 	width: 100%;
 }
 
-.image {
-	display: flex;
-	justify-content: center;
-	padding-top: 44px;
-	box-sizing: border-box;
-	background-color: #c4c4c4;
-	width: 165px;
-	height: 165px;
-	border-radius: 12px;
-	align-items: center;
-	border: 8px solid $gray-4;
-
-	img {
-		max-height: 144px;
-		max-width: 128px;
-	}
-
-	&__content {
-		cursor: pointer;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	&--display {
-		padding-top: 0;
-	}
-}
-
-.upload-text {
-	font-size: 16px;
-	color: $gray-1;
-}
-
-#file-input {
-	display: none;
-}
 .course-header {
 	display: flex;
 	justify-content: flex-end;
@@ -493,160 +381,6 @@ h6 {
 	margin-top: 24px;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	border-radius: 6px 6px 0 0;
-}
-
-.table-container {
-	overflow-y: auto;
-	height: 344px;
-}
-
-.courses-table {
-	padding-top: 24px;
-	width: 100%;
-	color: $gray-1;
-	border-spacing: 0;
-
-	th {
-		padding: 12px 32px;
-		text-align: left;
-		border-bottom: 2px solid $gray-5;
-		box-sizing: border-box;
-
-		&:nth-child(1) {
-			width: 640px;
-		}
-	}
-
-	td {
-		padding: 12px 12px 12px 32px;
-		text-align: left;
-		border-bottom: 2px solid $gray-5;
-		max-height: 40px;
-	}
-
-	.row-action {
-		display: flex;
-		align-items: center;
-		align-content: center;
-		justify-content: space-between;
-		height: 40px;
-
-		&__menu {
-			position: relative;
-		}
-	}
-}
-
-.table-control {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	font-size: 12px;
-	border-top: 1px solid $gray-4;
-	width: 100%;
-	bottom: 0;
-	height: 40px;
-	box-sizing: border-box;
-
-	p,
-	label {
-		color: $gray-2;
-	}
-
-	&__container {
-		display: flex;
-		align-items: center;
-		align-content: center;
-		padding-right: 24px;
-		width: 324px;
-		justify-content: space-between;
-	}
-
-	&__dropdown {
-		display: flex;
-		align-items: center;
-	}
-
-	&__pagination {
-		display: flex;
-		width: 140px;
-		justify-content: space-between;
-		color: $gray-2;
-		align-items: center;
-	}
-}
-
-.icon {
-	color: $gray-1;
-	cursor: pointer;
-
-	&--disabled {
-		color: $gray-2;
-	}
-}
-
-select {
-	// A reset of styles, including removing the default dropdown arrow
-	appearance: none;
-	background-color: transparent;
-	border: none;
-	padding: 4px 20px 4px 4px;
-	margin: 0;
-	width: 100%;
-	font-family: inherit;
-	font-size: 12px;
-	border-bottom: 1px solid $gray-1;
-	color: $gray-1;
-	cursor: inherit;
-	line-height: inherit;
-
-	// Stack above custom arrow
-	z-index: 1;
-	&::-ms-expand {
-		display: none;
-	}
-
-	// Remove focus outline, will add on alternate element
-	outline: none;
-
-	// Custom arrow
-	&:not(.select--multiple)::after {
-		content: '';
-		justify-self: end;
-		width: 0.8em;
-		height: 0.5em;
-		background-color: var(--select-arrow);
-		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
-	}
-}
-
-.select {
-	display: grid;
-	grid-template-areas: 'select';
-	align-items: center;
-	font-size: 12px;
-	position: relative;
-
-	select {
-		grid-area: select;
-	}
-
-	padding: 0.25em 0.5em;
-
-	font-size: 1.25rem;
-	cursor: pointer;
-	line-height: 1.1;
-
-	// Custom arrow
-	&::after {
-		grid-area: select;
-		content: '';
-		justify-self: end;
-		width: 10px;
-		height: 6px;
-		background-color: $gray-1;
-		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
-	}
 }
 
 .alert {
