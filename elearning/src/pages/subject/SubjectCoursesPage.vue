@@ -104,7 +104,7 @@
 				<!-- modules tab -->
 				<div v-else-if="selectedTab == 'Modules'" class="module">
 					<div v-if="isEditSubjectEditCourseRoute" class="course-header">
-						<ui-button class="alt-btn" unelevated
+						<ui-button class="alt-btn" unelevated @click="goToSubjectModules"
 							><span class="capitalize">Add New Module</span></ui-button
 						>
 					</div>
@@ -440,6 +440,17 @@ function onFileChange(e: Event) {
 	}
 	const file = input.files[0];
 	uploadedImage.value = URL.createObjectURL(file);
+}
+
+// go to courses subject-modules page
+function goToSubjectModules() {
+	router.push({
+		name: 'edit-subject-add-module',
+		params: {
+			subjectId: fetchedSubject.value?.id,
+			courseId: fetchedCourse.value?.id,
+		},
+	});
 }
 
 function returnToSubjects() {

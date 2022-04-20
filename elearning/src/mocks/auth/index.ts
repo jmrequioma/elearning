@@ -1,6 +1,5 @@
 import { rest } from 'msw';
 import { API_URL } from '@/constants';
-import { users } from '../mockedData';
 import { DELAY } from '@/mocks/constants';
 import { db } from '@/mocks/db';
 import { extractAccessToken, validateAuth } from '../utils';
@@ -166,7 +165,9 @@ export const authHandlers = [
 	}),
 
 	rest.get(`${API_URL}/me`, (req, res, ctx) => {
-		const user = getUserDetails('accessToken1');
+		const accessToken = req.url.searchParams.get('accessToken') || '';
+		console.log(accessToken);
+		const user = getUserDetails(accessToken);
 		if (!user) {
 			// return 401
 			return res(ctx.delay(DELAY), ctx.status(401));
@@ -185,7 +186,15 @@ export const authHandlers = [
 function getUserDetails(accessToken: string) {
 	// do a simple checking just to return mocked data
 	// implementation of this should be done at backend
-	const foundUser = users.find((user) => user.accessToken === accessToken);
+	const foundUser = db.user.findFirst({
+		where: {
+			accessToken: {
+				equals: accessToken,
+			},
+		},
+	});
+
+	console.log(db.user.getAll());
 
 	return foundUser;
 }

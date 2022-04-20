@@ -70,7 +70,7 @@
 				<div class="user">
 					<div class="user__details">
 						<img src="@/assets/media/avatar.png" class="user__avatar" />
-						j.smith@arcanys.com
+						{{ authStore.loggedInUser?.email }}
 					</div>
 					<div class="user__menu">
 						<ui-icon class="icon" @click="openUserDropdown = true"
@@ -106,7 +106,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
@@ -121,10 +121,18 @@ const courseRoute = computed(() => {
 	return route.name === 'courses';
 });
 
+function getUserDetails() {
+	authStore.getLoggedInUserInfo();
+}
+
 function logout() {
 	authStore.logout();
 	router.push({ name: 'login' });
 }
+
+onMounted(() => {
+	getUserDetails();
+});
 </script>
 <style scoped lang="scss">
 @import '../assets/scss/abstract/variables.scss';
