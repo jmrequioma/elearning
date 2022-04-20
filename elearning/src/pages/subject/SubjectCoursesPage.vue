@@ -4,7 +4,7 @@
 			<div class="subject-header">
 				<div class="subject-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6>{{ headerTitle }}</h6>
+					<h6 v-if="!isLoading">{{ headerTitle }}</h6>
 				</div>
 				<div class="subject-header__content">
 					<ui-button class="save-btn" unelevated @click="save">Save</ui-button>
@@ -63,7 +63,7 @@
 							v-model="selectedStatus"
 							outlined
 							required
-							:disabled="isAddSubjectCourseRoute"
+							:disabled="isEditSubjectAddCourseRoute"
 							fullwidth
 							:options="statusOptions"
 						>
@@ -103,9 +103,9 @@
 				</div>
 				<!-- modules tab -->
 				<div v-else-if="selectedTab == 'Modules'" class="module">
-					<div class="course-header">
+					<div v-if="isEditSubjectEditCourseRoute" class="course-header">
 						<ui-button class="alt-btn" unelevated
-							><span class="capitalize">Add New Course</span></ui-button
+							><span class="capitalize">Add New Module</span></ui-button
 						>
 					</div>
 					<div class="course-content">
@@ -113,26 +113,22 @@
 							<table class="courses-table">
 								<tr>
 									<th>Title</th>
-									<th>Author</th>
-									<th>Modules</th>
 									<th>Duration</th>
 									<th>Status</th>
 								</tr>
 								<tr
-									v-for="course in courses"
-									:key="course.id"
-									@click="selectedCourse = course"
+									v-for="m in modules"
+									:key="m.id"
+									@click="selectedModule = m"
 								>
-									<td>{{ course.title }}</td>
-									<td>{{ course.author }}</td>
-									<td>{{ getModulesCount(course) }} Modules</td>
-									<td>{{ course.duration }} min</td>
+									<td>{{ m.title }}</td>
+									<td>{{ m.duration }}</td>
 									<td class="row-action">
-										<template v-if="course.isPublished"> Published </template>
+										<template v-if="m.isPublished"> Published </template>
 										<template v-else> Draft </template>
 										<div class="row-action__menu">
 											<DropdownMenu
-												:items="populateDropdownItems(course)"
+												:items="populateDropdownItems(m)"
 												@handle-action="handleAction"
 											/>
 										</div>
@@ -181,7 +177,7 @@
 				<p>{{ successMessage }}</p>
 			</template>
 			<template v-slot:actions>
-				<ui-button @click="$router.push({ name: 'subjects' })">Ok</ui-button>
+				<ui-button @click="returnToSubjects">Ok</ui-button>
 			</template>
 		</AlertModal>
 	</div>
@@ -191,13 +187,15 @@ import { STATUS_OPTIONS } from '@/constants';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { useCoursesStore } from '@/stores/course';
+import { useModulesStore } from '@/stores/module';
 import { usePagination } from '@/composables/pagination';
+import { useRoute } from 'vue-router';
+import type { Course, Module, Subject } from '@/types';
+import _ from 'lodash';
+import { useRouter } from 'vue-router';
+
 import DropdownMenu from '@/components/DropdownMenu.vue';
 import AlertModal from '@/components/AlertModal.vue';
-import { useRoute, onBeforeRouteLeave } from 'vue-router';
-import type { Course, Subject } from '@/types';
-import _ from 'lodash';
-import router from '@/router';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
@@ -206,15 +204,20 @@ const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
 const courseStore = useCoursesStore();
+const moduleStore = useModulesStore();
 const fetchedSubject = ref<Subject>();
-const courses = ref<Course[]>([]);
+const fetchedCourse = ref<Course>();
+const modules = ref<Module[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
+const courseId = ref(0);
 const selectedTab = ref('Courses');
 const totalCourseCount = ref(0);
-const selectedCourse = ref<Course>();
+const selectedModule = ref<Module>();
 const uploadedImage = ref('');
+const router = useRouter();
+const isLoading = ref(false);
 
 const {
 	options,
@@ -231,46 +234,52 @@ const {
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchCourses();
+		fetchModules();
 	}, 500)
 );
 
 const headerTitle = computed(() => {
-	return fetchedSubject.value
-		? `${fetchedSubject.value?.title} > Add a course`
+	const subjectText = fetchedSubject.value
+		? `${fetchedSubject.value?.title}`
 		: '';
+	const courseText = fetchedCourse.value ? `${fetchedCourse.value?.title}` : '';
+
+	return isEditSubjectAddCourseRoute.value
+		? `${subjectText} > Add a course`
+		: `${subjectText} > ${courseText}`;
 });
 
-const isAddSubjectCourseRoute = computed(() => {
-	return route.name?.toString() === 'add-subject-course';
+const isEditSubjectAddCourseRoute = computed(() => {
+	return route.name?.toString() === 'edit-subject-add-course';
+});
+
+const isEditSubjectEditCourseRoute = computed(() => {
+	return route.name?.toString() === 'edit-subject-edit-course';
 });
 
 const successMessage = computed(() => {
-	if (isAddSubjectCourseRoute.value) {
-		return `Successfully created a subject named ${title.value}.`;
+	if (isEditSubjectAddCourseRoute.value) {
+		return `Successfully created a course named ${title.value}.`;
 	} else {
-		return 'Subject is successfully updated.';
+		return 'Course is successfully updated.';
 	}
-});
-
-const unsavedChanges = computed(() => {
-	const status = selectedStatus.value === 'Draft' ? false : true;
-	if (!isAddSubjectCourseRoute.value) {
-		return (
-			title.value != fetchedSubject.value?.title ||
-			status != fetchedSubject.value?.isPublished
-		);
-	}
-	return false;
 });
 
 onMounted(async () => {
 	const id = route.params.subjectId;
 	subjectId.value = parseInt(id?.toString());
 	// fetch specific subject
+	isLoading.value = true;
 	await fetchSpecificSubject();
-	// fetch related courses
-	fetchCourses();
+	// if editing a course on edit subject, fetch the course
+	if (isEditSubjectEditCourseRoute.value) {
+		const courseParamId = route.params.courseId;
+		courseId.value = parseInt(courseParamId?.toString());
+		await fetchSpecificCourse();
+		// fetch modules only if editing course
+		fetchModules();
+	}
+	isLoading.value = false;
 });
 
 function validateTitle() {
@@ -290,7 +299,7 @@ async function createCourse() {
 	try {
 		const res = await courseStore.createCourse(data);
 		if (res) {
-			// showSuccessModal.value = true;
+			showSuccessModal.value = true;
 		}
 	} catch (error) {
 		console.error('creating course failed', error);
@@ -303,10 +312,10 @@ async function createCourse() {
 function save() {
 	validateTitle();
 	if (!titleErrorMsg.value) {
-		if (isAddSubjectCourseRoute.value) {
+		if (isEditSubjectAddCourseRoute.value) {
 			createCourse();
 		} else {
-			editSubject();
+			editCourse();
 		}
 	}
 }
@@ -317,101 +326,110 @@ async function fetchSpecificSubject() {
 	try {
 		const res = await subjectsStore.fetchSubjectDetails(data);
 		fetchedSubject.value = res.data;
-		// set the text field models
-		// title.value = res.data.title;
-		// selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
 	} catch (error) {
 		console.error('fetching specific subject failed', error);
 	}
 }
 
-async function fetchCourses() {
+async function fetchSpecificCourse() {
+	const data = { id: courseId.value };
+	// fetch specific course
+	try {
+		const res = await courseStore.fetchCourseDetails(data);
+		fetchedCourse.value = res.data;
+		// set the appropriate models to display
+		title.value = res.data.title;
+		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
+		desc.value = res.data.description;
+		uploadedImage.value = res.data.icon;
+	} catch (error) {
+		console.error('fetching specific course failed', error);
+	}
+}
+
+async function fetchModules() {
 	const data = {
-		subjectId: fetchedSubject.value?.id,
+		courseId: fetchedCourse.value?.id,
 		page: currPage.value,
 		limit: selectedLimit.value,
 	};
 	try {
-		const res = await courseStore.fetchCourses(data);
+		const res = await moduleStore.fetchModules(data);
 		if (res) {
-			courses.value = res.data.data;
+			modules.value = res.data.data;
 		}
 	} catch (error) {
-		console.error('fetching courses failed', error);
+		console.error('fetching modules failed', error);
 	}
 }
 
-async function editSubject() {
+async function editCourse() {
 	try {
 		let data = {
-			id: fetchedSubject.value?.id,
+			id: fetchedCourse.value?.id,
 			title: title.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
 		};
-		const res = await subjectsStore.updateSubject(data);
+		const res = await courseStore.updateCourse(data);
 		if (res) {
 			showSuccessModal.value = true;
 		}
 	} catch (error) {
-		console.error('editing specific subject failed', error);
+		console.error('editing specific course failed', error);
 	}
 }
 
-function getModulesCount(course: Course) {
-	return course.modules?.length;
-}
-
-function populateDropdownItems(course: Course) {
-	if (course.isPublished) {
+function populateDropdownItems(module: Module) {
+	if (module.isPublished) {
 		return ['Unpublish', 'Edit', 'Delete'];
 	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-async function handleCourseStatus() {
-	// publish/unpublish the course
+async function handleModuleStatus() {
+	// publish/unpublish the module
 	let data = {
-		id: selectedCourse.value?.id,
-		title: selectedCourse.value?.title,
-		isPublished: !selectedCourse.value?.isPublished,
+		id: selectedModule.value?.id,
+		title: selectedModule.value?.title,
+		isPublished: !selectedModule.value?.isPublished,
 	};
 	try {
-		const res = await courseStore.updateCourse(data);
+		const res = await moduleStore.updateModule(data);
 		if (res) {
-			fetchCourses();
+			fetchModules();
 		}
 	} catch (error) {
-		console.error('updating course failed', error);
+		console.error('updating module failed', error);
 	}
 }
 
 function handleAction(action: string) {
 	if (action === 'Publish' || action === 'Unpublish') {
-		handleCourseStatus();
+		handleModuleStatus();
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
 			name: 'edit-subject',
 			params: {
-				id: selectedCourse.value?.id,
+				id: selectedModule.value?.id,
 			},
 		});
 	} else if (action == 'Delete') {
-		// delete the course
-		deleteCourse();
+		// delete the module
+		deleteModule();
 	}
 }
 
-async function deleteCourse() {
+async function deleteModule() {
 	try {
-		const res = await courseStore.deleteCourse({
-			id: selectedCourse.value?.id,
+		const res = await moduleStore.deleteModule({
+			id: selectedModule.value?.id,
 		});
 		if (res) {
-			fetchCourses();
+			fetchModules();
 		}
 	} catch (error) {
-		console.error('Deleting course failed.', error);
+		console.error('Deleting module failed.', error);
 	}
 }
 
@@ -424,15 +442,15 @@ function onFileChange(e: Event) {
 	uploadedImage.value = URL.createObjectURL(file);
 }
 
-onBeforeRouteLeave(() => {
-	if (!showSuccessModal.value && unsavedChanges.value) {
-		const answer = window.confirm(
-			'Do you really want to leave? you have unsaved changes!'
-		);
-		// cancel the navigation and stay on the same page
-		if (!answer) return false;
+function returnToSubjects() {
+	if (isEditSubjectAddCourseRoute.value) {
+		router.push({
+			name: 'subjects',
+		});
+	} else {
+		showSuccessModal.value = false;
 	}
-});
+}
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
@@ -513,13 +531,13 @@ h6 {
 }
 
 .module {
-	margin-top: 14px;
 	width: 100%;
 }
 
 .col-2 {
 	display: flex;
 	justify-content: space-between;
+	margin-top: 14px;
 	margin-bottom: 20px;
 }
 
@@ -607,7 +625,7 @@ h6 {
 		box-sizing: border-box;
 
 		&:nth-child(1) {
-			width: 436px;
+			width: 640px;
 		}
 	}
 

@@ -72,16 +72,8 @@
 				</div>
 				<!-- courses tab -->
 				<div v-else-if="selectedTab == 'Courses'" class="course">
-					<div class="course-header">
-						<ui-button
-							class="alt-btn"
-							unelevated
-							@click="
-								router.push({
-									name: 'add-subject-course',
-									params: { subjectId: fetchedSubject?.id },
-								})
-							"
+					<div v-if="!isAddSubjectRoute" class="course-header">
+						<ui-button class="alt-btn" unelevated @click="goToSubjectCourses"
 							><span class="capitalize">Add New Course</span></ui-button
 						>
 					</div>
@@ -158,7 +150,7 @@
 				<p>{{ successMessage }}</p>
 			</template>
 			<template v-slot:actions>
-				<ui-button @click="showSuccessModal = false">Ok</ui-button>
+				<ui-button @click="returnToSubjects">Ok</ui-button>
 			</template>
 		</AlertModal>
 		<router-view />
@@ -175,7 +167,7 @@ import AlertModal from '@/components/AlertModal.vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import type { Course, Subject } from '@/types';
 import _ from 'lodash';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
@@ -191,6 +183,7 @@ const subjectId = ref(0);
 const selectedTab = ref('Subjects');
 const totalCourseCount = ref(0);
 const selectedCourse = ref<Course>();
+const router = useRouter();
 
 const {
 	options,
@@ -367,9 +360,10 @@ function handleAction(action: string) {
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-subject',
+			name: 'edit-subject-edit-course',
 			params: {
-				id: selectedCourse.value?.id,
+				subjectId: fetchedSubject.value?.id,
+				courseId: selectedCourse.value?.id,
 			},
 		});
 	} else if (action == 'Delete') {
@@ -388,6 +382,27 @@ async function deleteCourse() {
 		}
 	} catch (error) {
 		console.error('Deleting course failed.', error);
+	}
+}
+
+// go to courses subject-courses page
+function goToSubjectCourses() {
+	let link = {};
+	// current route is edit subject
+	link = {
+		name: 'edit-subject-add-course',
+		params: { subjectId: fetchedSubject.value?.id },
+	};
+	router.push(link);
+}
+
+function returnToSubjects() {
+	if (isAddSubjectRoute.value) {
+		router.push({
+			name: 'subjects',
+		});
+	} else {
+		showSuccessModal.value = false;
 	}
 }
 

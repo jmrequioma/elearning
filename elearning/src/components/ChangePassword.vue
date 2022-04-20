@@ -84,7 +84,7 @@
 			</p>
 		</template>
 		<template v-slot:actions>
-			<ui-button @click="$router.push({ name: 'login' })">Ok</ui-button>
+			<ui-button @click="router.push({ name: 'login' })">Ok</ui-button>
 		</template>
 	</AlertModal>
 </template>
@@ -92,6 +92,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 import AlertModal from './AlertModal.vue';
+import { useRouter } from 'vue-router';
 
 const currPassword = ref('');
 const currPasswordErrorMsg = ref('');
@@ -101,6 +102,7 @@ const passwordErrorMsg = ref('');
 const notBlankFormat = '.{1,}';
 const showSuccessModal = ref(false);
 const authStore = useAuthStore();
+const router = useRouter();
 
 function validatePasswords() {
 	if (password.value === confPassword.value) {

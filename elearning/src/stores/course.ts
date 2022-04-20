@@ -32,5 +32,9 @@ export const useCoursesStore = defineStore({
 		createCourse(data: DataBody) {
 			return apiClient.post('/courses/', data);
 		},
+
+		fetchCourseDetails(data: DataBody) {
+			return apiClient.get(`/courses/${data.id}`);
+		},
 	},
 });

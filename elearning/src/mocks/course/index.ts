@@ -202,4 +202,30 @@ export const courseHandlers = [
 		});
 		return res(ctx.delay(DELAY), ctx.json(course));
 	}),
+
+	// get course details
+	rest.get(`${API_URL}/courses/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const course = db.course.findFirst({
+			where: { id: { equals: id } },
+		});
+
+		if (!course) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Course not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(course));
+	}),
 ];

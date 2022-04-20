@@ -49,7 +49,7 @@
 					<ui-button
 						class="add-subject-btn"
 						unelevated
-						@click="$router.push({ name: 'add-subject' })"
+						@click="router.push({ name: 'add-subject' })"
 						>Add New Subject</ui-button
 					>
 				</div>
@@ -136,7 +136,7 @@ import type { Subject } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 import AlertModal from '@/components/AlertModal.vue';
 import _ from 'lodash';
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
 const search = ref('');
 const totalCount = ref(0);
@@ -165,6 +165,7 @@ const openFilter = ref(false);
 const checkedPublished = ref(false);
 const checkedDraft = ref(false);
 const showDeleteModal = ref(false);
+const router = useRouter();
 
 watch(
 	currPage,

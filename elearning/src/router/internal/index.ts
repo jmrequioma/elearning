@@ -36,10 +36,21 @@ export default [
 			},
 			{
 				path: '/edit-subject/:subjectId/add-course',
-				name: 'add-subject-course',
+				name: 'edit-subject-add-course',
 				component: () => import('@/pages/subject/SubjectCoursesPage.vue'),
 				meta: {
-					title: 'Add Course (Subject) - E-Learning',
+					title: 'Edit Subject -> Add Course - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+				props: true,
+			},
+			{
+				path: '/edit-subject/:subjectId/edit-course/:courseId',
+				name: 'edit-subject-edit-course',
+				component: () => import('@/pages/subject/SubjectCoursesPage.vue'),
+				meta: {
+					title: 'Edit Subject -> Edit Course - E-Learning',
 					authRequired: true,
 					hideWhenAuthenticated: false,
 				},

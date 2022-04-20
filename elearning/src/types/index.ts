@@ -40,6 +40,7 @@ export type Course = {
 export type Module = {
 	id: number;
 	title: string;
+	duration: number;
 	description: string;
 	isPublished: boolean;
 	createdAt: string;

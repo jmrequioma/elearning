@@ -9,14 +9,14 @@ const model = {
 		id: primaryKey(Number),
 		email: String,
 		password: String,
-		salt: faker.internet.password,
+		salt: String,
 		firstName: String,
 		lastName: String,
 		role: String,
 		isActive: Boolean,
 		createdAt: String,
 		updatedAt: String,
-		accessToken: faker.datatype.uuid, // should be taken from the backend
+		accessToken: String, // should be taken from the backend
 	},
 
 	subject: {
