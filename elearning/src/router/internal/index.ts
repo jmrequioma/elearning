@@ -61,6 +61,17 @@ export default [
 				name: 'edit-subject-add-module',
 				component: () => import('@/pages/subject/SubjectModulesPage.vue'),
 				meta: {
+					title: 'Edit Subject -> Add Module - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+				props: true,
+			},
+			{
+				path: '/edit-subject/:subjectId/edit-course/:courseId/edit-module/:moduleId',
+				name: 'edit-subject-edit-module',
+				component: () => import('@/pages/subject/SubjectModulesPage.vue'),
+				meta: {
 					title: 'Edit Subject -> Edit Module - E-Learning',
 					authRequired: true,
 					hideWhenAuthenticated: false,

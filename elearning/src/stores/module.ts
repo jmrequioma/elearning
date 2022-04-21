@@ -21,6 +21,10 @@ export const useModulesStore = defineStore({
 			});
 		},
 
+		fetchModuleDetails(data: DataBody) {
+			return apiClient.get(`/modules/${data.id}`);
+		},
+
 		updateModule(data: DataBody) {
 			return apiClient.patch(`/modules/${data.id}`, data);
 		},

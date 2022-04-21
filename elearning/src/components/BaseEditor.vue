@@ -1,7 +1,9 @@
 <template>
 	<div class="quill-container">
 		<QuillEditor
+			ref="quill"
 			v-model:content="content"
+			:content="content"
 			:toolbar="[
 				[{ header: [1, 2, 3, 4, 5, 6, false] }],
 				['bold', 'italic', 'underline'],
@@ -17,7 +19,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Delta, QuillEditor } from '@vueup/vue-quill';
+import { Delta, Quill, QuillEditor } from '@vueup/vue-quill';
 import { onMounted, ref, watch } from 'vue';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
 
@@ -25,15 +27,21 @@ const props = defineProps({
 	editorContent: Object,
 });
 
+const quill = ref<Quill>(null);
 const content = ref<Delta>();
 const emit = defineEmits(['handleContent']);
 
 onMounted(() => {
 	// set props to a ref
 	content.value = props.editorContent as Delta;
+	setTimeout(() => {
+		// content.value = props.editorContent as Delta;
+		quill.value.setContents(props.editorContent);
+	}, 5000);
 });
 
 watch(content, (newContent) => {
+	// quill?.value.setContents(newContent);
 	emit('handleContent', newContent);
 });
 </script>

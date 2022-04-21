@@ -10,5 +10,9 @@ export const useContentsStore = defineStore({
 		createContent(data: DataBody) {
 			return apiClient.post('/contents/', data);
 		},
+
+		updateContent(data: DataBody) {
+			return apiClient.patch(`/contents/${data.id}`, data);
+		},
 	},
 });

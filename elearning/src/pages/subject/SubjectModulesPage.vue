@@ -90,7 +90,7 @@ import { useCoursesStore } from '@/stores/course';
 import { useModulesStore } from '@/stores/module';
 import { useContentsStore } from '@/stores/content';
 import { useRoute } from 'vue-router';
-import type { Course, Module, Subject } from '@/types';
+import type { Course, Module, Subject, Content } from '@/types';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
@@ -99,7 +99,7 @@ import BaseEditor from '@/components/BaseEditor.vue';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
-const duration = ref('');
+const duration = ref(0);
 const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
@@ -108,12 +108,14 @@ const moduleStore = useModulesStore();
 const contentStore = useContentsStore();
 const fetchedSubject = ref<Subject>();
 const fetchedCourse = ref<Course>();
+const fetchedModule = ref<Module>();
+const fetchedContent = ref<Content>();
 const modules = ref<Module[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
 const courseId = ref(0);
-const selectedModule = ref<Module>();
+const moduleId = ref(0);
 const uploadedImage = ref('');
 const content = ref({});
 const router = useRouter();
@@ -124,10 +126,11 @@ const headerTitle = computed(() => {
 		? `${fetchedSubject.value?.title}`
 		: '';
 	const courseText = fetchedCourse.value ? `${fetchedCourse.value?.title}` : '';
+	const moduleText = fetchedModule.value ? `${fetchedModule.value?.title}` : '';
 
 	return isEditSubjectAddModuleRoute.value
 		? `${subjectText} > ${courseText} > Add modules`
-		: `${subjectText} > ${courseText}`;
+		: `${subjectText} > ${courseText} > ${moduleText}`;
 });
 
 const isEditSubjectAddModuleRoute = computed(() => {
@@ -142,7 +145,7 @@ const successMessage = computed(() => {
 	if (isEditSubjectAddModuleRoute.value) {
 		return `Successfully created a module named ${title.value}.`;
 	} else {
-		return 'Course is successfully updated.';
+		return 'Module is successfully updated.';
 	}
 });
 
@@ -157,8 +160,10 @@ onMounted(async () => {
 	await fetchSpecificCourse();
 	// if editing a module on edit subject, fetch the module
 	if (isEditSubjectEditModuleRoute.value) {
-		// fetch modules only if editing course
-		// fetchModules();
+		// fetch module only if editing course
+		const moduleParamId = route.params.moduleId;
+		moduleId.value = parseInt(moduleParamId?.toString());
+		await fetchSpecificModule();
 	}
 	isLoading.value = false;
 });
@@ -180,7 +185,6 @@ async function createModule() {
 	try {
 		const res = await moduleStore.createModule(data);
 		if (res) {
-			showSuccessModal.value = true;
 			// create content
 			createContent(res.data.id);
 		}
@@ -214,7 +218,7 @@ function save() {
 		if (isEditSubjectAddModuleRoute.value) {
 			createModule();
 		} else {
-			editCourse();
+			editModule();
 		}
 	}
 }
@@ -236,45 +240,63 @@ async function fetchSpecificCourse() {
 	try {
 		const res = await courseStore.fetchCourseDetails(data);
 		fetchedCourse.value = res.data;
-		// set the appropriate models to display
-		// title.value = res.data.title;
-		// selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
-		// desc.value = res.data.description;
-		// uploadedImage.value = res.data.icon;
 	} catch (error) {
 		console.error('fetching specific course failed', error);
 	}
 }
 
-async function fetchModules() {
+async function fetchSpecificModule() {
 	const data = {
-		courseId: fetchedCourse.value?.id,
-		// page: currPage.value,
-		// limit: selectedLimit.value,
+		id: moduleId.value,
 	};
 	try {
-		const res = await moduleStore.fetchModules(data);
+		const res = await moduleStore.fetchModuleDetails(data);
 		if (res) {
-			modules.value = res.data.data;
+			fetchedModule.value = res.data;
+			// set the appropriate models to display
+			title.value = res.data.title;
+			selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
+			duration.value = res.data.duration;
+			// display content
+			fetchedContent.value = res.data.contents[0];
+			content.value = JSON.parse(res.data.contents[0].content);
 		}
 	} catch (error) {
-		console.error('fetching modules failed', error);
+		console.error('fetching specific module failed', error);
 	}
 }
 
-async function editCourse() {
+async function editContent() {
 	try {
 		let data = {
-			id: fetchedCourse.value?.id,
-			title: title.value,
-			isPublished: selectedStatus.value === 'Draft' ? false : true,
+			id: fetchedContent.value?.id,
+			content: JSON.stringify(content.value),
 		};
-		const res = await courseStore.updateCourse(data);
+		const res = await contentStore.updateContent(data);
+
 		if (res) {
 			showSuccessModal.value = true;
 		}
 	} catch (error) {
-		console.error('editing specific course failed', error);
+		console.error('editing specific content failed', error);
+	}
+}
+
+async function editModule() {
+	try {
+		let data = {
+			id: fetchedModule.value?.id,
+			title: title.value,
+			isPublished: selectedStatus.value === 'Draft' ? false : true,
+			duration: duration.value,
+		};
+		const res = await moduleStore.updateModule(data);
+
+		if (res) {
+			editContent();
+		}
+	} catch (error) {
+		console.error('editing specific module failed', error);
 	}
 }
 

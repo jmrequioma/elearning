@@ -86,16 +86,17 @@ export const moduleHandlers = [
 		if (auth.errorMessage) {
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
-		const { title, isPublished } = req.body as {
+		const { title, isPublished, duration } = req.body as {
 			title: string;
 			isPublished: boolean;
+			duration: number;
 		};
 		const id = Number(req.params.id);
 
 		const date = new Date().toISOString();
 		const newModule = db.module.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished, updatedAt: date },
+			data: { title, isPublished, duration: Number(duration), updatedAt: date },
 		});
 
 		if (!newModule) {
@@ -184,6 +185,32 @@ export const moduleHandlers = [
 			courseId: data.id,
 			contents: [],
 		});
+
+		return res(ctx.delay(DELAY), ctx.json(module));
+	}),
+
+	// get module details
+	rest.get(`${API_URL}/modules/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const module = db.module.findFirst({
+			where: { id: { equals: id } },
+		});
+
+		if (!module) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Module not found.',
+				})
+			);
+		}
 
 		return res(ctx.delay(DELAY), ctx.json(module));
 	}),

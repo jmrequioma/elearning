@@ -47,12 +47,25 @@ export type Module = {
 	updatedAt: string;
 	authorId: number;
 	courseId: number;
+	contents?: Array<Content>;
+};
+
+export type Content = {
+	id: number;
+	content: string;
+	type: string;
+	isPublished: boolean;
+	createdAt: string;
+	updatedAt: string;
+	authorId: number;
+	moduleId: number;
 };
 
 export type DataBody = {
 	id?: number;
 	title?: string;
 	isPublished?: boolean;
+	duration?: number;
 };
 
 export type LoginBody = {

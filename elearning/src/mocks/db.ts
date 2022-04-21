@@ -80,8 +80,8 @@ function seedContent(moduleId: number) {
 	const contentId = db.content.count() + 1;
 	const newContent = db.content.create({
 		id: contentId,
-		content:
-			'"{"ops":[{"insert":"Introduction"},{"attributes":{"header":1},"insert":"\n"}]}"',
+		content: `{"ops":[{"insert":"Introduction"},{"attributes":{"header":1},"insert":"\\n"},
+		{"insert":"\\nhello all\\n\\n\\n\\n"}]}`,
 		type: 'text',
 		isPublished: true,
 		createdAt: '2022-03-01T20:35:47.402Z',

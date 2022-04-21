@@ -410,9 +410,11 @@ function handleAction(action: string) {
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-subject',
+			name: 'edit-subject-edit-module',
 			params: {
-				id: selectedModule.value?.id,
+				subjectId: fetchedSubject.value?.id,
+				courseId: fetchedCourse.value?.id,
+				moduleId: selectedModule.value?.id,
 			},
 		});
 	} else if (action == 'Delete') {
