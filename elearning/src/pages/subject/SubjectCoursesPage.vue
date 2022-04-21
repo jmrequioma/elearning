@@ -373,6 +373,7 @@ async function editCourse() {
 		const res = await courseStore.updateCourse(data);
 		if (res) {
 			showSuccessModal.value = true;
+			fetchedCourse.value = res.data;
 		}
 	} catch (error) {
 		console.error('editing specific course failed', error);

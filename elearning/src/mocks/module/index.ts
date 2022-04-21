@@ -2,7 +2,7 @@ import { rest } from 'msw';
 import { API_URL } from '@/constants';
 import { DELAY, DEFAULT_LIMIT, DEFAULT_PAGE } from '@/mocks/constants';
 import { db } from '@/mocks/db';
-import { validateAuth } from '../utils';
+import { validateAuth, extractAccessToken, checkAuth } from '../utils';
 import faker from '@faker-js/faker';
 
 export const moduleHandlers = [
@@ -134,5 +134,57 @@ export const moduleHandlers = [
 		}
 
 		return res(ctx.delay(DELAY), ctx.status(200));
+	}),
+
+	// add module
+	rest.post(`${API_URL}/modules`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+		const accessToken = extractAccessToken(req) as string;
+		const loggedInUser = checkAuth(accessToken);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+
+		const data = req.body as {
+			id: number;
+			title: string;
+			isPublished: boolean;
+			duration: number;
+		};
+
+		const existingModule = db.module.findFirst({
+			where: {
+				title: {
+					equals: data.title,
+				},
+			},
+		});
+
+		if (existingModule) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(409),
+				ctx.json({
+					message: 'Title must be unique.',
+				})
+			);
+		}
+
+		const lastId = db.module.count();
+
+		const date = new Date().toISOString();
+		const module = db.module.create({
+			id: lastId + 1,
+			title: data.title,
+			duration: data.duration,
+			isPublished: true,
+			createdAt: date,
+			updatedAt: date,
+			authorId: loggedInUser?.id,
+			courseId: data.id,
+			contents: [],
+		});
+
+		return res(ctx.delay(DELAY), ctx.json(module));
 	}),
 ];

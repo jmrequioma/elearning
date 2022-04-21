@@ -52,6 +52,18 @@ const model = {
 		updatedAt: String,
 		authorId: Number,
 		courseId: Number,
+		contents: manyOf('content'),
+	},
+
+	content: {
+		id: primaryKey(Number),
+		content: String,
+		type: String,
+		isPublished: Boolean,
+		createdAt: String,
+		updatedAt: String,
+		authorId: Number,
+		moduleId: Number,
 	},
 };
 
@@ -64,10 +76,28 @@ function seedUsers() {
 	});
 }
 
+function seedContent(moduleId: number) {
+	const contentId = db.content.count() + 1;
+	const newContent = db.content.create({
+		id: contentId,
+		content:
+			'"{"ops":[{"insert":"Introduction"},{"attributes":{"header":1},"insert":"\n"}]}"',
+		type: 'text',
+		isPublished: true,
+		createdAt: '2022-03-01T20:35:47.402Z',
+		updatedAt: '2022-03-01T20:35:47.402Z',
+		authorId: users[1].id,
+		moduleId: moduleId,
+	});
+
+	return newContent;
+}
+
 function seedModules(moduleCount: number, courseId: number) {
 	const modules = [];
 	for (let i = 0; i < moduleCount; i++) {
 		const moduleId = db.module.count() + 1;
+		const newContent = seedContent(moduleId);
 		const module = {
 			id: moduleId,
 			title: `${faker.random.word()} ${moduleId} Module`,
@@ -77,6 +107,7 @@ function seedModules(moduleCount: number, courseId: number) {
 			updatedAt: '2022-03-01T20:35:47.402Z',
 			authorId: users[1].id,
 			courseId: courseId,
+			contents: [newContent],
 		};
 		const newModule = db.module.create(module);
 		modules.push(newModule);

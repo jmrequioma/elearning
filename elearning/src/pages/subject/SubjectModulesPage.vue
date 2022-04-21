@@ -54,18 +54,21 @@
 				<div class="col-1">
 					<ui-textfield
 						id="title"
-						v-model="desc"
+						v-model="duration"
 						class="field"
-						input-type="text"
+						input-type="number"
 						outlined
 						helper-text-id="title-helper-text"
 						@keyup.enter="save"
 					>
-						Description
+						Duration
 					</ui-textfield>
 				</div>
 				<div class="editor">
-					<QuillEditor theme="snow" />
+					<BaseEditor
+						:editor-content="content"
+						@handle-content="handleContent"
+					/>
 				</div>
 			</div>
 		</div>
@@ -85,23 +88,24 @@ import { computed, onMounted, ref } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { useCoursesStore } from '@/stores/course';
 import { useModulesStore } from '@/stores/module';
+import { useContentsStore } from '@/stores/content';
 import { useRoute } from 'vue-router';
 import type { Course, Module, Subject } from '@/types';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
 import AlertModal from '@/components/AlertModal.vue';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import BaseEditor from '@/components/BaseEditor.vue';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
-const desc = ref('');
+const duration = ref('');
 const selectedStatus = ref('');
 const titleErrorMsg = ref('');
 const subjectsStore = useSubjectsStore();
 const courseStore = useCoursesStore();
 const moduleStore = useModulesStore();
+const contentStore = useContentsStore();
 const fetchedSubject = ref<Subject>();
 const fetchedCourse = ref<Course>();
 const modules = ref<Module[]>([]);
@@ -111,6 +115,7 @@ const subjectId = ref(0);
 const courseId = ref(0);
 const selectedModule = ref<Module>();
 const uploadedImage = ref('');
+const content = ref({});
 const router = useRouter();
 const isLoading = ref(false);
 
@@ -135,7 +140,7 @@ const isEditSubjectEditModuleRoute = computed(() => {
 
 const successMessage = computed(() => {
 	if (isEditSubjectAddModuleRoute.value) {
-		return `Successfully created a course named ${title.value}.`;
+		return `Successfully created a module named ${title.value}.`;
 	} else {
 		return 'Course is successfully updated.';
 	}
@@ -166,22 +171,40 @@ function validateTitle() {
 	}
 }
 
-async function createCourse() {
+async function createModule() {
 	const data = {
-		id: fetchedSubject.value?.id,
+		id: fetchedCourse.value?.id,
 		title: title.value,
-		description: desc.value,
+		duration: duration.value,
 	};
 	try {
-		const res = await courseStore.createCourse(data);
+		const res = await moduleStore.createModule(data);
+		if (res) {
+			showSuccessModal.value = true;
+			// create content
+			createContent(res.data.id);
+		}
+	} catch (error) {
+		console.error('creating module failed', error);
+		if ((error as Error).message.includes('409')) {
+			titleErrorMsg.value = 'Module already exists.';
+		}
+	}
+}
+
+async function createContent(moduleId: number) {
+	const data = {
+		id: moduleId,
+		content: JSON.stringify(content.value),
+	};
+
+	try {
+		const res = await contentStore.createContent(data);
 		if (res) {
 			showSuccessModal.value = true;
 		}
 	} catch (error) {
-		console.error('creating course failed', error);
-		if ((error as Error).message.includes('409')) {
-			titleErrorMsg.value = 'Course already exists.';
-		}
+		console.error('creating content failed', error);
 	}
 }
 
@@ -189,7 +212,7 @@ function save() {
 	validateTitle();
 	if (!titleErrorMsg.value) {
 		if (isEditSubjectAddModuleRoute.value) {
-			createCourse();
+			createModule();
 		} else {
 			editCourse();
 		}
@@ -257,12 +280,15 @@ async function editCourse() {
 
 function returnToSubjects() {
 	if (isEditSubjectAddModuleRoute.value) {
-		router.push({
-			name: 'subjects',
-		});
-	} else {
-		showSuccessModal.value = false;
+		// router.push({
+		// 	name: 'subjects',
+		// });
 	}
+	showSuccessModal.value = false;
+}
+
+function handleContent(contentFromEditor: object) {
+	content.value = contentFromEditor;
 }
 </script>
 <style scoped lang="scss">
