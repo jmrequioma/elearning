@@ -34,6 +34,7 @@ export type Course = {
 	subjectId: number;
 	authorId: number;
 	author?: string;
+	subject?: Subject;
 	modules?: Array<Module>;
 };
 

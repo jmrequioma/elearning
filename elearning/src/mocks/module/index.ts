@@ -186,24 +186,6 @@ export const moduleHandlers = [
 			contents: [],
 		});
 
-		// find parent course
-		const course = db.course.findFirst({
-			where: {
-				id: {
-					equals: Number(data.courseId),
-				},
-			},
-		});
-
-		const existingModules = course?.modules;
-		if (existingModules) {
-			existingModules.push(module);
-		}
-		// update parent course
-		db.course.update({
-			where: { id: { equals: Number(data.courseId) } },
-			data: { modules: existingModules, updatedAt: date },
-		});
 		return res(ctx.delay(DELAY), ctx.json(module));
 	}),
 

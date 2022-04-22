@@ -201,25 +201,6 @@ export const courseHandlers = [
 			modules: [],
 		});
 
-		// find parent subject
-		const subject = db.subject.findFirst({
-			where: {
-				id: {
-					equals: Number(data.subjectId),
-				},
-			},
-		});
-
-		const existingCourses = subject?.courses;
-		if (existingCourses) {
-			existingCourses.push(course);
-		}
-
-		// update parent subject
-		db.subject.update({
-			where: { id: { equals: Number(data.subjectId) } },
-			data: { courses: existingCourses, updatedAt: date },
-		});
 		return res(ctx.delay(DELAY), ctx.json(course));
 	}),
 

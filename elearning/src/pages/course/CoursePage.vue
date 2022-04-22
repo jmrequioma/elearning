@@ -63,7 +63,10 @@
 				<table class="course-table">
 					<tr>
 						<th>Title</th>
-						<th>Courses</th>
+						<th>Subject</th>
+						<th>Author</th>
+						<th>Modules</th>
+						<th>Duration</th>
 						<th>Status</th>
 					</tr>
 					<tr
@@ -72,7 +75,10 @@
 						@click="selectCourse(course)"
 					>
 						<td>{{ course.title }}</td>
+						<td>{{ course.subject?.title }}</td>
+						<td>{{ course.author }}</td>
 						<td>{{ getModulesCount(course) }}</td>
+						<td>{{ course.duration }} min</td>
 						<td class="row-action">
 							<template v-if="course.isPublished"> Published </template>
 							<template v-else> Draft </template>
@@ -379,14 +385,6 @@ h6 {
 		text-align: left;
 		border-bottom: 2px solid $gray-5;
 		box-sizing: border-box;
-
-		&:nth-child(2) {
-			width: 240px;
-		}
-
-		&:nth-child(3) {
-			width: 220px;
-		}
 	}
 
 	td {
