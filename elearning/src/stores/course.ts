@@ -36,5 +36,20 @@ export const useCoursesStore = defineStore({
 		fetchCourseDetails(data: DataBody) {
 			return apiClient.get(`/courses/${data.id}`);
 		},
+
+		async fetchMainCourses(data: object) {
+			// function to fetch courses and persist in the store
+			try {
+				const res = await this.fetchCourses(data);
+				if (res) {
+					this.courses = res.data.data;
+					this.totalCount = res.data.totalCount;
+					this.page = res.data.page;
+				}
+				return res;
+			} catch (error) {
+				console.error('fetching main courses failed', error);
+			}
+		},
 	},
 });

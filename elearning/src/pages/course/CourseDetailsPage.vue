@@ -1,26 +1,26 @@
 <template>
-	<div class="subject-details">
-		<div class="subject-top-container">
-			<div class="subject-header">
-				<div class="subject-header__content">
+	<div class="course-details">
+		<div class="course-top-container">
+			<div class="course-header">
+				<div class="course-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6 v-if="!isLoading">{{ headerTitle }}</h6>
+					<h6>{{ headerTitle }}</h6>
 				</div>
-				<div class="subject-header__content">
+				<div class="course-header__content">
 					<ui-button class="save-btn" unelevated @click="save">Save</ui-button>
 				</div>
 			</div>
 		</div>
-		<div class="subject-details__main">
+		<div class="course-details__main">
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Courses' ? 'tab__item--active' : '',
+						selectedTab == 'Course' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
-					@click="selectedTab = 'Courses'"
+					@click="selectedTab = 'Course'"
 				>
-					Courses
+					Course
 				</div>
 				<div
 					:class="[
@@ -33,8 +33,8 @@
 				</div>
 			</div>
 			<div class="content">
-				<!-- courses tab -->
-				<div v-if="selectedTab == 'Courses'" class="course">
+				<!-- course tab -->
+				<div v-if="selectedTab == 'Course'" class="course">
 					<div class="col-2">
 						<div class="field">
 							<ui-textfield
@@ -46,6 +46,7 @@
 								required
 								pattern=".{1,}"
 								helper-text-id="title-helper-text"
+								@keyup.enter="save"
 							>
 								Title
 							</ui-textfield>
@@ -60,10 +61,44 @@
 						</div>
 						<ui-select
 							class="field"
+							v-model="selectedSubject"
+							outlined
+							required
+							fullwidth
+							:options="fetchedSubjectsOptions"
+						>
+							Subject
+						</ui-select>
+					</div>
+					<div class="col-2">
+						<ui-textfield
+							id="author"
+							v-model="author"
+							class="field"
+							input-type="text"
+							outlined
+							required
+							disabled
+							pattern=".{1,}"
+							helper-text-id="title-helper-text"
+							@keyup.enter="save"
+						>
+							Author
+						</ui-textfield>
+						<ui-textfield-helper
+							v-if="titleErrorMsg"
+							id="title-helper-text"
+							visible
+							validMsg
+						>
+							<small class="alert">{{ titleErrorMsg }}</small>
+						</ui-textfield-helper>
+						<ui-select
+							class="field"
 							v-model="selectedStatus"
 							outlined
 							required
-							:disabled="isEditSubjectAddCourseRoute"
+							:disabled="isAddCourseRoute"
 							fullwidth
 							:options="statusOptions"
 						>
@@ -78,43 +113,46 @@
 							outlined
 							@keyup.enter="save"
 						>
-							Description
+							Course Description
 						</ui-textfield>
 					</div>
 					<ImageUploader
 						:image="uploadedImage"
-						@handle-file-change="(file) => (uploadedImage = file)"
+						@handle-file-change="handleFileChange"
 					/>
 				</div>
 				<!-- modules tab -->
-				<div v-else-if="selectedTab == 'Modules'" class="module">
-					<div v-if="isEditSubjectEditCourseRoute" class="course-header">
-						<ui-button class="alt-btn" unelevated @click="goToSubjectModules"
+				<div v-else-if="selectedTab == 'Modules'" class="course">
+					<div v-if="!isAddCourseRoute" class="module-header">
+						<ui-button class="alt-btn" unelevated @click="goToSubjectCourses"
 							><span class="capitalize">Add New Module</span></ui-button
 						>
 					</div>
-					<div class="course-content">
+					<div class="module-content">
 						<div class="table-container">
-							<table class="courses-table">
+							<table class="modules-table">
 								<tr>
 									<th>Title</th>
+									<th>Author</th>
+									<th>Modules</th>
 									<th>Duration</th>
 									<th>Status</th>
 								</tr>
 								<tr
-									v-for="m in modules"
-									:key="m.id"
-									@click="selectedModule = m"
+									v-for="course in courses"
+									:key="course.id"
+									@click="selectedCourse = course"
 								>
-									<td>{{ m.title }}</td>
-									<td>{{ m.duration }}</td>
+									<td>{{ course.title }}</td>
+									<td>{{ course.author }}</td>
+									<td>{{ getModulesCount(course) }}</td>
+									<td>{{ course.duration }} min</td>
 									<td class="row-action">
-										<template v-if="m.isPublished"> Published </template>
+										<template v-if="course.isPublished"> Published </template>
 										<template v-else> Draft </template>
 										<div class="row-action__menu">
 											<DropdownMenu
-												v-if="isOwner(m)"
-												:items="populateDropdownItems(m)"
+												:items="populateDropdownItems(course)"
 												@handle-action="handleAction"
 											/>
 										</div>
@@ -140,7 +178,7 @@
 								</div>
 								<div class="table-control__pagination">
 									{{ currStart }} - {{ currTotal }} of
-									{{ fetchedSubject ? fetchedSubject.courses.length : 0 }}
+									{{ fetchedCourse ? fetchedCourse.modules.length : 0 }}
 									<ui-icon
 										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 										@click="goPrev()"
@@ -166,6 +204,7 @@
 				<ui-button @click="returnToSubjects">Ok</ui-button>
 			</template>
 		</AlertModal>
+		<router-view />
 	</div>
 </template>
 <script setup lang="ts">
@@ -176,8 +215,9 @@ import { useCoursesStore } from '@/stores/course';
 import { useModulesStore } from '@/stores/module';
 import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
-import { useRoute } from 'vue-router';
-import type { Course, Module, Subject } from '@/types';
+
+import { useRoute, onBeforeRouteLeave } from 'vue-router';
+import type { Course, Subject } from '@/types';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
@@ -187,26 +227,25 @@ import AlertModal from '@/components/AlertModal.vue';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
-const desc = ref('');
+const fetchedSubjects = ref<Subject[]>([]);
+const selectedSubject = ref<Subject>();
 const selectedStatus = ref('');
+const desc = ref('');
 const titleErrorMsg = ref('');
-const subjectsStore = useSubjectsStore();
+const subjectStore = useSubjectsStore();
 const courseStore = useCoursesStore();
 const moduleStore = useModulesStore();
 const authStore = useAuthStore();
-const fetchedSubject = ref<Subject>();
+const uploadedImage = ref('');
 const fetchedCourse = ref<Course>();
-const modules = ref<Module[]>([]);
+const courses = ref<Course[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
-const courseId = ref(0);
-const selectedTab = ref('Courses');
+const selectedTab = ref('Course');
 const totalCourseCount = ref(0);
-const selectedModule = ref<Module>();
-const uploadedImage = ref('');
+const selectedCourse = ref<Course>();
 const router = useRouter();
-const isLoading = ref(false);
 
 const {
 	options,
@@ -223,52 +262,70 @@ const {
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchModules();
+		fetchCourses();
 	}, 500)
 );
 
 const headerTitle = computed(() => {
-	const subjectText = fetchedSubject.value
-		? `${fetchedSubject.value?.title}`
-		: '';
-	const courseText = fetchedCourse.value ? `${fetchedCourse.value?.title}` : '';
-
-	return isEditSubjectAddCourseRoute.value
-		? `${subjectText} > Add a course`
-		: `${subjectText} > ${courseText}`;
+	if (isAddCourseRoute.value) {
+		return 'Add a course';
+	} else {
+		return fetchedCourse.value?.title;
+	}
 });
 
-const isEditSubjectAddCourseRoute = computed(() => {
-	return route.name?.toString() === 'edit-subject-add-course';
-});
-
-const isEditSubjectEditCourseRoute = computed(() => {
-	return route.name?.toString() === 'edit-subject-edit-course';
+const isAddCourseRoute = computed(() => {
+	return route.name?.toString() === 'add-course';
 });
 
 const successMessage = computed(() => {
-	if (isEditSubjectAddCourseRoute.value) {
+	if (isAddCourseRoute.value) {
 		return `Successfully created a course named ${title.value}.`;
 	} else {
 		return 'Course is successfully updated.';
 	}
 });
 
-onMounted(async () => {
-	const id = route.params.subjectId;
-	subjectId.value = parseInt(id?.toString());
-	// fetch specific subject
-	isLoading.value = true;
-	await fetchSpecificSubject();
-	// if editing a course on edit subject, fetch the course
-	if (isEditSubjectEditCourseRoute.value) {
-		const courseParamId = route.params.courseId;
-		courseId.value = parseInt(courseParamId?.toString());
-		await fetchSpecificCourse();
-		// fetch modules only if editing course
-		fetchModules();
+const unsavedChanges = computed(() => {
+	const status = selectedStatus.value === 'Draft' ? false : true;
+	if (!isAddCourseRoute.value) {
+		return (
+			title.value != fetchedCourse.value?.title ||
+			status != fetchedCourse.value?.isPublished
+		);
 	}
-	isLoading.value = false;
+	return false;
+});
+
+const author = computed(() => {
+	const user = authStore.loggedInUser;
+	return user ? `${user.firstName} ${user.lastName}` : '';
+});
+
+const fetchedSubjectsOptions = computed(() => {
+	const options: Array<object> = [];
+	fetchedSubjects.value.forEach((subject) => {
+		const option = {
+			label: subject.title,
+			value: subject,
+		};
+		options.push(option);
+	});
+	return options;
+});
+
+onMounted(async () => {
+	// check if page is for adding or editing
+	if (!isAddCourseRoute?.value) {
+		const id = route.params.id;
+		subjectId.value = parseInt(id?.toString());
+		// fetch specific subject
+		await fetchSpecificSubject();
+		// fetch related courses
+		fetchCourses();
+	}
+	// fetch subjects for dropdown
+	fetchSubjects();
 });
 
 function validateTitle() {
@@ -280,13 +337,8 @@ function validateTitle() {
 }
 
 async function createCourse() {
-	const data = {
-		subjectId: fetchedSubject.value?.id,
-		title: title.value,
-		description: desc.value,
-	};
 	try {
-		const res = await courseStore.createCourse(data);
+		const res = await courseStore.createCourse({ title: title.value });
 		if (res) {
 			showSuccessModal.value = true;
 		}
@@ -301,10 +353,10 @@ async function createCourse() {
 function save() {
 	validateTitle();
 	if (!titleErrorMsg.value) {
-		if (isEditSubjectAddCourseRoute.value) {
+		if (isAddCourseRoute.value) {
 			createCourse();
 		} else {
-			editCourse();
+			editSubject();
 		}
 	}
 }
@@ -313,140 +365,126 @@ async function fetchSpecificSubject() {
 	const data = { id: subjectId.value };
 	// fetch specific subject
 	try {
-		const res = await subjectsStore.fetchSubjectDetails(data);
-		fetchedSubject.value = res.data;
+		const res = await subjectStore.fetchSubjectDetails(data);
+		fetchedCourse.value = res.data;
+		// set the text field models
+		title.value = res.data.title;
+		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
 	} catch (error) {
 		console.error('fetching specific subject failed', error);
 	}
 }
 
-async function fetchSpecificCourse() {
-	const data = { id: courseId.value };
-	// fetch specific course
-	try {
-		const res = await courseStore.fetchCourseDetails(data);
-		fetchedCourse.value = res.data;
-		// set the appropriate models to display
-		title.value = res.data.title;
-		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
-		desc.value = res.data.description;
-		uploadedImage.value = res.data.icon;
-	} catch (error) {
-		console.error('fetching specific course failed', error);
-	}
-}
-
-async function fetchModules() {
+async function fetchCourses() {
 	const data = {
-		courseId: fetchedCourse.value?.id,
+		subjectId: fetchedCourse.value?.id,
 		page: currPage.value,
 		limit: selectedLimit.value,
 	};
 	try {
-		const res = await moduleStore.fetchModules(data);
+		const res = await courseStore.fetchCourses(data);
 		if (res) {
-			modules.value = res.data.data;
+			courses.value = res.data.data;
 		}
 	} catch (error) {
-		console.error('fetching modules failed', error);
+		console.error('fetching courses failed', error);
 	}
 }
 
-async function editCourse() {
+async function editSubject() {
 	try {
 		let data = {
 			id: fetchedCourse.value?.id,
 			title: title.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
 		};
-		const res = await courseStore.updateCourse(data);
+		const res = await subjectStore.updateSubject(data);
 		if (res) {
 			showSuccessModal.value = true;
-			fetchedCourse.value = res.data;
 		}
 	} catch (error) {
-		console.error('editing specific course failed', error);
+		console.error('editing specific subject failed', error);
 	}
 }
 
-function populateDropdownItems(module: Module) {
-	if (module.isPublished) {
+function getModulesCount(course: Course) {
+	const length = course.modules?.length;
+	const unit = length == 1 ? 'Module' : 'Modules';
+	return `${length} ${unit}`;
+}
+
+function populateDropdownItems(course: Course) {
+	if (course.isPublished) {
 		return ['Unpublish', 'Edit', 'Delete'];
 	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-async function handleModuleStatus() {
-	// publish/unpublish the module
+async function handleCourseStatus() {
+	// publish/unpublish the course
 	let data = {
-		id: selectedModule.value?.id,
-		title: selectedModule.value?.title,
-		isPublished: !selectedModule.value?.isPublished,
+		id: selectedCourse.value?.id,
+		title: selectedCourse.value?.title,
+		isPublished: !selectedCourse.value?.isPublished,
 	};
 	try {
-		const res = await moduleStore.updateModule(data);
+		const res = await courseStore.updateCourse(data);
 		if (res) {
-			fetchModules();
+			fetchCourses();
 		}
 	} catch (error) {
-		console.error('updating module failed', error);
+		console.error('updating course failed', error);
 	}
 }
 
 function handleAction(action: string) {
 	if (action === 'Publish' || action === 'Unpublish') {
-		handleModuleStatus();
+		handleCourseStatus();
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-subject-edit-module',
+			name: 'edit-subject-edit-course',
 			params: {
-				subjectId: fetchedSubject.value?.id,
-				courseId: fetchedCourse.value?.id,
-				moduleId: selectedModule.value?.id,
+				subjectId: fetchedCourse.value?.id,
+				courseId: selectedCourse.value?.id,
 			},
 		});
 	} else if (action == 'Delete') {
-		// delete the module
-		deleteModule();
+		// delete the course
+		deleteCourse();
 	}
 }
 
-async function deleteModule() {
+function handleFileChange(image: string) {
+	uploadedImage.value = image;
+}
+
+async function deleteCourse() {
 	try {
-		const res = await moduleStore.deleteModule({
-			id: selectedModule.value?.id,
+		const res = await courseStore.deleteCourse({
+			id: selectedCourse.value?.id,
 		});
 		if (res) {
-			fetchModules();
+			fetchCourses();
 		}
 	} catch (error) {
-		console.error('Deleting module failed.', error);
+		console.error('Deleting course failed.', error);
 	}
 }
 
-function onFileChange(e: Event) {
-	const input = e.target as HTMLInputElement;
-	if (!input.files?.length) {
-		return;
-	}
-	const file = input.files[0];
-	uploadedImage.value = URL.createObjectURL(file);
-}
-
-// go to courses subject-modules page
-function goToSubjectModules() {
-	router.push({
-		name: 'edit-subject-add-module',
-		params: {
-			subjectId: fetchedSubject.value?.id,
-			courseId: fetchedCourse.value?.id,
-		},
-	});
+// go to courses subject-courses page
+function goToSubjectCourses() {
+	let link = {};
+	// current route is edit subject
+	link = {
+		name: 'edit-subject-add-course',
+		params: { subjectId: fetchedCourse.value?.id },
+	};
+	router.push(link);
 }
 
 function returnToSubjects() {
-	if (isEditSubjectAddCourseRoute.value) {
+	if (isAddCourseRoute.value) {
 		router.push({
 			name: 'subjects',
 		});
@@ -455,14 +493,32 @@ function returnToSubjects() {
 	}
 }
 
-function isOwner(module: Module) {
-	return authStore.loggedInUser?.id === module.authorId;
+async function fetchSubjects() {
+	// fetch subjects to populate subject dropdown
+	try {
+		const res = await subjectStore.fetchDropdownSubjects({ full: true });
+		if (res) {
+			fetchedSubjects.value = res.data;
+		}
+	} catch (error) {
+		console.error('fetching subjects for dropdown failed.', error);
+	}
 }
+
+onBeforeRouteLeave(() => {
+	if (!showSuccessModal.value && unsavedChanges.value) {
+		const answer = window.confirm(
+			'Do you really want to leave? you have unsaved changes!'
+		);
+		// cancel the navigation and stay on the same page
+		if (!answer) return false;
+	}
+});
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
 
-.subject-details {
+.course-details {
 	background-color: $gray-4;
 	padding-bottom: 4px;
 	height: calc(100vh - 68px);
@@ -480,7 +536,7 @@ function isOwner(module: Module) {
 	}
 }
 
-.subject-top-container {
+.course-top-container {
 	min-height: 188px;
 	background-color: $accent;
 	padding-top: 40px;
@@ -491,7 +547,7 @@ h6 {
 	color: $white;
 }
 
-.subject-header {
+.course-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -537,19 +593,8 @@ h6 {
 	padding: 20px 20px 0;
 }
 
-.module {
+.course {
 	width: 100%;
-}
-
-.col-2 {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 14px;
-	margin-bottom: 20px;
-}
-
-.col-1 {
-	margin-bottom: 20px;
 }
 
 .field {
@@ -560,44 +605,7 @@ h6 {
 	width: 100%;
 }
 
-.image {
-	display: flex;
-	justify-content: center;
-	padding-top: 44px;
-	box-sizing: border-box;
-	background-color: #c4c4c4;
-	width: 165px;
-	height: 165px;
-	border-radius: 12px;
-	align-items: center;
-	border: 8px solid $gray-4;
-
-	img {
-		max-height: 144px;
-		max-width: 128px;
-	}
-
-	&__content {
-		cursor: pointer;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-
-	&--display {
-		padding-top: 0;
-	}
-}
-
-.upload-text {
-	font-size: 16px;
-	color: $gray-1;
-}
-
-#file-input {
-	display: none;
-}
-.course-header {
+.module-header {
 	display: flex;
 	justify-content: flex-end;
 }
@@ -619,7 +627,7 @@ h6 {
 	height: 344px;
 }
 
-.courses-table {
+.modules-table {
 	padding-top: 24px;
 	width: 100%;
 	color: $gray-1;
@@ -632,7 +640,7 @@ h6 {
 		box-sizing: border-box;
 
 		&:nth-child(1) {
-			width: 640px;
+			width: 436px;
 		}
 	}
 
@@ -771,5 +779,16 @@ select {
 .alert {
 	color: $error;
 	font-size: 12px;
+}
+
+.col-2 {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 14px;
+	margin-bottom: 20px;
+}
+
+.col-1 {
+	margin-bottom: 20px;
 }
 </style>

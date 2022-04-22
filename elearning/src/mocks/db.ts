@@ -116,7 +116,6 @@ function seedModules(moduleCount: number, courseId: number) {
 }
 
 function seedRelatedEntities() {
-	const user = users[0];
 	const instructor = users[1];
 	let modules: Entity<Model, 'module'>[] = [];
 	let courses: Entity<Model, 'course'>[] = [];
@@ -158,7 +157,7 @@ function seedRelatedEntities() {
 			isPublished: published,
 			createdAt: '2022-03-01T20:35:47.402Z',
 			updatedAt: '2022-03-01T20:35:47.402Z',
-			ownerId: user.id,
+			ownerId: instructor.id,
 			courses: courses,
 		});
 		// empty up courses

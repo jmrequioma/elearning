@@ -72,12 +72,13 @@
 						@click="selectSubject(subject)"
 					>
 						<td>{{ subject.title }}</td>
-						<td>{{ getCoursesCount(subject) }} Courses</td>
+						<td>{{ getCoursesCount(subject) }}</td>
 						<td class="row-action">
 							<template v-if="subject.isPublished"> Published </template>
 							<template v-else> Draft </template>
 							<div class="row-action__menu">
 								<DropdownMenu
+									v-if="isOwner(subject)"
 									:items="populateDropdownItems(subject)"
 									@handle-action="handleAction"
 								/>
@@ -131,6 +132,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
+import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
 import type { Subject } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
@@ -141,6 +143,7 @@ import { useRouter } from 'vue-router';
 const search = ref('');
 const totalCount = ref(0);
 const subjectsStore = useSubjectsStore();
+const authStore = useAuthStore();
 const {
 	options,
 	selectedLimit,
@@ -222,7 +225,9 @@ function populateDropdownItems(subject: Subject) {
 }
 
 function getCoursesCount(subject: Subject) {
-	return subject.courses?.length;
+	const length = subject.courses?.length;
+	const unit = length == 1 ? 'Course' : 'Courses';
+	return `${length} ${unit}`;
 }
 
 async function handleSubjectStatus() {
@@ -274,6 +279,10 @@ async function deleteSubject() {
 	} finally {
 		showDeleteModal.value = false;
 	}
+}
+
+function isOwner(subject: Subject) {
+	return authStore.loggedInUser?.id === subject.ownerId;
 }
 </script>
 <style scoped lang="scss">

@@ -66,6 +66,7 @@ export type DataBody = {
 	title?: string;
 	isPublished?: boolean;
 	duration?: number;
+	full?: boolean;
 };
 
 export type LoginBody = {

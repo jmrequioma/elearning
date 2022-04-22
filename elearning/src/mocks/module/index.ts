@@ -147,7 +147,7 @@ export const moduleHandlers = [
 		}
 
 		const data = req.body as {
-			id: number;
+			courseId: number;
 			title: string;
 			isPublished: boolean;
 			duration: number;
@@ -182,10 +182,28 @@ export const moduleHandlers = [
 			createdAt: date,
 			updatedAt: date,
 			authorId: loggedInUser?.id,
-			courseId: data.id,
+			courseId: data.courseId,
 			contents: [],
 		});
 
+		// find parent course
+		const course = db.course.findFirst({
+			where: {
+				id: {
+					equals: Number(data.courseId),
+				},
+			},
+		});
+
+		const existingModules = course?.modules;
+		if (existingModules) {
+			existingModules.push(module);
+		}
+		// update parent course
+		db.course.update({
+			where: { id: { equals: Number(data.courseId) } },
+			data: { modules: existingModules, updatedAt: date },
+		});
 		return res(ctx.delay(DELAY), ctx.json(module));
 	}),
 

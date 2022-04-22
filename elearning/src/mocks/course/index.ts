@@ -211,7 +211,6 @@ export const courseHandlers = [
 		});
 
 		const existingCourses = subject?.courses;
-		const newCourses = existingCourses;
 		if (existingCourses) {
 			existingCourses.push(course);
 		}
@@ -219,7 +218,7 @@ export const courseHandlers = [
 		// update parent subject
 		db.subject.update({
 			where: { id: { equals: Number(data.subjectId) } },
-			data: { courses: newCourses, updatedAt: date },
+			data: { courses: existingCourses, updatedAt: date },
 		});
 		return res(ctx.delay(DELAY), ctx.json(course));
 	}),

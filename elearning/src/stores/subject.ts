@@ -46,5 +46,11 @@ export const useSubjectsStore = defineStore({
 		deleteSubject(data: DataBody) {
 			return apiClient.delete(`/subjects/${data.id}`);
 		},
+
+		fetchDropdownSubjects(data: DataBody) {
+			return apiClient.get('/subjects', {
+				params: data,
+			});
+		},
 	},
 });

@@ -56,7 +56,7 @@
 			</div>
 		</div>
 		<div class="course-page__main">
-			<div v-if="search && !subjectsStore.fetchedSubjects.length" class="empty">
+			<div v-if="search && !courseStore.fetchedCourses.length" class="empty">
 				No results found.
 			</div>
 			<div v-else class="table-container">
@@ -67,18 +67,19 @@
 						<th>Status</th>
 					</tr>
 					<tr
-						v-for="subject in subjectsStore.fetchedSubjects"
-						:key="subject.id"
-						@click="selectSubject(subject)"
+						v-for="course in courseStore.fetchedCourses"
+						:key="course.id"
+						@click="selectCourse(course)"
 					>
-						<td>{{ subject.title }}</td>
-						<td>{{ getCoursesCount(subject) }} Courses</td>
+						<td>{{ course.title }}</td>
+						<td>{{ getModulesCount(course) }}</td>
 						<td class="row-action">
-							<template v-if="subject.isPublished"> Published </template>
+							<template v-if="course.isPublished"> Published </template>
 							<template v-else> Draft </template>
 							<div class="row-action__menu">
 								<DropdownMenu
-									:items="populateDropdownItems(subject)"
+									v-if="isOwner(course)"
+									:items="populateDropdownItems(course)"
 									@handle-action="handleAction"
 								/>
 							</div>
@@ -99,7 +100,7 @@
 						</div>
 					</div>
 					<div class="table-control__pagination">
-						{{ currStart }} - {{ currTotal }} of {{ subjectsStore.totalCount }}
+						{{ currStart }} - {{ currTotal }} of {{ courseStore.totalCount }}
 						<ui-icon
 							:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 							@click="goPrev()"
@@ -116,23 +117,21 @@
 		</div>
 		<AlertModal v-if="showDeleteModal">
 			<template v-slot:content>
-				<p>
-					Deleting this subject will also delete the courses and modules added
-					to it.
-				</p>
+				<p>Deleting this course will also delete the modules added to it.</p>
 			</template>
 			<template v-slot:actions>
 				<ui-button @click="showDeleteModal = false">Cancel</ui-button>
-				<ui-button @click="deleteSubject">Ok</ui-button>
+				<ui-button @click="deleteCourse">Ok</ui-button>
 			</template>
 		</AlertModal>
 	</div>
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { useSubjectsStore } from '@/stores/subject';
+import { useCoursesStore } from '@/stores/course';
+import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
-import type { Subject } from '@/types';
+import type { Course } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 import AlertModal from '@/components/AlertModal.vue';
 import _ from 'lodash';
@@ -140,7 +139,8 @@ import { useRouter } from 'vue-router';
 
 const search = ref('');
 const totalCount = ref(0);
-const subjectsStore = useSubjectsStore();
+const courseStore = useCoursesStore();
+const authStore = useAuthStore();
 const {
 	options,
 	selectedLimit,
@@ -153,13 +153,17 @@ const {
 	goNext,
 } = usePagination(totalCount);
 
-const selectedSubject: Subject = reactive({
+const selectedCourse: Course = reactive({
 	id: 0,
 	title: '',
+	description: '',
+	duration: 0,
+	icon: '',
 	isPublished: false,
 	createdAt: '',
 	updatedAt: '',
-	ownerId: 0,
+	subjectId: 0,
+	authorId: 0,
 });
 const openFilter = ref(false);
 const checkedPublished = ref(false);
@@ -170,7 +174,7 @@ const router = useRouter();
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchSubjects();
+		fetchCourses();
 	}, 500)
 );
 
@@ -179,15 +183,15 @@ watch(
 	_.debounce(() => {
 		// reset the page to 1
 		currPage.value = 1;
-		fetchSubjects();
+		fetchCourses();
 	}, 500)
 );
 
 onMounted(() => {
-	fetchSubjects();
+	fetchCourses();
 });
 
-async function fetchSubjects() {
+async function fetchCourses() {
 	type filter = {
 		limit: number;
 		page: number;
@@ -210,33 +214,35 @@ async function fetchSubjects() {
 		// fetch draft only
 		data['published'] = checkedPublished.value;
 	}
-	await subjectsStore.fetchSubjects(data);
-	totalCount.value = subjectsStore.fetchedTotalCount;
+	await courseStore.fetchMainCourses(data);
+	totalCount.value = courseStore.fetchedTotalCount;
 }
 
-function populateDropdownItems(subject: Subject) {
-	if (subject.isPublished) {
+function populateDropdownItems(course: Course) {
+	if (course.isPublished) {
 		return ['Unpublish', 'Edit', 'Delete'];
 	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-function getCoursesCount(subject: Subject) {
-	return subject.courses?.length;
+function getModulesCount(course: Course) {
+	const length = course.modules?.length;
+	const unit = length == 1 ? 'Module' : 'Modules';
+	return `${length} ${unit}`;
 }
 
 async function handleSubjectStatus() {
-	// publish/unpublish the subject
+	// publish/unpublish the course
 	let data = {
-		id: selectedSubject.id,
-		title: selectedSubject.title,
-		isPublished: !selectedSubject.isPublished,
+		id: selectedCourse.id,
+		title: selectedCourse.title,
+		isPublished: !selectedCourse.isPublished,
 	};
 	try {
-		await subjectsStore.updateSubject(data);
-		fetchSubjects();
+		await courseStore.updateCourse(data);
+		fetchCourses();
 	} catch (error) {
-		console.error('updating subject failed', error);
+		console.error('updating course failed', error);
 	}
 }
 
@@ -248,7 +254,7 @@ function handleAction(action: string) {
 		router.push({
 			name: 'edit-subject',
 			params: {
-				id: selectedSubject.id,
+				id: selectedCourse.id,
 			},
 		});
 	} else if (action == 'Delete') {
@@ -257,23 +263,27 @@ function handleAction(action: string) {
 	}
 }
 
-function selectSubject(subject: Subject) {
-	selectedSubject.id = subject.id;
-	selectedSubject.title = subject.title;
-	selectedSubject.isPublished = subject.isPublished;
+function selectCourse(course: Course) {
+	selectedCourse.id = course.id;
+	selectedCourse.title = course.title;
+	selectedCourse.isPublished = course.isPublished;
 }
 
-async function deleteSubject() {
+async function deleteCourse() {
 	try {
-		const res = await subjectsStore.deleteSubject({ id: selectedSubject.id });
+		const res = await courseStore.deleteCourse({ id: selectedCourse.id });
 		if (res) {
-			fetchSubjects();
+			fetchCourses();
 		}
 	} catch (error) {
-		console.error('Deleting subject failed.', error);
+		console.error('Deleting course failed.', error);
 	} finally {
 		showDeleteModal.value = false;
 	}
+}
+
+function isOwner(course: Course) {
+	return authStore.loggedInUser?.id === course.authorId;
 }
 </script>
 <style scoped lang="scss">

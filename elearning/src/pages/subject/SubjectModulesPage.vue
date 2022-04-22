@@ -77,7 +77,7 @@
 				<p>{{ successMessage }}</p>
 			</template>
 			<template v-slot:actions>
-				<ui-button @click="returnToSubjects">Ok</ui-button>
+				<ui-button>Ok</ui-button>
 			</template>
 		</AlertModal>
 	</div>
@@ -92,7 +92,6 @@ import { useContentsStore } from '@/stores/content';
 import { useRoute } from 'vue-router';
 import type { Course, Module, Subject, Content } from '@/types';
 import _ from 'lodash';
-import { useRouter } from 'vue-router';
 
 import AlertModal from '@/components/AlertModal.vue';
 import BaseEditor from '@/components/BaseEditor.vue';
@@ -110,15 +109,12 @@ const fetchedSubject = ref<Subject>();
 const fetchedCourse = ref<Course>();
 const fetchedModule = ref<Module>();
 const fetchedContent = ref<Content>();
-const modules = ref<Module[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
 const courseId = ref(0);
 const moduleId = ref(0);
-const uploadedImage = ref('');
 const content = ref({});
-const router = useRouter();
 const isLoading = ref(false);
 
 const headerTitle = computed(() => {
@@ -178,7 +174,7 @@ function validateTitle() {
 
 async function createModule() {
 	const data = {
-		id: fetchedCourse.value?.id,
+		courseId: fetchedCourse.value?.id,
 		title: title.value,
 		duration: duration.value,
 	};
@@ -298,15 +294,6 @@ async function editModule() {
 	} catch (error) {
 		console.error('editing specific module failed', error);
 	}
-}
-
-function returnToSubjects() {
-	if (isEditSubjectAddModuleRoute.value) {
-		// router.push({
-		// 	name: 'subjects',
-		// });
-	}
-	showSuccessModal.value = false;
 }
 
 function handleContent(contentFromEditor: object) {

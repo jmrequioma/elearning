@@ -16,6 +16,7 @@ export const subjectHandlers = [
 		const page = Number(req.url.searchParams.get('page')) || DEFAULT_PAGE;
 		const keyword = req.url.searchParams.get('keyword') || '';
 		const published = req.url.searchParams.get('published') || '';
+		const full = req.url.searchParams.get('full') || false;
 
 		const skip = (page - 1) * limit;
 
@@ -38,6 +39,16 @@ export const subjectHandlers = [
 					equals: published === 'true',
 				},
 			};
+		}
+
+		if (full) {
+			const subjects = db.subject.findMany({
+				where: query,
+				orderBy: {
+					title: 'asc',
+				},
+			});
+			return res(ctx.delay(DELAY), ctx.json(subjects));
 		}
 
 		const subjects = db.subject.findMany({

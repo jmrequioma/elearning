@@ -94,6 +94,16 @@ export default [
 					hideWhenAuthenticated: false,
 				},
 			},
+			{
+				path: '/add-course',
+				name: 'add-course',
+				component: () => import('@/pages/course/CourseDetailsPage.vue'),
+				meta: {
+					title: 'Add Course - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
 		],
 	},
 ];

@@ -94,7 +94,7 @@
 								>
 									<td>{{ course.title }}</td>
 									<td>{{ course.author }}</td>
-									<td>{{ getModulesCount(course) }} Modules</td>
+									<td>{{ getModulesCount(course) }}</td>
 									<td>{{ course.duration }} min</td>
 									<td class="row-action">
 										<template v-if="course.isPublished"> Published </template>
@@ -327,7 +327,9 @@ async function editSubject() {
 }
 
 function getModulesCount(course: Course) {
-	return course.modules?.length;
+	const length = course.modules?.length;
+	const unit = length == 1 ? 'Module' : 'Modules';
+	return `${length} ${unit}`;
 }
 
 function populateDropdownItems(course: Course) {
