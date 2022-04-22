@@ -101,16 +101,17 @@ export const courseHandlers = [
 		if (auth.errorMessage) {
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
-		const { title, isPublished } = req.body as {
+		const { title, isPublished, subjectId } = req.body as {
 			title: string;
 			isPublished: boolean;
+			subjectId: number;
 		};
 		const id = Number(req.params.id);
 
 		const date = new Date().toISOString();
 		const newCourse = db.course.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished, updatedAt: date },
+			data: { title, isPublished, updatedAt: date, subjectId: subjectId },
 		});
 
 		if (!newCourse) {

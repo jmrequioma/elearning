@@ -349,7 +349,7 @@ function save() {
 		if (isAddCourseRoute.value) {
 			createCourse();
 		} else {
-			editSubject();
+			editCourse();
 		}
 	}
 }
@@ -387,19 +387,21 @@ async function fetchModules() {
 	}
 }
 
-async function editSubject() {
+async function editCourse() {
 	try {
 		let data = {
 			id: fetchedCourse.value?.id,
 			title: title.value,
+			subjectId: selectedSubject.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
 		};
-		const res = await subjectStore.updateSubject(data);
+		const res = await courseStore.updateCourse(data);
 		if (res) {
 			showSuccessModal.value = true;
+			await fetchSpecificCourse();
 		}
 	} catch (error) {
-		console.error('editing specific subject failed', error);
+		console.error('editing specific course failed', error);
 	}
 }
 
