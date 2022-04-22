@@ -276,7 +276,10 @@ const unsavedChanges = computed(() => {
 	if (!isAddCourseRoute.value) {
 		return (
 			title.value != fetchedCourse.value?.title ||
-			status != fetchedCourse.value?.isPublished
+			status != fetchedCourse.value?.isPublished ||
+			selectedSubject.value != fetchedCourse.value?.subjectId ||
+			desc.value != fetchedCourse.value?.description ||
+			uploadedImage.value != fetchedCourse.value?.icon
 		);
 	}
 	return false;
@@ -398,13 +401,6 @@ async function editSubject() {
 	} catch (error) {
 		console.error('editing specific subject failed', error);
 	}
-}
-
-function populateDropdownItems(module: Module) {
-	if (module.isPublished) {
-		return ['Unpublish', 'Edit', 'Delete'];
-	}
-	return ['Publish', 'Edit', 'Delete'];
 }
 
 function handleFileChange(image: string) {
