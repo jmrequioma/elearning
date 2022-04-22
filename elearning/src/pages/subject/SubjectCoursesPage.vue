@@ -88,14 +88,14 @@
 				</div>
 				<!-- modules tab -->
 				<div v-else-if="selectedTab == 'Modules'" class="module">
-					<div v-if="isEditSubjectEditCourseRoute" class="course-header">
+					<div v-if="isEditSubjectEditCourseRoute" class="module-header">
 						<ui-button class="alt-btn" unelevated @click="goToSubjectModules"
 							><span class="capitalize">Add New Module</span></ui-button
 						>
 					</div>
-					<div class="course-content">
+					<div class="module-content">
 						<div class="table-container">
-							<table class="courses-table">
+							<table class="modules-table">
 								<tr>
 									<th>Title</th>
 									<th>Duration</th>
@@ -597,7 +597,7 @@ h6 {
 #file-input {
 	display: none;
 }
-.course-header {
+.module-header {
 	display: flex;
 	justify-content: flex-end;
 }
@@ -608,7 +608,7 @@ h6 {
 		text-transform: capitalize;
 	}
 }
-.course-content {
+.module-content {
 	margin-top: 24px;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	border-radius: 6px 6px 0 0;
@@ -619,7 +619,7 @@ h6 {
 	height: 344px;
 }
 
-.courses-table {
+.modules-table {
 	padding-top: 24px;
 	width: 100%;
 	color: $gray-1;

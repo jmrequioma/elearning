@@ -133,26 +133,23 @@
 							<table class="modules-table">
 								<tr>
 									<th>Title</th>
-									<th>Author</th>
-									<th>Modules</th>
 									<th>Duration</th>
 									<th>Status</th>
 								</tr>
 								<tr
-									v-for="course in courses"
-									:key="course.id"
-									@click="selectedCourse = course"
+									v-for="m in modules"
+									:key="m.id"
+									@click="selectedModule = m"
 								>
-									<td>{{ course.title }}</td>
-									<td>{{ course.author }}</td>
-									<td>{{ getModulesCount(course) }}</td>
-									<td>{{ course.duration }} min</td>
+									<td>{{ m.title }}</td>
+									<td>{{ m.duration }}</td>
+									<td>{{ m.duration }} min</td>
 									<td class="row-action">
-										<template v-if="course.isPublished"> Published </template>
+										<template v-if="m.isPublished"> Published </template>
 										<template v-else> Draft </template>
 										<div class="row-action__menu">
 											<DropdownMenu
-												:items="populateDropdownItems(course)"
+												:items="populateDropdownItems(m)"
 												@handle-action="handleAction"
 											/>
 										</div>
@@ -201,7 +198,7 @@
 				<p>{{ successMessage }}</p>
 			</template>
 			<template v-slot:actions>
-				<ui-button @click="returnToSubjects">Ok</ui-button>
+				<ui-button @click="returnToCourses">Ok</ui-button>
 			</template>
 		</AlertModal>
 		<router-view />
@@ -217,7 +214,7 @@ import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
 
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
-import type { Course, Subject } from '@/types';
+import type { Course, Subject, Module } from '@/types';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
@@ -228,7 +225,7 @@ import AlertModal from '@/components/AlertModal.vue';
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
 const fetchedSubjects = ref<Subject[]>([]);
-const selectedSubject = ref<Subject>();
+const selectedSubject = ref(0);
 const selectedStatus = ref('');
 const desc = ref('');
 const titleErrorMsg = ref('');
@@ -238,13 +235,13 @@ const moduleStore = useModulesStore();
 const authStore = useAuthStore();
 const uploadedImage = ref('');
 const fetchedCourse = ref<Course>();
-const courses = ref<Course[]>([]);
+const modules = ref<Module[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
 const subjectId = ref(0);
 const selectedTab = ref('Course');
-const totalCourseCount = ref(0);
-const selectedCourse = ref<Course>();
+const totalModuleCount = ref(0);
+const selectedModule = ref<Module>();
 const router = useRouter();
 
 const {
@@ -257,12 +254,12 @@ const {
 	nextIsDisabled,
 	goPrev,
 	goNext,
-} = usePagination(totalCourseCount);
+} = usePagination(totalModuleCount);
 
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchCourses();
+		fetchModules();
 	}, 500)
 );
 
@@ -307,7 +304,7 @@ const fetchedSubjectsOptions = computed(() => {
 	fetchedSubjects.value.forEach((subject) => {
 		const option = {
 			label: subject.title,
-			value: subject,
+			value: subject.id,
 		};
 		options.push(option);
 	});
@@ -322,7 +319,7 @@ onMounted(async () => {
 		// fetch specific subject
 		await fetchSpecificSubject();
 		// fetch related courses
-		fetchCourses();
+		fetchModules();
 	}
 	// fetch subjects for dropdown
 	fetchSubjects();
@@ -338,7 +335,10 @@ function validateTitle() {
 
 async function createCourse() {
 	try {
-		const res = await courseStore.createCourse({ title: title.value });
+		const res = await courseStore.createCourse({
+			title: title.value,
+			subjectId: selectedSubject.value,
+		});
 		if (res) {
 			showSuccessModal.value = true;
 		}
@@ -375,19 +375,19 @@ async function fetchSpecificSubject() {
 	}
 }
 
-async function fetchCourses() {
+async function fetchModules() {
 	const data = {
-		subjectId: fetchedCourse.value?.id,
+		courseId: fetchedCourse.value?.id,
 		page: currPage.value,
 		limit: selectedLimit.value,
 	};
 	try {
-		const res = await courseStore.fetchCourses(data);
+		const res = await moduleStore.fetchModules(data);
 		if (res) {
-			courses.value = res.data.data;
+			modules.value = res.data.data;
 		}
 	} catch (error) {
-		console.error('fetching courses failed', error);
+		console.error('fetching modules failed', error);
 	}
 }
 
@@ -407,30 +407,24 @@ async function editSubject() {
 	}
 }
 
-function getModulesCount(course: Course) {
-	const length = course.modules?.length;
-	const unit = length == 1 ? 'Module' : 'Modules';
-	return `${length} ${unit}`;
-}
-
-function populateDropdownItems(course: Course) {
-	if (course.isPublished) {
+function populateDropdownItems(module: Module) {
+	if (module.isPublished) {
 		return ['Unpublish', 'Edit', 'Delete'];
 	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-async function handleCourseStatus() {
-	// publish/unpublish the course
+async function handleModuleStatus() {
+	// publish/unpublish the module
 	let data = {
-		id: selectedCourse.value?.id,
-		title: selectedCourse.value?.title,
-		isPublished: !selectedCourse.value?.isPublished,
+		id: selectedModule.value?.id,
+		title: selectedModule.value?.title,
+		isPublished: !selectedModule.value?.isPublished,
 	};
 	try {
 		const res = await courseStore.updateCourse(data);
 		if (res) {
-			fetchCourses();
+			fetchModules();
 		}
 	} catch (error) {
 		console.error('updating course failed', error);
@@ -439,14 +433,14 @@ async function handleCourseStatus() {
 
 function handleAction(action: string) {
 	if (action === 'Publish' || action === 'Unpublish') {
-		handleCourseStatus();
+		handleModuleStatus();
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
 			name: 'edit-subject-edit-course',
 			params: {
 				subjectId: fetchedCourse.value?.id,
-				courseId: selectedCourse.value?.id,
+				courseId: selectedModule.value?.id,
 			},
 		});
 	} else if (action == 'Delete') {
@@ -462,10 +456,10 @@ function handleFileChange(image: string) {
 async function deleteCourse() {
 	try {
 		const res = await courseStore.deleteCourse({
-			id: selectedCourse.value?.id,
+			id: selectedModule.value?.id,
 		});
 		if (res) {
-			fetchCourses();
+			fetchModules();
 		}
 	} catch (error) {
 		console.error('Deleting course failed.', error);
@@ -483,10 +477,10 @@ function goToSubjectCourses() {
 	router.push(link);
 }
 
-function returnToSubjects() {
+function returnToCourses() {
 	if (isAddCourseRoute.value) {
 		router.push({
-			name: 'subjects',
+			name: 'courses',
 		});
 	} else {
 		showSuccessModal.value = false;
@@ -640,7 +634,7 @@ h6 {
 		box-sizing: border-box;
 
 		&:nth-child(1) {
-			width: 436px;
+			width: 640px;
 		}
 	}
 

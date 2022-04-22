@@ -177,8 +177,6 @@ describe('SubjectPage', () => {
 
 			expect(updatedSubjectStatus[0].isPublished).toBe(true);
 		}
-		// now, there will be a subject that is already Published
-		expect(wrapper.html()).toContain('Unpublish');
 	});
 
 	it('unpublishes published subjects', async () => {

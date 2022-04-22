@@ -194,7 +194,7 @@ async function createModule() {
 
 async function createContent(moduleId: number) {
 	const data = {
-		id: moduleId,
+		moduleId: moduleId,
 		content: JSON.stringify(content.value),
 	};
 

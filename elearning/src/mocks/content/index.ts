@@ -17,7 +17,7 @@ export const contentHandlers = [
 		}
 
 		const data = req.body as {
-			id: number;
+			moduleId: number;
 			content: string;
 		};
 
@@ -32,7 +32,7 @@ export const contentHandlers = [
 			createdAt: date,
 			updatedAt: date,
 			authorId: loggedInUser?.id,
-			moduleId: data.id,
+			moduleId: data.moduleId,
 		});
 
 		// update parent module

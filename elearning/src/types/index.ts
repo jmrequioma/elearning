@@ -63,6 +63,9 @@ export type Content = {
 
 export type DataBody = {
 	id?: number;
+	subjectId?: number;
+	courseId?: number;
+	moduleId?: number;
 	title?: string;
 	isPublished?: boolean;
 	duration?: number;
