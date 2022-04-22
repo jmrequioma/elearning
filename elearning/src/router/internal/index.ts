@@ -104,6 +104,16 @@ export default [
 					hideWhenAuthenticated: false,
 				},
 			},
+			{
+				path: '/edit-course/:id',
+				name: 'edit-course',
+				component: () => import('@/pages/course/CourseDetailsPage.vue'),
+				meta: {
+					title: 'Edit Course - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
 		],
 	},
 ];

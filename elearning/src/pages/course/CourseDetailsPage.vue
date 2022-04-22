@@ -4,7 +4,7 @@
 			<div class="course-header">
 				<div class="course-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6>{{ headerTitle }}</h6>
+					<h6 v-if="!isLoading">{{ headerTitle }}</h6>
 				</div>
 				<div class="course-header__content">
 					<ui-button class="save-btn" unelevated @click="save">Save</ui-button>
@@ -123,11 +123,6 @@
 				</div>
 				<!-- modules tab -->
 				<div v-else-if="selectedTab == 'Modules'" class="course">
-					<div v-if="!isAddCourseRoute" class="module-header">
-						<ui-button class="alt-btn" unelevated @click="goToSubjectCourses"
-							><span class="capitalize">Add New Module</span></ui-button
-						>
-					</div>
 					<div class="module-content">
 						<div class="table-container">
 							<table class="modules-table">
@@ -142,17 +137,10 @@
 									@click="selectedModule = m"
 								>
 									<td>{{ m.title }}</td>
-									<td>{{ m.duration }}</td>
 									<td>{{ m.duration }} min</td>
 									<td class="row-action">
 										<template v-if="m.isPublished"> Published </template>
 										<template v-else> Draft </template>
-										<div class="row-action__menu">
-											<DropdownMenu
-												:items="populateDropdownItems(m)"
-												@handle-action="handleAction"
-											/>
-										</div>
 									</td>
 								</tr>
 							</table>
@@ -219,7 +207,6 @@ import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
 import ImageUploader from '@/components/ImageUploader.vue';
-import DropdownMenu from '@/components/DropdownMenu.vue';
 import AlertModal from '@/components/AlertModal.vue';
 
 const statusOptions = [...STATUS_OPTIONS];
@@ -238,11 +225,12 @@ const fetchedCourse = ref<Course>();
 const modules = ref<Module[]>([]);
 const showSuccessModal = ref(false);
 const route = useRoute();
-const subjectId = ref(0);
+const courseId = ref(0);
 const selectedTab = ref('Course');
 const totalModuleCount = ref(0);
 const selectedModule = ref<Module>();
 const router = useRouter();
+const isLoading = ref(false);
 
 const {
 	options,
@@ -267,7 +255,7 @@ const headerTitle = computed(() => {
 	if (isAddCourseRoute.value) {
 		return 'Add a course';
 	} else {
-		return fetchedCourse.value?.title;
+		return `${fetchedCourse.value?.subject?.title} > ${fetchedCourse.value?.title}`;
 	}
 });
 
@@ -313,16 +301,18 @@ const fetchedSubjectsOptions = computed(() => {
 
 onMounted(async () => {
 	// check if page is for adding or editing
+	isLoading.value = true;
 	if (!isAddCourseRoute?.value) {
 		const id = route.params.id;
-		subjectId.value = parseInt(id?.toString());
+		courseId.value = parseInt(id?.toString());
 		// fetch specific subject
-		await fetchSpecificSubject();
+		await fetchSpecificCourse();
 		// fetch related courses
 		fetchModules();
 	}
 	// fetch subjects for dropdown
 	fetchSubjects();
+	isLoading.value = false;
 });
 
 function validateTitle() {
@@ -361,17 +351,20 @@ function save() {
 	}
 }
 
-async function fetchSpecificSubject() {
-	const data = { id: subjectId.value };
+async function fetchSpecificCourse() {
+	const data = { id: courseId.value };
 	// fetch specific subject
 	try {
-		const res = await subjectStore.fetchSubjectDetails(data);
+		const res = await courseStore.fetchCourseDetails(data);
 		fetchedCourse.value = res.data;
 		// set the text field models
 		title.value = res.data.title;
+		selectedSubject.value = res.data.subjectId;
 		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
+		desc.value = res.data.description;
+		uploadedImage.value = res.data.icon;
 	} catch (error) {
-		console.error('fetching specific subject failed', error);
+		console.error('fetching specific course failed', error);
 	}
 }
 
@@ -414,67 +407,8 @@ function populateDropdownItems(module: Module) {
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-async function handleModuleStatus() {
-	// publish/unpublish the module
-	let data = {
-		id: selectedModule.value?.id,
-		title: selectedModule.value?.title,
-		isPublished: !selectedModule.value?.isPublished,
-	};
-	try {
-		const res = await courseStore.updateCourse(data);
-		if (res) {
-			fetchModules();
-		}
-	} catch (error) {
-		console.error('updating course failed', error);
-	}
-}
-
-function handleAction(action: string) {
-	if (action === 'Publish' || action === 'Unpublish') {
-		handleModuleStatus();
-	} else if (action === 'Edit') {
-		// handle Edit
-		router.push({
-			name: 'edit-subject-edit-course',
-			params: {
-				subjectId: fetchedCourse.value?.id,
-				courseId: selectedModule.value?.id,
-			},
-		});
-	} else if (action == 'Delete') {
-		// delete the course
-		deleteCourse();
-	}
-}
-
 function handleFileChange(image: string) {
 	uploadedImage.value = image;
-}
-
-async function deleteCourse() {
-	try {
-		const res = await courseStore.deleteCourse({
-			id: selectedModule.value?.id,
-		});
-		if (res) {
-			fetchModules();
-		}
-	} catch (error) {
-		console.error('Deleting course failed.', error);
-	}
-}
-
-// go to courses subject-courses page
-function goToSubjectCourses() {
-	let link = {};
-	// current route is edit subject
-	link = {
-		name: 'edit-subject-add-course',
-		params: { subjectId: fetchedCourse.value?.id },
-	};
-	router.push(link);
 }
 
 function returnToCourses() {

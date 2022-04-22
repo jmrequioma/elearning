@@ -227,6 +227,12 @@ export const courseHandlers = [
 			);
 		}
 
-		return res(ctx.delay(DELAY), ctx.json(course));
+		const subject = db.subject.findFirst({
+			where: { id: { equals: course.subjectId } },
+		});
+
+		const data = { ...course, subject };
+
+		return res(ctx.delay(DELAY), ctx.json(data));
 	}),
 ];

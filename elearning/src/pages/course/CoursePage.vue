@@ -258,7 +258,7 @@ function handleAction(action: string) {
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-subject',
+			name: 'edit-course',
 			params: {
 				id: selectedCourse.id,
 			},

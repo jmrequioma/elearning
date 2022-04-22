@@ -115,7 +115,11 @@ const subjectRoute = computed(() => {
 	return route.name?.toString().includes('subject');
 });
 const courseRoute = computed(() => {
-	return route.name === 'courses' || route.name == 'add-course';
+	return (
+		route.name === 'courses' ||
+		route.name === 'add-course' ||
+		route.name === 'edit-course'
+	);
 });
 
 function getUserDetails() {
