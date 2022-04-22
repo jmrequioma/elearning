@@ -27,11 +27,8 @@
 									Subjects
 								</router-link>
 							</div>
-							<div class="nav-drawer__item">
-								<router-link
-									class="nav-drawer__link"
-									:to="{ name: 'subjects' }"
-								>
+							<div :class="[courseRoute ? 'active' : '', 'nav-drawer__item']">
+								<router-link class="nav-drawer__link" :to="{ name: 'courses' }">
 									<img
 										src="@/assets/media/bookshelf.png"
 										alt="bookshelf-icon"

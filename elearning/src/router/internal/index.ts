@@ -80,4 +80,20 @@ export default [
 			},
 		],
 	},
+	{
+		path: '/courses',
+		component: () => import('@/pages/HomePage.vue'),
+		children: [
+			{
+				path: '',
+				name: 'courses',
+				component: () => import('@/pages/course/CoursePage.vue'),
+				meta: {
+					title: 'Courses - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
+		],
+	},
 ];
