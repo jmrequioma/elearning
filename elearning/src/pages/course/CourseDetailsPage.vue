@@ -122,7 +122,7 @@
 					/>
 				</div>
 				<!-- modules tab -->
-				<div v-else-if="selectedTab == 'Modules'" class="course">
+				<div v-else-if="selectedTab == 'Modules'" class="module">
 					<div class="module-content">
 						<div class="table-container">
 							<table class="modules-table">
@@ -529,18 +529,7 @@ h6 {
 	width: 100%;
 }
 
-.module-header {
-	display: flex;
-	justify-content: flex-end;
-}
-
-.alt-btn {
-	background-color: $accent;
-	.capitalize {
-		text-transform: capitalize;
-	}
-}
-.course-content {
+.module-content {
 	margin-top: 24px;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	border-radius: 6px 6px 0 0;
