@@ -160,7 +160,7 @@ export const courseHandlers = [
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
 		const data = req.body as {
-			id: number;
+			subjectId: number;
 			title: string;
 			isPublished: boolean;
 			description: string;
@@ -196,9 +196,30 @@ export const courseHandlers = [
 			isPublished: false,
 			createdAt: date,
 			updatedAt: date,
-			subjectId: Number(data.id),
+			subjectId: Number(data.subjectId),
 			authorId: loggedInUser?.id,
 			modules: [],
+		});
+
+		// find parent subject
+		const subject = db.subject.findFirst({
+			where: {
+				id: {
+					equals: Number(data.subjectId),
+				},
+			},
+		});
+
+		const existingCourses = subject?.courses;
+		const newCourses = existingCourses;
+		if (existingCourses) {
+			existingCourses.push(course);
+		}
+
+		// update parent subject
+		db.subject.update({
+			where: { id: { equals: Number(data.subjectId) } },
+			data: { courses: newCourses, updatedAt: date },
 		});
 		return res(ctx.delay(DELAY), ctx.json(course));
 	}),

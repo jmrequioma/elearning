@@ -292,7 +292,7 @@ function validateTitle() {
 
 async function createCourse() {
 	const data = {
-		id: fetchedSubject.value?.id,
+		subjectId: fetchedSubject.value?.id,
 		title: title.value,
 		description: desc.value,
 	};
