@@ -70,6 +70,7 @@ export type DataBody = {
 	title?: string;
 	isPublished?: boolean;
 	duration?: number;
+	description?: string;
 	full?: boolean;
 };
 

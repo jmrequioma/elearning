@@ -319,6 +319,7 @@ async function editSubject() {
 		};
 		const res = await subjectsStore.updateSubject(data);
 		if (res) {
+			fetchSpecificSubject();
 			showSuccessModal.value = true;
 		}
 	} catch (error) {

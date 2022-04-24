@@ -78,16 +78,13 @@ export const subjectHandlers = [
 		if (auth.errorMessage) {
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
-		const { title, isPublished } = req.body as {
-			title: string;
-			isPublished: boolean;
-		};
+		const data = req.body as Record<string, string>;
 		const id = Number(req.params.id);
 
 		const date = new Date().toISOString();
 		const newSubject = db.subject.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished, updatedAt: date },
+			data: { ...data, updatedAt: date },
 		});
 
 		if (!newSubject) {

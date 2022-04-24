@@ -394,6 +394,7 @@ async function editCourse() {
 			title: title.value,
 			subjectId: selectedSubject.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
+			description: desc.value,
 		};
 		const res = await courseStore.updateCourse(data);
 		if (res) {
