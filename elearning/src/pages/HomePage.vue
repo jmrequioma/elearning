@@ -156,7 +156,6 @@ onMounted(() => {
 	background-color: $gray-4;
 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	height: 64px;
-	width: calc(100vw - 256px);
 	margin-bottom: 4px;
 }
 
@@ -282,5 +281,6 @@ onMounted(() => {
 
 .main {
 	height: 100%;
+	width: 100%;
 }
 </style>
