@@ -133,7 +133,7 @@ export default [
 			{
 				path: '/add-module',
 				name: 'add-module',
-				component: () => import('@/pages/module/CourseDetailsPage.vue'),
+				component: () => import('@/pages/modules/ModuleDetailsPage.vue'),
 				meta: {
 					title: 'Add Module - E-Learning',
 					authRequired: true,
@@ -143,7 +143,7 @@ export default [
 			{
 				path: '/edit-module/:id',
 				name: 'edit-module',
-				component: () => import('@/pages/course/CourseDetailsPage.vue'),
+				component: () => import('@/pages/modules/ModuleDetailsPage.vue'),
 				meta: {
 					title: 'Edit Module - E-Learning',
 					authRequired: true,

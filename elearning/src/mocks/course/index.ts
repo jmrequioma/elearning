@@ -18,6 +18,7 @@ export const courseHandlers = [
 		const published = req.url.searchParams.get('published') || '';
 		const subjectId = req.url.searchParams.get('subjectId') || '';
 		const authorId = req.url.searchParams.get('authorId') || '';
+		const full = req.url.searchParams.get('full') || false;
 
 		const skip = (page - 1) * limit;
 
@@ -39,6 +40,16 @@ export const courseHandlers = [
 					equals: published === 'true',
 				},
 			};
+		}
+
+		if (full) {
+			const courses = db.course.findMany({
+				where: query,
+				orderBy: {
+					title: 'asc',
+				},
+			});
+			return res(ctx.delay(DELAY), ctx.json(courses));
 		}
 
 		if (subjectId) {

@@ -177,6 +177,7 @@ async function createModule() {
 		courseId: fetchedCourse.value?.id,
 		title: title.value,
 		duration: duration.value,
+		isPublished: false,
 	};
 	try {
 		const res = await moduleStore.createModule(data);

@@ -174,7 +174,7 @@ export const moduleHandlers = [
 			id: lastId + 1,
 			title: data.title,
 			duration: data.duration,
-			isPublished: true,
+			isPublished: data.isPublished,
 			createdAt: date,
 			updatedAt: date,
 			authorId: loggedInUser?.id,
