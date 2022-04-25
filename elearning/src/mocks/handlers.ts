@@ -3,6 +3,7 @@ import { subjectHandlers } from './subject';
 import { courseHandlers } from './course';
 import { moduleHandlers } from './module';
 import { contentHandlers } from './content';
+import { userHandlers } from './user';
 
 export const handlers = [
 	...authHandlers,
@@ -10,4 +11,5 @@ export const handlers = [
 	...courseHandlers,
 	...moduleHandlers,
 	...contentHandlers,
+	...userHandlers,
 ];

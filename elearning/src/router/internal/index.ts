@@ -172,7 +172,7 @@ export default [
 			{
 				path: '',
 				name: 'users',
-				component: () => import('@/pages/modules/ModulePage.vue'),
+				component: () => import('@/pages/user/UserPage.vue'),
 				meta: {
 					title: 'Users - E-Learning',
 					authRequired: true,

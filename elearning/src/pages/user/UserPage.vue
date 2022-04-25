@@ -1,12 +1,12 @@
 <template>
-	<div class="module-page">
-		<div class="module-top-container">
-			<div class="module-header">
-				<div class="module-header__content">
+	<div class="user-page">
+		<div class="user-top-container">
+			<div class="user-header">
+				<div class="user-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6>Modules</h6>
+					<h6>Users</h6>
 				</div>
-				<div class="module-header__content">
+				<div class="user-header__content">
 					<ui-textfield v-model.trim="search" class="search" with-leading-icon>
 						Search
 						<template #before="{ iconClass }">
@@ -24,64 +24,56 @@
 						<ui-menu-anchor absolute>
 							<ui-menu v-model="openFilter">
 								<ui-menuitem>
-									<ui-menuitem-text>Filter by Status</ui-menuitem-text>
+									<ui-menuitem-text>Filter by Role</ui-menuitem-text>
 								</ui-menuitem>
 								<ui-menuitem-divider></ui-menuitem-divider>
 								<ui-menuitem>
 									<ui-checkbox
-										v-model="checkedPublished"
-										input-id="published"
+										v-model="checkedActive"
+										input-id="active"
 									></ui-checkbox>
-									<label for="published">Published</label>
+									<label for="active">Active</label>
 								</ui-menuitem>
 								<ui-menuitem>
 									<ui-checkbox
-										v-model="checkedDraft"
-										input-id="draft"
+										v-model="checkedInactive"
+										input-id="inactive"
 									></ui-checkbox>
-									<label for="draft">Draft</label>
+									<label for="inactive">Inactive</label>
 								</ui-menuitem>
 							</ui-menu>
 						</ui-menu-anchor>
 					</div>
 				</div>
-				<div class="module-header__content">
-					<ui-button
-						class="add-module-btn"
-						unelevated
-						@click="router.push({ name: 'add-module' })"
-						>Add New module</ui-button
-					>
-				</div>
+				<div class="user-header__content"></div>
 			</div>
 		</div>
-		<div class="module-page__main">
-			<div v-if="search && !moduleStore.fetchedModules.length" class="empty">
+		<div class="user-page__main">
+			<div v-if="search && !userStore.fetchedUsers.length" class="empty">
 				No results found.
 			</div>
 			<div v-else class="table-container">
-				<table class="module-table">
+				<table class="user-table">
 					<tr>
-						<th>Title</th>
-						<th>Course</th>
-						<th>Duration</th>
+						<th>Name</th>
+						<th>Email</th>
+						<th>Role</th>
 						<th>Status</th>
 					</tr>
 					<tr
-						v-for="m in moduleStore.fetchedModules"
-						:key="m.id"
-						@click="selectModule(m)"
+						v-for="user in userStore.fetchedUsers"
+						:key="user.id"
+						@click="selectUser(user)"
 					>
-						<td>{{ m.title }}</td>
-						<td>{{ m.courseTitle }}</td>
-						<td>{{ m.duration }} min</td>
+						<td>{{ user.firstName }} {{ user.lastName }}</td>
+						<td>{{ user.email }}</td>
+						<td class="capitalize">{{ user.role }}</td>
 						<td class="row-action">
-							<template v-if="m.isPublished"> Published </template>
-							<template v-else> Draft </template>
+							<template v-if="user.isActive"> Active </template>
+							<template v-else> Inactive </template>
 							<div class="row-action__menu">
 								<DropdownMenu
-									v-if="isOwner(m)"
-									:items="populateDropdownItems(m)"
+									:items="populateDropdownItems()"
 									@handle-action="handleAction"
 								/>
 							</div>
@@ -102,7 +94,7 @@
 						</div>
 					</div>
 					<div class="table-control__pagination">
-						{{ currStart }} - {{ currTotal }} of {{ moduleStore.totalCount }}
+						{{ currStart }} - {{ currTotal }} of {{ userStore.totalCount }}
 						<ui-icon
 							:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 							@click="goPrev()"
@@ -121,17 +113,17 @@
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { useModulesStore } from '@/stores/module';
+import { useUsersStore } from '@/stores/user';
 import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
-import type { Module } from '@/types';
+import type { User } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
 const search = ref('');
 const totalCount = ref(0);
-const moduleStore = useModulesStore();
+const userStore = useUsersStore();
 const authStore = useAuthStore();
 const {
 	options,
@@ -145,49 +137,46 @@ const {
 	goNext,
 } = usePagination(totalCount);
 
-const selectedModule: Module = reactive({
+const selectedUser: User = reactive({
+	accessToken: '',
 	id: 0,
-	title: '',
-	duration: 0,
-	description: '',
-	isPublished: false,
-	createdAt: '',
-	updatedAt: '',
-	courseId: 0,
-	courseTitle: '',
-	authorId: 0,
+	email: '',
+	firstName: '',
+	lastName: '',
+	role: '',
+	isActive: false,
 });
 const openFilter = ref(false);
-const checkedPublished = ref(false);
-const checkedDraft = ref(false);
+const checkedActive = ref(false);
+const checkedInactive = ref(false);
 const router = useRouter();
 
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchModules();
+		fetchUsers();
 	}, 500)
 );
 
 watch(
-	[selectedLimit, checkedPublished, checkedDraft, search],
+	[selectedLimit, checkedActive, checkedInactive, search],
 	_.debounce(() => {
 		// reset the page to 1
 		currPage.value = 1;
-		fetchModules();
+		fetchUsers();
 	}, 500)
 );
 
 onMounted(() => {
-	fetchModules();
+	fetchUsers();
 });
 
-async function fetchModules() {
+async function fetchUsers() {
 	type filter = {
 		limit: number;
 		page: number;
 		keyword: string;
-		published?: boolean;
+		isActive?: boolean;
 	};
 
 	let data: filter = {
@@ -196,82 +185,44 @@ async function fetchModules() {
 		keyword: search.value,
 	};
 
-	if (checkedPublished.value && !checkedDraft.value) {
-		// fetch published only
-		data['published'] = checkedPublished.value;
+	if (checkedActive.value && !checkedInactive.value) {
+		// fetch active only
+		data['isActive'] = checkedActive.value;
 	}
 
-	if (!checkedPublished.value && checkedDraft.value) {
-		// fetch draft only
-		data['published'] = checkedPublished.value;
+	if (!checkedActive.value && checkedInactive.value) {
+		// fetch inactive only
+		data['isActive'] = checkedActive.value;
 	}
-	await moduleStore.fetchMainModules(data);
-	totalCount.value = moduleStore.fetchedTotalCount;
+	await userStore.fetchUsers(data);
+	totalCount.value = userStore.fetchedTotalCount;
 }
 
-function populateDropdownItems(module: Module) {
-	if (module.isPublished) {
-		return ['Unpublish', 'Edit', 'Delete'];
-	}
-	return ['Publish', 'Edit', 'Delete'];
-}
-
-async function handleModuleStatus() {
-	// publish/unpublish the module
-	let data = {
-		id: selectedModule.id,
-		isPublished: !selectedModule.isPublished,
-	};
-	try {
-		await moduleStore.updateModule(data);
-		fetchModules();
-	} catch (error) {
-		console.error('updating module failed', error);
-	}
+function populateDropdownItems() {
+	return ['View'];
 }
 
 function handleAction(action: string) {
-	if (action === 'Publish' || action === 'Unpublish') {
-		handleModuleStatus();
-	} else if (action === 'Edit') {
+	if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-module',
+			name: 'edit-user',
 			params: {
-				id: selectedModule.id,
+				id: selectedUser.id,
 			},
 		});
-	} else if (action == 'Delete') {
-		// show double confirmation
-		deleteModule();
 	}
 }
 
-function selectModule(module: Module) {
-	selectedModule.id = module.id;
-	selectedModule.title = module.title;
-	selectedModule.isPublished = module.isPublished;
-}
-
-async function deleteModule() {
-	try {
-		const res = await moduleStore.deleteModule({ id: selectedModule.id });
-		if (res) {
-			fetchModules();
-		}
-	} catch (error) {
-		console.error('Deleting module failed.', error);
-	}
-}
-
-function isOwner(module: Module) {
-	return authStore.loggedInUser?.id === module.authorId;
+function selectUser(user: User) {
+	selectedUser.id = user.id;
+	selectedUser.email = user.email;
 }
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
 
-.module-page {
+.user-page {
 	background-color: $gray-4;
 	padding-bottom: 4px;
 	height: calc(100vh - 68px);
@@ -289,7 +240,7 @@ function isOwner(module: Module) {
 	}
 }
 
-.module-top-container {
+.user-top-container {
 	min-height: 188px;
 	background-color: $accent;
 	padding-top: 32px;
@@ -300,7 +251,7 @@ h6 {
 	color: $white;
 }
 
-.module-header {
+.user-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -324,7 +275,7 @@ h6 {
 			margin-left: 12px;
 		}
 
-		.add-module-btn {
+		.add-user-btn {
 			background-color: $white;
 			color: $gray-1;
 		}
@@ -342,16 +293,7 @@ h6 {
 	height: 85%;
 }
 
-.icon {
-	color: $gray-1;
-	cursor: pointer;
-
-	&--disabled {
-		color: $gray-2;
-	}
-}
-
-.module-table {
+.user-table {
 	width: 100%;
 	color: $gray-1;
 	border-spacing: 0;
@@ -362,8 +304,8 @@ h6 {
 		border-bottom: 2px solid $gray-5;
 		box-sizing: border-box;
 
-		&:nth-child(1) {
-			width: 640px;
+		&:nth-child(2) {
+			width: 600px;
 		}
 	}
 
@@ -488,6 +430,10 @@ select {
 		background-color: $gray-1;
 		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
 	}
+}
+
+.capitalize {
+	text-transform: capitalize;
 }
 
 .empty {

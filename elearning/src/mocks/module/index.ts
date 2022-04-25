@@ -3,7 +3,6 @@ import { API_URL } from '@/constants';
 import { DELAY, DEFAULT_LIMIT, DEFAULT_PAGE } from '@/mocks/constants';
 import { db } from '@/mocks/db';
 import { validateAuth, extractAccessToken, checkAuth } from '../utils';
-import faker from '@faker-js/faker';
 
 export const moduleHandlers = [
 	// get modules

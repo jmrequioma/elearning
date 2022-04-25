@@ -2,14 +2,14 @@ export type User = {
 	accessToken: string;
 	id: number;
 	email: string;
-	password: string;
-	salt: string;
+	password?: string;
+	salt?: string;
 	firstName: string;
 	lastName: string;
 	role: string;
 	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 };
 
 export type Subject = {
