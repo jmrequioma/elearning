@@ -11,6 +11,7 @@ export default [
 					title: 'Login - E-Learning',
 					authRequired: false,
 					hideWhenAuthenticated: true,
+					allowedRoles: ['admin', 'instructor', 'student'],
 				},
 			},
 			{
@@ -21,6 +22,7 @@ export default [
 					title: 'Create an account - E-Learning',
 					authRequired: false,
 					hideWhenAuthenticated: true,
+					allowedRoles: ['admin', 'instructor', 'student'],
 				},
 			},
 			{
@@ -31,6 +33,7 @@ export default [
 					title: 'Password Recovery - E-Learning',
 					authRequired: false,
 					hideWhenAuthenticated: true,
+					allowedRoles: ['admin', 'instructor', 'student'],
 				},
 			},
 			{
@@ -41,6 +44,7 @@ export default [
 					title: 'Set Password - E-Learning',
 					authRequired: false,
 					hideWhenAuthenticated: true,
+					allowedRoles: ['admin', 'instructor', 'student'],
 				},
 			},
 			{
@@ -51,6 +55,7 @@ export default [
 					title: 'Change Password - E-Learning',
 					authRequired: true,
 					hideWhenAuthenticated: false,
+					allowedRoles: ['admin', 'instructor', 'student'],
 				},
 			},
 		],

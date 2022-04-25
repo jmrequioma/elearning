@@ -15,7 +15,10 @@
 							<p>MANAGEMENT</p>
 						</div>
 						<div class="drawer-items">
-							<div :class="[subjectRoute ? 'active' : '', 'nav-drawer__item']">
+							<div
+								v-if="userRole === 'instructor'"
+								:class="[subjectRoute ? 'active' : '', 'nav-drawer__item']"
+							>
 								<router-link
 									class="nav-drawer__link"
 									:to="{ name: 'subjects' }"
@@ -27,7 +30,10 @@
 									Subjects
 								</router-link>
 							</div>
-							<div :class="[courseRoute ? 'active' : '', 'nav-drawer__item']">
+							<div
+								v-if="userRole === 'instructor'"
+								:class="[courseRoute ? 'active' : '', 'nav-drawer__item']"
+							>
 								<router-link class="nav-drawer__link" :to="{ name: 'courses' }">
 									<img
 										src="@/assets/media/bookshelf.png"
@@ -36,7 +42,10 @@
 									Courses
 								</router-link>
 							</div>
-							<div :class="[moduleRoute ? 'active' : '', 'nav-drawer__item']">
+							<div
+								v-if="userRole === 'instructor'"
+								:class="[moduleRoute ? 'active' : '', 'nav-drawer__item']"
+							>
 								<router-link class="nav-drawer__link" :to="{ name: 'modules' }">
 									<img
 										src="@/assets/media/bookshelf.png"
@@ -45,11 +54,11 @@
 									Modules
 								</router-link>
 							</div>
-							<div class="nav-drawer__item">
-								<router-link
-									class="nav-drawer__link"
-									:to="{ name: 'subjects' }"
-								>
+							<div
+								v-if="userRole === 'admin'"
+								:class="[userRoute ? 'active' : '', 'nav-drawer__item']"
+							>
+								<router-link class="nav-drawer__link" :to="{ name: 'users' }">
 									<ui-icon>supervised_user_circle</ui-icon>
 									Users
 								</router-link>
@@ -124,6 +133,14 @@ const moduleRoute = computed(() => {
 		route.name === 'add-module' ||
 		route.name === 'edit-module'
 	);
+});
+
+const userRoute = computed(() => {
+	return route.name === 'users' || route.name === 'view-users';
+});
+
+const userRole = computed(() => {
+	return authStore.loggedInUser?.role;
 });
 
 function getUserDetails() {

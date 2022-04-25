@@ -78,6 +78,7 @@ export const useAuthStore = defineStore({
 
 		logout() {
 			removeAuthToken();
+			this.user = undefined;
 			this.accessToken = '';
 		},
 	},
