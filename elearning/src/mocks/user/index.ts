@@ -58,4 +58,30 @@ export const userHandlers = [
 
 		return res(ctx.delay(DELAY), ctx.json(response));
 	}),
+
+	// get user details
+	rest.get(`${API_URL}/users/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const id = Number(req.params.id);
+
+		const user = db.user.findFirst({
+			where: { id: { equals: id } },
+		});
+
+		if (!user) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'User not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(user));
+	}),
 ];

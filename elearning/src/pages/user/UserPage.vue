@@ -28,18 +28,36 @@
 								</ui-menuitem>
 								<ui-menuitem-divider></ui-menuitem-divider>
 								<ui-menuitem>
-									<ui-checkbox
-										v-model="checkedActive"
-										input-id="active"
-									></ui-checkbox>
-									<label for="active">Active</label>
+									<ui-radio
+										v-model="roleFilter"
+										input-id="all"
+										value="all"
+									></ui-radio>
+									<label for="all">All</label>
 								</ui-menuitem>
 								<ui-menuitem>
-									<ui-checkbox
-										v-model="checkedInactive"
-										input-id="inactive"
-									></ui-checkbox>
-									<label for="inactive">Inactive</label>
+									<ui-radio
+										v-model="roleFilter"
+										input-id="admin"
+										value="admin"
+									></ui-radio>
+									<label for="admin">Admin</label>
+								</ui-menuitem>
+								<ui-menuitem>
+									<ui-radio
+										v-model="roleFilter"
+										input-id="instructor"
+										value="instructor"
+									></ui-radio>
+									<label for="instructor">Instructor</label>
+								</ui-menuitem>
+								<ui-menuitem>
+									<ui-radio
+										v-model="roleFilter"
+										input-id="student"
+										value="student"
+									></ui-radio>
+									<label for="student">Student</label>
 								</ui-menuitem>
 							</ui-menu>
 						</ui-menu-anchor>
@@ -114,7 +132,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useUsersStore } from '@/stores/user';
-import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
 import type { User } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
@@ -124,7 +141,6 @@ import { useRouter } from 'vue-router';
 const search = ref('');
 const totalCount = ref(0);
 const userStore = useUsersStore();
-const authStore = useAuthStore();
 const {
 	options,
 	selectedLimit,
@@ -147,8 +163,7 @@ const selectedUser: User = reactive({
 	isActive: false,
 });
 const openFilter = ref(false);
-const checkedActive = ref(false);
-const checkedInactive = ref(false);
+const roleFilter = ref('');
 const router = useRouter();
 
 watch(
@@ -159,7 +174,7 @@ watch(
 );
 
 watch(
-	[selectedLimit, checkedActive, checkedInactive, search],
+	[selectedLimit, roleFilter, search],
 	_.debounce(() => {
 		// reset the page to 1
 		currPage.value = 1;
@@ -176,7 +191,7 @@ async function fetchUsers() {
 		limit: number;
 		page: number;
 		keyword: string;
-		isActive?: boolean;
+		role?: string;
 	};
 
 	let data: filter = {
@@ -185,14 +200,8 @@ async function fetchUsers() {
 		keyword: search.value,
 	};
 
-	if (checkedActive.value && !checkedInactive.value) {
-		// fetch active only
-		data['isActive'] = checkedActive.value;
-	}
-
-	if (!checkedActive.value && checkedInactive.value) {
-		// fetch inactive only
-		data['isActive'] = checkedActive.value;
+	if (roleFilter.value != 'all') {
+		data['role'] = roleFilter.value;
 	}
 	await userStore.fetchUsers(data);
 	totalCount.value = userStore.fetchedTotalCount;
@@ -203,10 +212,10 @@ function populateDropdownItems() {
 }
 
 function handleAction(action: string) {
-	if (action === 'Edit') {
-		// handle Edit
+	if (action === 'View') {
+		// handle View
 		router.push({
-			name: 'edit-user',
+			name: 'view-user',
 			params: {
 				id: selectedUser.id,
 			},
@@ -365,6 +374,15 @@ h6 {
 		justify-content: space-between;
 		color: $gray-2;
 		align-items: center;
+	}
+}
+
+.icon {
+	color: $gray-1;
+	cursor: pointer;
+
+	&--disabled {
+		color: $gray-2;
 	}
 }
 

@@ -136,7 +136,7 @@ const moduleRoute = computed(() => {
 });
 
 const userRoute = computed(() => {
-	return route.name === 'users' || route.name === 'view-users';
+	return route.name === 'users' || route.name === 'view-user';
 });
 
 const userRole = computed(() => {

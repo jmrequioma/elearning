@@ -183,7 +183,7 @@ export default [
 			{
 				path: '/view-user/:id',
 				name: 'view-user',
-				component: () => import('@/pages/modules/ModuleDetailsPage.vue'),
+				component: () => import('@/pages/user/UserDetailsPage.vue'),
 				meta: {
 					title: 'View User - E-Learning',
 					authRequired: true,
