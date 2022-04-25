@@ -42,13 +42,15 @@
 			<p>We have sent a reset password link to your registered email.</p>
 		</template>
 		<template v-slot:actions>
-			<ui-button @click="$router.push({ name: 'login' })">Ok</ui-button>
+			<ui-button @click="router.push({ name: 'login' })">Ok</ui-button>
 		</template>
 	</AlertModal>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+
 import AlertModal from './AlertModal.vue';
 
 const email = ref('');
@@ -56,6 +58,7 @@ const emailErrorMsg = ref('');
 const emailFormat = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$';
 const authStore = useAuthStore();
 const showSuccessModal = ref(false);
+const router = useRouter();
 
 function validateEmail() {
 	// validate Email input

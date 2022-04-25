@@ -1,9 +1,8 @@
 import { rest } from 'msw';
 import { API_URL } from '@/constants';
-import { users } from '../mockedData';
 import { DELAY } from '@/mocks/constants';
 import { db } from '@/mocks/db';
-import { checkAuth, extractAccessToken } from '../utils';
+import { extractAccessToken, validateAuth } from '../utils';
 
 interface LoginBody {
 	email: string;
@@ -115,28 +114,11 @@ export const authHandlers = [
 
 	// change password
 	rest.post<ChangePasswordBody>(`${API_URL}/password`, (req, res, ctx) => {
-		const accessToken = extractAccessToken(req);
+		const auth = validateAuth(req);
+		const accessToken = extractAccessToken(req) as string;
 
-		if (!accessToken) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(401),
-				ctx.json({
-					errorMessage: 'No token provided.',
-				})
-			);
-		}
-
-		const user = checkAuth(accessToken);
-
-		if (!user) {
-			return res(
-				ctx.delay(DELAY),
-				ctx.status(401),
-				ctx.json({
-					errorMessage: 'Unauthorized user.',
-				})
-			);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
 
 		// check if password provided matches with the one on the db
@@ -183,7 +165,8 @@ export const authHandlers = [
 	}),
 
 	rest.get(`${API_URL}/me`, (req, res, ctx) => {
-		const user = getUserDetails('accessToken1');
+		const accessToken = req.url.searchParams.get('accessToken') || '';
+		const user = getUserDetails(accessToken);
 		if (!user) {
 			// return 401
 			return res(ctx.delay(DELAY), ctx.status(401));
@@ -202,7 +185,13 @@ export const authHandlers = [
 function getUserDetails(accessToken: string) {
 	// do a simple checking just to return mocked data
 	// implementation of this should be done at backend
-	const foundUser = users.find((user) => user.accessToken === accessToken);
+	const foundUser = db.user.findFirst({
+		where: {
+			accessToken: {
+				equals: accessToken,
+			},
+		},
+	});
 
 	return foundUser;
 }

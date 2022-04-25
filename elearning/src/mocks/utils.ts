@@ -15,6 +15,21 @@ export function checkAuth(accessToken: string) {
 			},
 		},
 	});
-
 	return foundUser;
+}
+
+export function validateAuth(request: RestRequest) {
+	const accessToken = extractAccessToken(request);
+
+	if (!accessToken) {
+		return { errorMessage: 'No token provided.' };
+	}
+
+	const user = checkAuth(accessToken);
+
+	if (!user) {
+		return { errorMessage: 'Unauthorized user.' };
+	}
+
+	return {};
 }

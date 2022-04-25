@@ -1,22 +1,17 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
-import { setupTests } from '@/utils/setupTests';
 import { users } from '@/mocks/mockedData';
 import { useAuthStore } from '@/stores/auth';
-
-import ChangePassword from '../ChangePassword.vue';
 import faker from '@faker-js/faker';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
+import type { MockStorage } from '@/types/index';
 
-type MockStorage = {
-	[key: string]: string;
-};
+import ChangePassword from '../ChangePassword.vue';
 
 describe('ChangePassword', () => {
 	let wrapper: VueWrapper;
-	setupTests();
 	// mock local storage
 	let mockStorage: MockStorage = {};
 

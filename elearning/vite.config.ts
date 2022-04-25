@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { fileURLToPath, URL } from 'url';
 
 import { defineConfig } from 'vite';
@@ -12,5 +13,9 @@ export default defineConfig({
 			'balm-ui-plus': 'balm-ui/dist/balm-ui-plus.esm.js',
 			'balm-ui-css': 'balm-ui/dist/balm-ui.css',
 		},
+	},
+	test: {
+		clearMocks: true,
+		setupFiles: './src/utils/setupTests.ts',
 	},
 });

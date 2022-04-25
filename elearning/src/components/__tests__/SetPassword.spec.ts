@@ -1,14 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mount, VueWrapper } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
-import { setupTests } from '@/utils/setupTests';
 
 import SetPassword from '../SetPassword.vue';
 import faker from '@faker-js/faker';
 
 describe('SetPassword', () => {
 	let wrapper: VueWrapper;
-	setupTests();
 
 	beforeEach(() => {
 		setActivePinia(createPinia());

@@ -102,6 +102,7 @@
 					id="pword-helper-text"
 					visible
 					validMsg
+					@keyup.enter="register"
 				>
 					<small class="alert">{{ passwordErrorMsg }}</small>
 				</ui-textfield-helper>
@@ -127,7 +128,7 @@
 			</p>
 		</template>
 		<template v-slot:actions>
-			<ui-button @click="$router.push({ name: 'login' })">Ok</ui-button>
+			<ui-button @click="router.push({ name: 'login' })">Ok</ui-button>
 		</template>
 	</AlertModal>
 </template>
@@ -135,6 +136,8 @@
 import { ROLES } from '@/constants';
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+
 import AlertModal from './AlertModal.vue';
 
 const selectedRole = ref('');
@@ -152,7 +155,7 @@ const emailFormat = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}$';
 const notBlankFormat = '.{1,}';
 
 const authStore = useAuthStore();
-
+const router = useRouter();
 const fieldsAreFilled = computed(() => {
 	return (
 		selectedRole.value &&

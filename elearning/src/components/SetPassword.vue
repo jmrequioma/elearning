@@ -56,12 +56,14 @@
 			</p>
 		</template>
 		<template v-slot:actions>
-			<ui-button @click="$router.push({ name: 'login' })">Ok</ui-button>
+			<ui-button @click="router.push({ name: 'login' })">Ok</ui-button>
 		</template>
 	</AlertModal>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 import AlertModal from './AlertModal.vue';
 
 const password = ref('');
@@ -70,6 +72,7 @@ const passwordError = ref(false);
 const passwordErrorMsg = ref('');
 const notBlankFormat = '.{1,}';
 const showSuccessModal = ref(false);
+const router = useRouter();
 
 function validatePasswords() {
 	if (password.value === confPassword.value) {

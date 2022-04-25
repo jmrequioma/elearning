@@ -23,6 +23,7 @@
 			id="password"
 			class="field"
 			input-type="password"
+			@keyup.enter="login"
 			outlined
 			with-trailing-icon
 		>
@@ -64,12 +65,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 
 const email = ref('');
 const password = ref('');
 const invalidCreds = ref(false);
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 const fieldsAreFilled = computed(() => {
 	return email.value && password.value;
@@ -88,6 +91,9 @@ async function login() {
 	const res = await authStore.login(data);
 	if (!res) {
 		invalidCreds.value = true;
+	} else {
+		// log the user in
+		router.push({ name: 'subjects' });
 	}
 }
 </script>
