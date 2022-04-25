@@ -1,12 +1,12 @@
 <template>
-	<div class="course-page">
-		<div class="course-top-container">
-			<div class="course-header">
-				<div class="course-header__content">
+	<div class="module-page">
+		<div class="module-top-container">
+			<div class="module-header">
+				<div class="module-header__content">
 					<img src="@/assets/media/bookshelf.png" alt="bookshelf-icon" />
-					<h6>Courses</h6>
+					<h6>Modules</h6>
 				</div>
-				<div class="course-header__content">
+				<div class="module-header__content">
 					<ui-textfield v-model.trim="search" class="search" with-leading-icon>
 						Search
 						<template #before="{ iconClass }">
@@ -45,47 +45,43 @@
 						</ui-menu-anchor>
 					</div>
 				</div>
-				<div class="course-header__content">
+				<div class="module-header__content">
 					<ui-button
-						class="add-course-btn"
+						class="add-module-btn"
 						unelevated
-						@click="router.push({ name: 'add-course' })"
-						>Add New Course</ui-button
+						@click="router.push({ name: 'add-module' })"
+						>Add New module</ui-button
 					>
 				</div>
 			</div>
 		</div>
-		<div class="course-page__main">
-			<div v-if="search && !courseStore.fetchedCourses.length" class="empty">
+		<div class="module-page__main">
+			<div v-if="search && !moduleStore.fetchedModules.length" class="empty">
 				No results found.
 			</div>
 			<div v-else class="table-container">
-				<table class="course-table">
+				<table class="module-table">
 					<tr>
 						<th>Title</th>
-						<th>Subject</th>
-						<th>Author</th>
-						<th>Modules</th>
+						<th>Course</th>
 						<th>Duration</th>
 						<th>Status</th>
 					</tr>
 					<tr
-						v-for="course in courseStore.fetchedCourses"
-						:key="course.id"
-						@click="selectCourse(course)"
+						v-for="m in moduleStore.fetchedModules"
+						:key="m.id"
+						@click="selectModule(m)"
 					>
-						<td>{{ course.title }}</td>
-						<td>{{ course.subject?.title }}</td>
-						<td>{{ course.author }}</td>
-						<td>{{ getModulesCount(course) }}</td>
-						<td>{{ course.duration }} min</td>
+						<td>{{ m.title }}</td>
+						<td>{{ m.courseTitle }}</td>
+						<td>{{ m.duration }} min</td>
 						<td class="row-action">
-							<template v-if="course.isPublished"> Published </template>
+							<template v-if="m.isPublished"> Published </template>
 							<template v-else> Draft </template>
 							<div class="row-action__menu">
 								<DropdownMenu
-									v-if="isOwner(course)"
-									:items="populateDropdownItems(course)"
+									v-if="isOwner(m)"
+									:items="populateDropdownItems(m)"
 									@handle-action="handleAction"
 								/>
 							</div>
@@ -106,7 +102,7 @@
 						</div>
 					</div>
 					<div class="table-control__pagination">
-						{{ currStart }} - {{ currTotal }} of {{ courseStore.totalCount }}
+						{{ currStart }} - {{ currTotal }} of {{ moduleStore.totalCount }}
 						<ui-icon
 							:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 							@click="goPrev()"
@@ -121,31 +117,21 @@
 				</div>
 			</div>
 		</div>
-		<AlertModal v-if="showDeleteModal">
-			<template v-slot:content>
-				<p>Deleting this course will also delete the modules added to it.</p>
-			</template>
-			<template v-slot:actions>
-				<ui-button @click="showDeleteModal = false">Cancel</ui-button>
-				<ui-button @click="deleteCourse">Ok</ui-button>
-			</template>
-		</AlertModal>
 	</div>
 </template>
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { useCoursesStore } from '@/stores/course';
+import { useModulesStore } from '@/stores/module';
 import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
-import type { Course } from '@/types';
+import type { Module } from '@/types';
 import DropdownMenu from '@/components/DropdownMenu.vue';
-import AlertModal from '@/components/AlertModal.vue';
 import _ from 'lodash';
 import { useRouter } from 'vue-router';
 
 const search = ref('');
 const totalCount = ref(0);
-const courseStore = useCoursesStore();
+const moduleStore = useModulesStore();
 const authStore = useAuthStore();
 const {
 	options,
@@ -159,28 +145,27 @@ const {
 	goNext,
 } = usePagination(totalCount);
 
-const selectedCourse: Course = reactive({
+const selectedModule: Module = reactive({
 	id: 0,
 	title: '',
-	description: '',
 	duration: 0,
-	icon: '',
+	description: '',
 	isPublished: false,
 	createdAt: '',
 	updatedAt: '',
-	subjectId: 0,
+	courseId: 0,
+	courseTitle: '',
 	authorId: 0,
 });
 const openFilter = ref(false);
 const checkedPublished = ref(false);
 const checkedDraft = ref(false);
-const showDeleteModal = ref(false);
 const router = useRouter();
 
 watch(
 	currPage,
 	_.debounce(() => {
-		fetchCourses();
+		fetchModules();
 	}, 500)
 );
 
@@ -189,15 +174,15 @@ watch(
 	_.debounce(() => {
 		// reset the page to 1
 		currPage.value = 1;
-		fetchCourses();
+		fetchModules();
 	}, 500)
 );
 
 onMounted(() => {
-	fetchCourses();
+	fetchModules();
 });
 
-async function fetchCourses() {
+async function fetchModules() {
 	type filter = {
 		limit: number;
 		page: number;
@@ -220,82 +205,73 @@ async function fetchCourses() {
 		// fetch draft only
 		data['published'] = checkedPublished.value;
 	}
-	await courseStore.fetchMainCourses(data);
-	totalCount.value = courseStore.fetchedTotalCount;
+	await moduleStore.fetchMainModules(data);
+	totalCount.value = moduleStore.fetchedTotalCount;
 }
 
-function populateDropdownItems(course: Course) {
-	if (course.isPublished) {
+function populateDropdownItems(module: Module) {
+	if (module.isPublished) {
 		return ['Unpublish', 'Edit', 'Delete'];
 	}
 	return ['Publish', 'Edit', 'Delete'];
 }
 
-function getModulesCount(course: Course) {
-	const length = course.modules?.length;
-	const unit = length == 1 ? 'Module' : 'Modules';
-	return `${length} ${unit}`;
-}
-
-async function hanldeCourseStatus() {
-	// publish/unpublish the course
+async function handleModuleStatus() {
+	// publish/unpublish the module
 	let data = {
-		id: selectedCourse.id,
-		title: selectedCourse.title,
-		isPublished: !selectedCourse.isPublished,
+		id: selectedModule.id,
+		isPublished: !selectedModule.isPublished,
 	};
 	try {
-		await courseStore.updateCourse(data);
-		fetchCourses();
+		await moduleStore.updateModule(data);
+		fetchModules();
 	} catch (error) {
-		console.error('updating course failed', error);
+		console.error('updating module failed', error);
 	}
 }
 
 function handleAction(action: string) {
 	if (action === 'Publish' || action === 'Unpublish') {
-		hanldeCourseStatus();
+		handleModuleStatus();
 	} else if (action === 'Edit') {
 		// handle Edit
 		router.push({
-			name: 'edit-course',
+			name: 'edit-module',
 			params: {
-				id: selectedCourse.id,
+				id: selectedModule.id,
 			},
 		});
 	} else if (action == 'Delete') {
 		// show double confirmation
-		showDeleteModal.value = true;
+		deleteModule();
 	}
 }
 
-function selectCourse(course: Course) {
-	selectedCourse.id = course.id;
-	selectedCourse.title = course.title;
-	selectedCourse.isPublished = course.isPublished;
+function selectModule(module: Module) {
+	selectedModule.id = module.id;
+	selectedModule.title = module.title;
+	selectedModule.isPublished = module.isPublished;
 }
 
-async function deleteCourse() {
+async function deleteModule() {
 	try {
-		const res = await courseStore.deleteCourse({ id: selectedCourse.id });
+		const res = await moduleStore.deleteModule({ id: selectedModule.id });
 		if (res) {
-			fetchCourses();
+			fetchModules();
 		}
 	} catch (error) {
-		console.error('Deleting course failed.', error);
-	} finally {
-		showDeleteModal.value = false;
+		console.error('Deleting module failed.', error);
 	}
 }
 
-function isOwner(course: Course) {
-	return authStore.loggedInUser?.id === course.authorId;
+function isOwner(module: Module) {
+	return authStore.loggedInUser?.id === module.authorId;
 }
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
 
-.course-page {
+.module-page {
 	background-color: $gray-4;
 	padding-bottom: 4px;
 	height: calc(100vh - 68px);
@@ -313,7 +289,7 @@ function isOwner(course: Course) {
 	}
 }
 
-.course-top-container {
+.module-top-container {
 	min-height: 188px;
 	background-color: $accent;
 	padding-top: 32px;
@@ -324,7 +300,7 @@ h6 {
 	color: $white;
 }
 
-.course-header {
+.module-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -348,7 +324,7 @@ h6 {
 			margin-left: 12px;
 		}
 
-		.add-course-btn {
+		.add-module-btn {
 			background-color: $white;
 			color: $gray-1;
 		}
@@ -375,7 +351,7 @@ h6 {
 	}
 }
 
-.course-table {
+.module-table {
 	width: 100%;
 	color: $gray-1;
 	border-spacing: 0;
@@ -385,6 +361,10 @@ h6 {
 		text-align: left;
 		border-bottom: 2px solid $gray-5;
 		box-sizing: border-box;
+
+		&:nth-child(1) {
+			width: 640px;
+		}
 	}
 
 	td {

@@ -48,6 +48,7 @@ export type Module = {
 	updatedAt: string;
 	authorId: number;
 	courseId: number;
+	courseTitle: string;
 	contents?: Array<Content>;
 };
 

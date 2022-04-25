@@ -21,6 +21,21 @@ export const useModulesStore = defineStore({
 			});
 		},
 
+		async fetchMainModules(data: object) {
+			// function to fetch modules and persist in the store
+			try {
+				const res = await this.fetchModules(data);
+				if (res) {
+					this.modules = res.data.data;
+					this.totalCount = res.data.totalCount;
+					this.page = res.data.page;
+				}
+				return res;
+			} catch (error) {
+				console.error('fetching main courses failed', error);
+			}
+		},
+
 		fetchModuleDetails(data: DataBody) {
 			return apiClient.get(`/modules/${data.id}`);
 		},

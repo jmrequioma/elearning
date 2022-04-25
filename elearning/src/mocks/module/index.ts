@@ -86,17 +86,13 @@ export const moduleHandlers = [
 		if (auth.errorMessage) {
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
-		const { title, isPublished, duration } = req.body as {
-			title: string;
-			isPublished: boolean;
-			duration: number;
-		};
+		const data = req.body as Record<string, string>;
 		const id = Number(req.params.id);
 
 		const date = new Date().toISOString();
 		const newModule = db.module.update({
 			where: { id: { equals: id } },
-			data: { title, isPublished, duration: Number(duration), updatedAt: date },
+			data: { ...data, updatedAt: date },
 		});
 
 		if (!newModule) {

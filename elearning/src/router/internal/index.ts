@@ -116,4 +116,40 @@ export default [
 			},
 		],
 	},
+	{
+		path: '/modules',
+		component: () => import('@/pages/HomePage.vue'),
+		children: [
+			{
+				path: '',
+				name: 'modules',
+				component: () => import('@/pages/modules/ModulePage.vue'),
+				meta: {
+					title: 'Modules - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
+			{
+				path: '/add-module',
+				name: 'add-module',
+				component: () => import('@/pages/module/CourseDetailsPage.vue'),
+				meta: {
+					title: 'Add Module - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
+			{
+				path: '/edit-module/:id',
+				name: 'edit-module',
+				component: () => import('@/pages/course/CourseDetailsPage.vue'),
+				meta: {
+					title: 'Edit Module - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+				},
+			},
+		],
+	},
 ];

@@ -36,11 +36,8 @@
 									Courses
 								</router-link>
 							</div>
-							<div class="nav-drawer__item">
-								<router-link
-									class="nav-drawer__link"
-									:to="{ name: 'subjects' }"
-								>
+							<div :class="[moduleRoute ? 'active' : '', 'nav-drawer__item']">
+								<router-link class="nav-drawer__link" :to="{ name: 'modules' }">
 									<img
 										src="@/assets/media/bookshelf.png"
 										alt="bookshelf-icon"
@@ -119,6 +116,13 @@ const courseRoute = computed(() => {
 		route.name === 'courses' ||
 		route.name === 'add-course' ||
 		route.name === 'edit-course'
+	);
+});
+const moduleRoute = computed(() => {
+	return (
+		route.name === 'modules' ||
+		route.name === 'add-module' ||
+		route.name === 'edit-module'
 	);
 });
 
