@@ -85,6 +85,14 @@
 							Status
 						</ui-select>
 					</div>
+					<div class="col-1">
+						<div class="editor">
+							<BaseEditor
+								:editor-content="content"
+								@handle-content="handleContent"
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -104,13 +112,14 @@ import { STATUS_OPTIONS } from '@/constants';
 import { computed, onMounted, ref } from 'vue';
 import { useCoursesStore } from '@/stores/course';
 import { useModulesStore } from '@/stores/module';
+import { useContentsStore } from '@/stores/content';
 
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
-import type { Course, Module } from '@/types';
-import _ from 'lodash';
+import type { Content, Course, Module } from '@/types';
 import { useRouter } from 'vue-router';
 
 import AlertModal from '@/components/AlertModal.vue';
+import BaseEditor from '@/components/BaseEditor.vue';
 
 const statusOptions = [...STATUS_OPTIONS];
 const title = ref('');
@@ -121,12 +130,15 @@ const duration = ref(0);
 const titleErrorMsg = ref('');
 const courseStore = useCoursesStore();
 const moduleStore = useModulesStore();
+const contentStore = useContentsStore();
 const fetchedModule = ref<Module>();
+const fetchedContent = ref<Content>();
 const showSuccessModal = ref(false);
 const route = useRoute();
 const moduleId = ref(0);
 const selectedTab = ref('Module');
 const router = useRouter();
+const content = ref({});
 const isLoading = ref(false);
 
 const headerTitle = computed(() => {
@@ -205,6 +217,8 @@ async function createModule() {
 			isPublished: false,
 		});
 		if (res) {
+			// create content
+			await createContent(res.data.id);
 			showSuccessModal.value = true;
 		}
 	} catch (error) {
@@ -212,6 +226,22 @@ async function createModule() {
 		if ((error as Error).message.includes('409')) {
 			titleErrorMsg.value = 'Module already exists.';
 		}
+	}
+}
+
+async function createContent(moduleId: number) {
+	const data = {
+		moduleId: moduleId,
+		content: JSON.stringify(content.value),
+	};
+
+	try {
+		const res = await contentStore.createContent(data);
+		if (res) {
+			showSuccessModal.value = true;
+		}
+	} catch (error) {
+		console.error('creating content failed', error);
 	}
 }
 
@@ -237,6 +267,9 @@ async function fetchSpecificModule() {
 		selectedCourse.value = res.data.courseId;
 		selectedStatus.value = res.data.isPublished ? 'Published' : 'Draft';
 		duration.value = res.data.duration;
+		// display content
+		fetchedContent.value = res.data.contents[0];
+		content.value = JSON.parse(res.data.contents[0].content);
 	} catch (error) {
 		console.error('fetching specific module failed', error);
 	}
@@ -253,11 +286,27 @@ async function editModule() {
 		};
 		const res = await moduleStore.updateModule(data);
 		if (res) {
-			showSuccessModal.value = true;
+			await editContent();
 			await fetchSpecificModule();
 		}
 	} catch (error) {
 		console.error('editing specific module failed', error);
+	}
+}
+
+async function editContent() {
+	try {
+		let data = {
+			id: fetchedContent.value?.id,
+			content: JSON.stringify(content.value),
+		};
+		const res = await contentStore.updateContent(data);
+
+		if (res) {
+			showSuccessModal.value = true;
+		}
+	} catch (error) {
+		console.error('editing specific content failed', error);
 	}
 }
 
@@ -281,6 +330,10 @@ async function fetchCourses() {
 	} catch (error) {
 		console.error('fetching courses for dropdown failed.', error);
 	}
+}
+
+function handleContent(contentFromEditor: object) {
+	content.value = contentFromEditor;
 }
 
 onBeforeRouteLeave(() => {
