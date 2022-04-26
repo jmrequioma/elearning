@@ -31,10 +31,13 @@
 								</router-link>
 							</div>
 							<div
-								v-if="userRole === 'instructor'"
+								v-if="userRole === 'instructor' || userRole === 'student'"
 								:class="[courseRoute ? 'active' : '', 'nav-drawer__item']"
 							>
-								<router-link class="nav-drawer__link" :to="{ name: 'courses' }">
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: coursesLink }"
+								>
 									<img
 										src="@/assets/media/bookshelf.png"
 										alt="bookshelf-icon"
@@ -124,7 +127,8 @@ const courseRoute = computed(() => {
 	return (
 		route.name === 'courses' ||
 		route.name === 'add-course' ||
-		route.name === 'edit-course'
+		route.name === 'edit-course' ||
+		route.name === 'student-courses'
 	);
 });
 const moduleRoute = computed(() => {
@@ -141,6 +145,10 @@ const userRoute = computed(() => {
 
 const userRole = computed(() => {
 	return authStore.loggedInUser?.role;
+});
+
+const coursesLink = computed(() => {
+	return userRole.value === 'instructor' ? 'courses' : 'student-courses';
 });
 
 function getUserDetails() {

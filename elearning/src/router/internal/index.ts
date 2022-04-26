@@ -193,4 +193,22 @@ export default [
 			},
 		],
 	},
+	// student courses
+	{
+		path: '/student-courses',
+		component: () => import('@/pages/HomePage.vue'),
+		children: [
+			{
+				path: '',
+				name: 'student-courses',
+				component: () => import('@/pages/course/StudentCoursePage.vue'),
+				meta: {
+					title: 'Courses - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+					allowedRoles: ['student'],
+				},
+			},
+		],
+	},
 ];

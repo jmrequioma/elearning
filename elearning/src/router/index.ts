@@ -30,6 +30,8 @@ router.beforeEach(async (to, from) => {
 				routeName = 'subjects';
 			} else if (role === 'admin') {
 				routeName = 'users';
+			} else if (role === 'student') {
+				routeName = 'student-courses';
 			}
 			return { name: routeName };
 		} else {

@@ -49,7 +49,22 @@ export const courseHandlers = [
 					title: 'asc',
 				},
 			});
-			return res(ctx.delay(DELAY), ctx.json(courses));
+
+			const data = courses.map((course) => {
+				const subject = db.subject.findFirst({
+					where: { id: { equals: course.subjectId } },
+				});
+				const author = db.user.findFirst({
+					where: { id: { equals: course.authorId } },
+				});
+
+				return {
+					...course,
+					subject,
+					author: `${author?.firstName} ${author?.lastName}`,
+				};
+			});
+			return res(ctx.delay(DELAY), ctx.json(data));
 		}
 
 		if (subjectId) {
