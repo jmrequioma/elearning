@@ -93,7 +93,13 @@ async function login() {
 		invalidCreds.value = true;
 	} else {
 		// log the user in
-		router.push({ name: 'subjects' });
+		let routerName = '';
+		if (authStore.loggedInUser?.role === 'instructor') {
+			routerName = 'subjects';
+		} else if (authStore.loggedInUser?.role === 'admin') {
+			routerName = 'users';
+		}
+		router.push({ name: routerName });
 	}
 }
 </script>

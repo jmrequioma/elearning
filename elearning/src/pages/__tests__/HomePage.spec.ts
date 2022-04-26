@@ -17,6 +17,16 @@ describe('HomePage', () => {
 		setActivePinia(createPinia());
 		authStore = useAuthStore();
 		authStore.accessToken = faker.datatype.uuid();
+		// set user
+		authStore.user = {
+			accessToken: faker.datatype.uuid(),
+			id: 1,
+			email: faker.internet.email(),
+			firstName: faker.name.firstName(),
+			lastName: faker.name.lastName(),
+			role: 'instructor',
+			isActive: true,
+		};
 		router = createRouter({
 			history: createWebHistory(),
 			routes: routes,
@@ -36,7 +46,6 @@ describe('HomePage', () => {
 
 	it('tests the navigation', async () => {
 		const link = wrapper.find('.nav-drawer__link');
-
 		link.trigger('click');
 		await flushPromises();
 		await router.isReady();

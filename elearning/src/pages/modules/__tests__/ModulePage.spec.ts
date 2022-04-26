@@ -3,16 +3,16 @@ import { mount, VueWrapper } from '@vue/test-utils';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import { routes } from '@/router';
 import { setActivePinia, createPinia } from 'pinia';
-import { useCoursesStore } from '@/stores/course';
+import { useModulesStore } from '@/stores/module';
 import type { MockStorage } from '@/types/index';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
 import { users } from '@/mocks/mockedData';
 import faker from '@faker-js/faker';
 
-import CoursePage from '../CoursePage.vue';
+import ModulePage from '../ModulePage.vue';
 
-describe('CoursePage', () => {
+describe('ModulePage', () => {
 	let wrapper: VueWrapper;
 	let router: Router;
 	// mock local storage
@@ -30,7 +30,7 @@ describe('CoursePage', () => {
 			history: createWebHistory(),
 			routes: routes,
 		});
-		wrapper = mount(CoursePage, {
+		wrapper = mount(ModulePage, {
 			global: {
 				plugins: [router],
 			},
@@ -39,12 +39,12 @@ describe('CoursePage', () => {
 	});
 
 	it('renders the component properly', async () => {
-		const container = wrapper.find('.course-page');
+		const container = wrapper.find('.module-page');
 
 		expect(container).toBeDefined();
 	});
 
-	it('fetches courses', async () => {
+	it('fetches modules', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -52,7 +52,7 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 		const option = wrapper.find('option');
 		const optionValue = parseInt(option.element.value);
 
@@ -60,12 +60,12 @@ describe('CoursePage', () => {
 			limit: parseInt(option.element.value),
 		};
 
-		await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-		expect(courseStore.fetchedCourses?.length).toBe(optionValue);
+		expect(moduleStore.fetchedModules?.length).toBe(optionValue);
 	});
 
-	it('fetches courses using search key', async () => {
+	it('fetches modules using search key', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -73,22 +73,22 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
 		const data = {
-			keyword: 'Course',
+			keyword: 'Module',
 		};
 
-		await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-		const fetchedCourses = courseStore.fetchedCourses;
-		expect(fetchedCourses?.length).toBeGreaterThan(0);
-		if (fetchedCourses) {
-			expect(fetchedCourses[0].title).toContain('Course');
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			expect(fetchedModules[0].title).toContain('Module');
 		}
 	});
 
-	it('fetches courses with published status', async () => {
+	it('fetches modules with published status', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -96,23 +96,23 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
 		const data = {
 			published: true,
 		};
 
-		await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-		const fetchedCourses = courseStore.fetchedCourses;
-		expect(fetchedCourses?.length).toBeGreaterThan(0);
-		if (fetchedCourses) {
-			expect(fetchedCourses[0].isPublished).toBe(true);
-			expect(fetchedCourses[fetchedCourses.length - 1].isPublished).toBe(true);
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			expect(fetchedModules[0].isPublished).toBe(true);
+			expect(fetchedModules[fetchedModules.length - 1].isPublished).toBe(true);
 		}
 	});
 
-	it('fetches courses with draft status', async () => {
+	it('fetches modules with draft status', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -120,29 +120,29 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
 		const data = {
 			published: false,
 		};
 
-		// create a draft course
-		await courseStore.createCourse({
-			title: `${faker.random.word()} Test Course`,
-			subjectId: 1,
+		// create a draft module
+		await moduleStore.createModule({
+			title: `${faker.random.word()} Test Module`,
+			courseId: 1,
 		});
 
-		await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-		const fetchedCourses = courseStore.fetchedCourses;
-		expect(fetchedCourses?.length).toBeGreaterThan(0);
-		if (fetchedCourses) {
-			expect(fetchedCourses[0].isPublished).toBe(false);
-			expect(fetchedCourses[fetchedCourses.length - 1].isPublished).toBe(false);
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			expect(fetchedModules[0].isPublished).toBe(false);
+			expect(fetchedModules[fetchedModules.length - 1].isPublished).toBe(false);
 		}
 	});
 
-	it('publishes draft courses', async () => {
+	it('publishes draft modules', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -150,41 +150,41 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
 		const data = {
 			published: false,
 		};
 
-		// create a draft course
-		await courseStore.createCourse({
-			title: `${faker.random.word()} Test Course`,
-			subjectId: 1,
+		// create a draft module
+		await moduleStore.createModule({
+			title: `${faker.random.word()} Test Module`,
+			courseId: 1,
 		});
 
-		await courseStore.fetchMainCourses(data);
-		// all the courses should be drafts, thus no option to 'Unpublish'
+		await moduleStore.fetchMainModules(data);
+		// all the modules should be drafts, thus no option to 'Unpublish'
 		expect(wrapper.html()).not.toContain('Unpublish');
 
-		const fetchedCourses = courseStore.fetchedCourses;
-		expect(fetchedCourses?.length).toBeGreaterThan(0);
-		if (fetchedCourses) {
-			const draftCourse = courseStore.fetchedCourses[0];
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			const draftModule = moduleStore.fetchedModules[0];
 			const dataToUpdate = {
-				id: draftCourse.id,
-				title: draftCourse.title,
+				id: draftModule.id,
+				title: draftModule.title,
 				isPublished: true,
 			};
-			await courseStore.updateCourse(dataToUpdate);
-			const res = await courseStore.fetchCourseDetails({ id: draftCourse.id });
-			// check the status of the course that was updated from draft to published
+			await moduleStore.updateModule(dataToUpdate);
+			const res = await moduleStore.fetchModuleDetails({ id: draftModule.id });
+			// check the status of the module that was updated from draft to published
 
-			expect(res.data.id).toBe(draftCourse.id);
+			expect(res.data.id).toBe(draftModule.id);
 			expect(res.data.isPublished).toBe(true);
 		}
 	});
 
-	it('unpublishes published courses', async () => {
+	it('unpublishes published modules', async () => {
 		const accessToken = users[0].accessToken;
 		setAccessToken(accessToken);
 
@@ -192,31 +192,31 @@ describe('CoursePage', () => {
 			'Authorization'
 		] = `Bearer ${getAccessToken()}`;
 
-		const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
 		const data = {
 			published: true,
 		};
 
-		await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
 		// all the courses should be published, thus no option to 'Publish'
 		const menuItemTexts = wrapper.findAll('#menu-item-text');
 		menuItemTexts.forEach((item) => {
 			expect(item.html()).not.toContain('Publish');
 		});
-		const fetchedCourses = courseStore.fetchedCourses;
-		expect(fetchedCourses?.length).toBeGreaterThan(0);
-		if (fetchedCourses) {
-			const draftCourse = courseStore.fetchedCourses[0];
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			const draftModule = moduleStore.fetchedModules[0];
 			const dataToUpdate = {
-				id: draftCourse.id,
-				title: draftCourse.title,
-				isPublished: !draftCourse.isPublished,
+				id: draftModule.id,
+				title: draftModule.title,
+				isPublished: !draftModule.isPublished,
 			};
-			await courseStore.updateCourse(dataToUpdate);
-			const res = await courseStore.fetchCourseDetails({ id: draftCourse.id });
-			// check the status of the course that was updated from draft to published
+			await moduleStore.updateModule(dataToUpdate);
+			const res = await moduleStore.fetchModuleDetails({ id: draftModule.id });
+			// check the status of the module that was updated from draft to published
 
 			expect(res.data.isPublished).toBe(false);
 		}
