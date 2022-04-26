@@ -46,9 +46,7 @@ describe('HomePage', () => {
 
 	it('tests the navigation', async () => {
 		const link = wrapper.find('.nav-drawer__link');
-		console.log(wrapper.html());
 		link.trigger('click');
-		console.log(link);
 		await flushPromises();
 		await router.isReady();
 		expect(router.currentRoute.value.name).toBe('subjects');
