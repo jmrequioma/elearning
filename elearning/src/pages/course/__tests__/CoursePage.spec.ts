@@ -4,7 +4,7 @@ import { createRouter, createWebHistory, type Router } from 'vue-router';
 import { routes } from '@/router';
 import { setActivePinia, createPinia } from 'pinia';
 import { useCoursesStore } from '@/stores/course';
-import type { MockStorage, Course } from '@/types/index';
+import type { MockStorage } from '@/types/index';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
 import { users } from '@/mocks/mockedData';

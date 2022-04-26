@@ -88,139 +88,139 @@ describe('ModulePage', () => {
 		}
 	});
 
-	// it('fetches courses with published status', async () => {
-	// 	const accessToken = users[0].accessToken;
-	// 	setAccessToken(accessToken);
+	it('fetches modules with published status', async () => {
+		const accessToken = users[0].accessToken;
+		setAccessToken(accessToken);
 
-	// 	apiClient.defaults.headers.common[
-	// 		'Authorization'
-	// 	] = `Bearer ${getAccessToken()}`;
+		apiClient.defaults.headers.common[
+			'Authorization'
+		] = `Bearer ${getAccessToken()}`;
 
-	// 	const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
-	// 	const data = {
-	// 		published: true,
-	// 	};
+		const data = {
+			published: true,
+		};
 
-	// 	await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-	// 	const fetchedCourses = courseStore.fetchedCourses;
-	// 	expect(fetchedCourses?.length).toBeGreaterThan(0);
-	// 	if (fetchedCourses) {
-	// 		expect(fetchedCourses[0].isPublished).toBe(true);
-	// 		expect(fetchedCourses[fetchedCourses.length - 1].isPublished).toBe(true);
-	// 	}
-	// });
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			expect(fetchedModules[0].isPublished).toBe(true);
+			expect(fetchedModules[fetchedModules.length - 1].isPublished).toBe(true);
+		}
+	});
 
-	// it('fetches courses with draft status', async () => {
-	// 	const accessToken = users[0].accessToken;
-	// 	setAccessToken(accessToken);
+	it('fetches modules with draft status', async () => {
+		const accessToken = users[0].accessToken;
+		setAccessToken(accessToken);
 
-	// 	apiClient.defaults.headers.common[
-	// 		'Authorization'
-	// 	] = `Bearer ${getAccessToken()}`;
+		apiClient.defaults.headers.common[
+			'Authorization'
+		] = `Bearer ${getAccessToken()}`;
 
-	// 	const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
-	// 	const data = {
-	// 		published: false,
-	// 	};
+		const data = {
+			published: false,
+		};
 
-	// 	// create a draft course
-	// 	await courseStore.createCourse({
-	// 		title: `${faker.random.word()} Test Course`,
-	// 		subjectId: 1,
-	// 	});
+		// create a draft module
+		await moduleStore.createModule({
+			title: `${faker.random.word()} Test Module`,
+			courseId: 1,
+		});
 
-	// 	await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-	// 	const fetchedCourses = courseStore.fetchedCourses;
-	// 	expect(fetchedCourses?.length).toBeGreaterThan(0);
-	// 	if (fetchedCourses) {
-	// 		expect(fetchedCourses[0].isPublished).toBe(false);
-	// 		expect(fetchedCourses[fetchedCourses.length - 1].isPublished).toBe(false);
-	// 	}
-	// });
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			expect(fetchedModules[0].isPublished).toBe(false);
+			expect(fetchedModules[fetchedModules.length - 1].isPublished).toBe(false);
+		}
+	});
 
-	// it('publishes draft courses', async () => {
-	// 	const accessToken = users[0].accessToken;
-	// 	setAccessToken(accessToken);
+	it('publishes draft modules', async () => {
+		const accessToken = users[0].accessToken;
+		setAccessToken(accessToken);
 
-	// 	apiClient.defaults.headers.common[
-	// 		'Authorization'
-	// 	] = `Bearer ${getAccessToken()}`;
+		apiClient.defaults.headers.common[
+			'Authorization'
+		] = `Bearer ${getAccessToken()}`;
 
-	// 	const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
-	// 	const data = {
-	// 		published: false,
-	// 	};
+		const data = {
+			published: false,
+		};
 
-	// 	// create a draft course
-	// 	await courseStore.createCourse({
-	// 		title: `${faker.random.word()} Test Course`,
-	// 		subjectId: 1,
-	// 	});
+		// create a draft module
+		await moduleStore.createModule({
+			title: `${faker.random.word()} Test Module`,
+			courseId: 1,
+		});
 
-	// 	await courseStore.fetchMainCourses(data);
-	// 	// all the courses should be drafts, thus no option to 'Unpublish'
-	// 	expect(wrapper.html()).not.toContain('Unpublish');
+		await moduleStore.fetchMainModules(data);
+		// all the modules should be drafts, thus no option to 'Unpublish'
+		expect(wrapper.html()).not.toContain('Unpublish');
 
-	// 	const fetchedCourses = courseStore.fetchedCourses;
-	// 	expect(fetchedCourses?.length).toBeGreaterThan(0);
-	// 	if (fetchedCourses) {
-	// 		const draftCourse = courseStore.fetchedCourses[0];
-	// 		const dataToUpdate = {
-	// 			id: draftCourse.id,
-	// 			title: draftCourse.title,
-	// 			isPublished: true,
-	// 		};
-	// 		await courseStore.updateCourse(dataToUpdate);
-	// 		const res = await courseStore.fetchCourseDetails({ id: draftCourse.id });
-	// 		// check the status of the course that was updated from draft to published
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			const draftModule = moduleStore.fetchedModules[0];
+			const dataToUpdate = {
+				id: draftModule.id,
+				title: draftModule.title,
+				isPublished: true,
+			};
+			await moduleStore.updateModule(dataToUpdate);
+			const res = await moduleStore.fetchModuleDetails({ id: draftModule.id });
+			// check the status of the module that was updated from draft to published
 
-	// 		expect(res.data.id).toBe(draftCourse.id);
-	// 		expect(res.data.isPublished).toBe(true);
-	// 	}
-	// });
+			expect(res.data.id).toBe(draftModule.id);
+			expect(res.data.isPublished).toBe(true);
+		}
+	});
 
-	// it('unpublishes published courses', async () => {
-	// 	const accessToken = users[0].accessToken;
-	// 	setAccessToken(accessToken);
+	it('unpublishes published modules', async () => {
+		const accessToken = users[0].accessToken;
+		setAccessToken(accessToken);
 
-	// 	apiClient.defaults.headers.common[
-	// 		'Authorization'
-	// 	] = `Bearer ${getAccessToken()}`;
+		apiClient.defaults.headers.common[
+			'Authorization'
+		] = `Bearer ${getAccessToken()}`;
 
-	// 	const courseStore = useCoursesStore();
+		const moduleStore = useModulesStore();
 
-	// 	const data = {
-	// 		published: true,
-	// 	};
+		const data = {
+			published: true,
+		};
 
-	// 	await courseStore.fetchMainCourses(data);
+		await moduleStore.fetchMainModules(data);
 
-	// 	// all the courses should be published, thus no option to 'Publish'
-	// 	const menuItemTexts = wrapper.findAll('#menu-item-text');
-	// 	menuItemTexts.forEach((item) => {
-	// 		expect(item.html()).not.toContain('Publish');
-	// 	});
-	// 	const fetchedCourses = courseStore.fetchedCourses;
-	// 	expect(fetchedCourses?.length).toBeGreaterThan(0);
-	// 	if (fetchedCourses) {
-	// 		const draftCourse = courseStore.fetchedCourses[0];
-	// 		const dataToUpdate = {
-	// 			id: draftCourse.id,
-	// 			title: draftCourse.title,
-	// 			isPublished: !draftCourse.isPublished,
-	// 		};
-	// 		await courseStore.updateCourse(dataToUpdate);
-	// 		const res = await courseStore.fetchCourseDetails({ id: draftCourse.id });
-	// 		// check the status of the course that was updated from draft to published
+		// all the courses should be published, thus no option to 'Publish'
+		const menuItemTexts = wrapper.findAll('#menu-item-text');
+		menuItemTexts.forEach((item) => {
+			expect(item.html()).not.toContain('Publish');
+		});
+		const fetchedModules = moduleStore.fetchedModules;
+		expect(fetchedModules?.length).toBeGreaterThan(0);
+		if (fetchedModules) {
+			const draftModule = moduleStore.fetchedModules[0];
+			const dataToUpdate = {
+				id: draftModule.id,
+				title: draftModule.title,
+				isPublished: !draftModule.isPublished,
+			};
+			await moduleStore.updateModule(dataToUpdate);
+			const res = await moduleStore.fetchModuleDetails({ id: draftModule.id });
+			// check the status of the module that was updated from draft to published
 
-	// 		expect(res.data.isPublished).toBe(false);
-	// 	}
-	// 	// now, there will be a course that is already a Draft
-	// 	expect(wrapper.html()).toContain('Publish');
-	// });
+			expect(res.data.isPublished).toBe(false);
+		}
+		// now, there will be a course that is already a Draft
+		expect(wrapper.html()).toContain('Publish');
+	});
 });
