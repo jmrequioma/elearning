@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="card__action">
-			<ui-button>Enroll</ui-button>
+			<ui-button @click="handleAction">{{ action }}</ui-button>
 		</div>
 	</div>
 </template>
@@ -33,11 +33,18 @@ import moment from 'moment';
 
 const props = defineProps({
 	course: Object as PropType<Course>,
+	action: String,
 });
+
+const emit = defineEmits(['handleAction']);
 
 function getDate(date: string) {
 	const newDate = new Date(date);
 	return `Created ${moment(newDate).format('MMM D, yyyy')}`;
+}
+
+function handleAction() {
+	emit('handleAction', { courseId: props.course?.id, action: props.action });
 }
 </script>
 <style scoped lang="scss">

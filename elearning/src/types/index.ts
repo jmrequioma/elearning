@@ -63,6 +63,15 @@ export type Content = {
 	moduleId: number;
 };
 
+export type Enrollment = {
+	id: number;
+	isStarted: boolean;
+	createdAt: string;
+	updatedAt: string;
+	userId: number;
+	course: Course;
+};
+
 export type DataBody = {
 	id?: number;
 	subjectId?: number;
@@ -97,4 +106,9 @@ export type ChangePasswordBody = {
 
 export type MockStorage = {
 	[key: string]: string;
+};
+
+export type EmitCourseAction = {
+	courseId: number;
+	action: string;
 };

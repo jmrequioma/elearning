@@ -37,7 +37,11 @@
 			</div>
 			<div class="course-content">
 				<template v-for="course in courses" :key="course.id">
-					<CourseCard :course="course" />
+					<CourseCard
+						:course="course"
+						action="enroll"
+						@handle-action="handleAction"
+					/>
 				</template>
 			</div>
 		</div>
@@ -48,7 +52,8 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useSubjectsStore } from '@/stores/subject';
 import { useUsersStore } from '@/stores/user';
 import { useCoursesStore } from '@/stores/course';
-import type { Subject, User } from '@/types';
+import { useEnrollmentsStore } from '@/stores/enrollment';
+import type { EmitCourseAction, Subject, User } from '@/types';
 import _ from 'lodash';
 
 import CourseCard from '@/components/CourseCard.vue';
@@ -56,6 +61,7 @@ import CourseCard from '@/components/CourseCard.vue';
 const subjectStore = useSubjectsStore();
 const userStore = useUsersStore();
 const courseStore = useCoursesStore();
+const enrollmentStore = useEnrollmentsStore();
 const subjects = ref<Subject[]>([]);
 const selectedSubject = ref(-1);
 const instructors = ref<User[]>([]);
@@ -156,6 +162,26 @@ async function fetchCourses() {
 		}
 	} catch (error) {
 		console.error('fetching courses failed.', error);
+	}
+}
+
+function handleAction(emittedAction: EmitCourseAction) {
+	const { courseId, action } = emittedAction;
+
+	if (action === 'enroll') {
+		enroll(courseId);
+	}
+}
+
+async function enroll(courseId: number) {
+	try {
+		const res = await enrollmentStore.createEnrollment({ courseId: courseId });
+
+		if (res) {
+			fetchCourses();
+		}
+	} catch (error) {
+		console.error('error in enrolling into a course', error);
 	}
 }
 </script>

@@ -46,6 +46,21 @@
 								</router-link>
 							</div>
 							<div
+								v-if="userRole === 'student'"
+								:class="[myCourseRoute ? 'active' : '', 'nav-drawer__item']"
+							>
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'my-courses' }"
+								>
+									<img
+										src="@/assets/media/bookshelf.png"
+										alt="bookshelf-icon"
+									/>
+									My Courses
+								</router-link>
+							</div>
+							<div
 								v-if="userRole === 'instructor'"
 								:class="[moduleRoute ? 'active' : '', 'nav-drawer__item']"
 							>
@@ -130,6 +145,9 @@ const courseRoute = computed(() => {
 		route.name === 'edit-course' ||
 		route.name === 'student-courses'
 	);
+});
+const myCourseRoute = computed(() => {
+	return route.name === 'my-courses' || route.name === 'view-course';
 });
 const moduleRoute = computed(() => {
 	return (

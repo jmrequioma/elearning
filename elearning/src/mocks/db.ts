@@ -1,5 +1,5 @@
 import faker from '@faker-js/faker';
-import { factory, primaryKey, manyOf } from '@mswjs/data';
+import { factory, primaryKey, manyOf, oneOf } from '@mswjs/data';
 import type { Entity } from '@mswjs/data/lib/glossary';
 import { users } from './mockedData';
 
@@ -64,6 +64,15 @@ const model = {
 		updatedAt: String,
 		authorId: Number,
 		moduleId: Number,
+	},
+
+	enrollment: {
+		id: primaryKey(Number),
+		isStarted: Boolean,
+		createdAt: String,
+		updatedAt: String,
+		userId: Number,
+		course: oneOf('course'),
 	},
 };
 
