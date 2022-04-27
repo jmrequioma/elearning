@@ -93,16 +93,16 @@ async function fetchSpecificEnrollment() {
 
 	&__item {
 		display: flex;
-		gap: 1rem;
+		gap: 8px;
 		align-items: center;
 		padding-bottom: 2rem;
-		padding-left: 28px;
+		padding-left: 16px;
 		position: relative;
 
 		&:not(:last-child):after {
 			content: '';
 			position: absolute;
-			left: 17px;
+			left: 5px;
 			top: 27px;
 			bottom: 0;
 			transform: translateX(1.5rem);
@@ -129,7 +129,7 @@ async function fetchSpecificEnrollment() {
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		width: 148px;
+		width: 152px;
 		color: $gray-6;
 	}
 }
