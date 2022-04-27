@@ -14,6 +14,7 @@
 				['image', 'video'],
 			]"
 			theme="bubble"
+			:readOnly="disabled"
 		>
 		</QuillEditor>
 	</div>
@@ -25,6 +26,10 @@ import '@vueup/vue-quill/dist/vue-quill.bubble.css';
 
 const props = defineProps({
 	editorContent: Object,
+	disabled: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const quill = ref<Quill>(null);

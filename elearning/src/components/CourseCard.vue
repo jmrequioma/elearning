@@ -34,6 +34,11 @@ import moment from 'moment';
 const props = defineProps({
 	course: Object as PropType<Course>,
 	action: String,
+	enrollmentId: {
+		type: Number,
+		required: false,
+		default: -1,
+	},
 });
 
 const emit = defineEmits(['handleAction']);
@@ -44,7 +49,11 @@ function getDate(date: string) {
 }
 
 function handleAction() {
-	emit('handleAction', { courseId: props.course?.id, action: props.action });
+	emit('handleAction', {
+		courseId: props.course?.id,
+		enrollmentId: props.enrollmentId,
+		action: props.action,
+	});
 }
 </script>
 <style scoped lang="scss">

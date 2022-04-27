@@ -235,6 +235,6 @@ async function enroll(courseId: number) {
 	row-gap: 40px;
 	height: 340px;
 	padding: 4px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 </style>

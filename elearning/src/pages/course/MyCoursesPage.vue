@@ -18,13 +18,14 @@
 			<h4 class="header">My Courses</h4>
 			<div class="my-courses__content">
 				<div class="scroll-container">
-					<template v-for="enrollment in enrollments" :key="enrollment.id">
+					<div v-for="enrollment in enrollments" :key="enrollment.id">
 						<CourseCard
 							:course="enrollment.course"
+							:enrollmentId="enrollment.id"
 							:action="getAction(enrollment)"
 							@handle-action="handleAction"
 						/>
-					</template>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -63,10 +64,13 @@ async function fetchEnrollments() {
 }
 
 function handleAction(emittedAction: EmitCourseAction) {
-	const { courseId, action } = emittedAction;
+	const { action, enrollmentId } = emittedAction;
 
 	if (action === 'start' || action === 'continue') {
-		router.push({ name: 'view-course', params: { id: courseId } });
+		router.push({
+			name: 'view-course',
+			params: { id: enrollmentId },
+		});
 	}
 }
 
@@ -108,7 +112,7 @@ function getAction(enrollment: Enrollment) {
 	row-gap: 40px;
 	height: 340px;
 	padding: 4px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 .course-image {

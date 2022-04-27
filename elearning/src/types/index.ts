@@ -110,5 +110,6 @@ export type MockStorage = {
 
 export type EmitCourseAction = {
 	courseId: number;
+	enrollmentId?: number;
 	action: string;
 };

@@ -16,5 +16,9 @@ export const useEnrollmentsStore = defineStore({
 		createEnrollment(data: DataBody) {
 			return apiClient.post('/enrollments/', data);
 		},
+
+		fetchEnrollmentDetails(data: DataBody) {
+			return apiClient.get(`/enrollments/${data.id}`);
+		},
 	},
 });
