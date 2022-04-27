@@ -14,11 +14,25 @@
 		<div class="course-main">
 			<div class="course-filters">
 				<div class="course-filters__content">
-					<ui-textfield outlined>Search for a course</ui-textfield>
+					<ui-textfield v-model.trim="search" outlined
+						>Search for a course</ui-textfield
+					>
 				</div>
 				<div class="course-filters__content">
-					<ui-select outlined fullwidth>Subject</ui-select>
-					<ui-select outlined fullwidth>Instructor</ui-select>
+					<ui-select
+						v-model="selectedSubject"
+						outlined
+						fullwidth
+						:options="subjectOptions"
+						>Subject</ui-select
+					>
+					<ui-select
+						v-model="selectedInstructor"
+						outlined
+						fullwidth
+						:options="instructorOptions"
+						>Instructor</ui-select
+					>
 				</div>
 			</div>
 			<div class="course-content">
@@ -30,24 +44,95 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
+import { useSubjectsStore } from '@/stores/subject';
+import { useUsersStore } from '@/stores/user';
 import { useCoursesStore } from '@/stores/course';
+import type { Subject, User } from '@/types';
+import _ from 'lodash';
 
 import CourseCard from '@/components/CourseCard.vue';
 
+const subjectStore = useSubjectsStore();
+const userStore = useUsersStore();
 const courseStore = useCoursesStore();
+const subjects = ref<Subject[]>([]);
+const selectedSubject = ref(-1);
+const instructors = ref<User[]>([]);
+const selectedInstructor = ref(-1);
 const courses = ref([]);
 const search = ref('');
 
+const subjectOptions = computed(() => {
+	const options: Array<object> = [];
+	// push an "All" option first
+	options.push({ label: 'All', value: -1 });
+	subjects.value.forEach((subject) => {
+		const option = {
+			label: subject.title,
+			value: subject.id,
+		};
+		options.push(option);
+	});
+	return options;
+});
+
+const instructorOptions = computed(() => {
+	const options: Array<object> = [];
+	// push an "All" option first
+	options.push({ label: 'All', value: -1 });
+	instructors.value.forEach((instructor) => {
+		const option = {
+			label: `${instructor.firstName} ${instructor.lastName}`,
+			value: instructor.id,
+		};
+		options.push(option);
+	});
+	return options;
+});
+
+watch(
+	[selectedSubject, selectedInstructor, search],
+	_.debounce(() => {
+		fetchCourses();
+	}, 500)
+);
+
 onMounted(() => {
+	fetchSubjects();
+	fetchInstructors();
 	fetchCourses();
 });
+
+async function fetchSubjects() {
+	try {
+		const res = await subjectStore.fetchDropdownSubjects({ full: true });
+		if (res) {
+			subjects.value = res.data;
+		}
+	} catch (error) {
+		console.error('fetching subjects dropdown failed.', error);
+	}
+}
+
+async function fetchInstructors() {
+	try {
+		const res = await userStore.fetchUsers({ full: true, role: 'instructor' });
+		if (res) {
+			instructors.value = res.data;
+		}
+	} catch (error) {
+		console.error('fetching instructors dropdown failed.', error);
+	}
+}
 
 async function fetchCourses() {
 	type filter = {
 		full: boolean;
 		keyword: string;
 		isPublished: boolean;
+		subjectId?: number;
+		authorId?: number;
 	};
 
 	let data: filter = {
@@ -56,9 +141,21 @@ async function fetchCourses() {
 		isPublished: true,
 	};
 
-	const res = await courseStore.fetchCourses(data);
-	if (res) {
-		courses.value = res.data;
+	if (selectedSubject.value != -1) {
+		data['subjectId'] = selectedSubject.value;
+	}
+
+	if (selectedInstructor.value != -1) {
+		data['authorId'] = selectedInstructor.value;
+	}
+
+	try {
+		const res = await courseStore.fetchCourses(data);
+		if (res) {
+			courses.value = res.data;
+		}
+	} catch (error) {
+		console.error('fetching courses failed.', error);
 	}
 }
 </script>

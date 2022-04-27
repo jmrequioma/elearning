@@ -15,6 +15,7 @@ export const userHandlers = [
 		const page = Number(req.url.searchParams.get('page')) || DEFAULT_PAGE;
 		const keyword = req.url.searchParams.get('keyword') || '';
 		const role = req.url.searchParams.get('role') || '';
+		const full = req.url.searchParams.get('full') || '';
 
 		let query = {};
 
@@ -34,6 +35,16 @@ export const userHandlers = [
 					contains: role,
 				},
 			};
+		}
+
+		if (full) {
+			const allUsers = db.user.findMany({
+				where: query,
+				orderBy: {
+					firstName: 'asc',
+				},
+			});
+			return res(ctx.delay(DELAY), ctx.json(allUsers));
 		}
 
 		const skip = (page - 1) * limit;

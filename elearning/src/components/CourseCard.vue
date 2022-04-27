@@ -21,7 +21,9 @@
 				{{ getDate(course?.createdAt) }}
 			</div>
 		</div>
-		<div class="card__action"></div>
+		<div class="card__action">
+			<ui-button>Enroll</ui-button>
+		</div>
 	</div>
 </template>
 <script setup lang="ts">
@@ -78,7 +80,13 @@ function getDate(date: string) {
 	}
 
 	&__action {
+		display: flex;
+		justify-content: center;
 		border-top: 1px solid $gray-2;
+
+		:deep(.mdc-button .mdc-button__label) {
+			color: $accent;
+		}
 	}
 }
 

@@ -42,6 +42,24 @@ export const courseHandlers = [
 			};
 		}
 
+		if (subjectId) {
+			query = {
+				...query,
+				subjectId: {
+					equals: Number(subjectId),
+				},
+			};
+		}
+
+		if (authorId) {
+			query = {
+				...query,
+				authorId: {
+					equals: Number(authorId),
+				},
+			};
+		}
+
 		if (full) {
 			const courses = db.course.findMany({
 				where: query,
@@ -65,24 +83,6 @@ export const courseHandlers = [
 				};
 			});
 			return res(ctx.delay(DELAY), ctx.json(data));
-		}
-
-		if (subjectId) {
-			query = {
-				...query,
-				subjectId: {
-					equals: Number(subjectId),
-				},
-			};
-		}
-
-		if (authorId) {
-			query = {
-				...query,
-				authorId: {
-					equals: Number(authorId),
-				},
-			};
 		}
 
 		const courses = db.course.findMany({
