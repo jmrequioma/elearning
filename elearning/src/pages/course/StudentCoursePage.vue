@@ -20,6 +20,7 @@
 				</div>
 				<div class="course-filters__content">
 					<ui-select
+						id="subject"
 						v-model="selectedSubject"
 						outlined
 						fullwidth
@@ -27,6 +28,7 @@
 						>Subject</ui-select
 					>
 					<ui-select
+						id="instructor"
 						v-model="selectedInstructor"
 						outlined
 						fullwidth

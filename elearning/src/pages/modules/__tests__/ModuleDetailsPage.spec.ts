@@ -81,6 +81,7 @@ describe('ModuleDetailsPage', () => {
 		const moduleStore = useModulesStore();
 
 		const data = {
+			courseId: 1,
 			title: `${faker.random.word} Test`,
 			isPublished: false,
 		};
@@ -94,7 +95,7 @@ describe('ModuleDetailsPage', () => {
 		const finalLength = moduleStore.totalCount;
 
 		expect(finalLength).toBe(initialLength + 1);
-	});
+	}, 10000);
 
 	it('deletes a module', async () => {
 		const accessToken = users[0].accessToken;
@@ -122,5 +123,5 @@ describe('ModuleDetailsPage', () => {
 		const finalLength = moduleStore.totalCount;
 
 		expect(finalLength).toBe(initialLength - 1);
-	});
+	}, 10000);
 });

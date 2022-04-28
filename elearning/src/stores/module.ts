@@ -32,7 +32,7 @@ export const useModulesStore = defineStore({
 				}
 				return res;
 			} catch (error) {
-				console.error('fetching main courses failed', error);
+				console.error('fetching main modules failed', error);
 			}
 		},
 

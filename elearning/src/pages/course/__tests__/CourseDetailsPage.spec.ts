@@ -94,7 +94,7 @@ describe('CourseDetailsPage', () => {
 		const finalLength = courseStore.totalCount;
 
 		expect(finalLength).toBe(initialLength + 1);
-	});
+	}, 10000);
 
 	it('deletes a course', async () => {
 		const accessToken = users[0].accessToken;
