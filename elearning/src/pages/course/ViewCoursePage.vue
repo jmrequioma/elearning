@@ -95,19 +95,33 @@ async function fetchSpecificEnrollment() {
 		display: flex;
 		gap: 8px;
 		align-items: center;
-		padding-bottom: 2rem;
-		padding-left: 16px;
+		padding: 16px;
 		position: relative;
 
-		&:not(:last-child):after {
+		&:nth-child(even):before {
 			content: '';
 			position: absolute;
 			left: 5px;
-			top: 27px;
-			bottom: 0;
+			top: -17px;
+			bottom: 43px;
 			transform: translateX(1.5rem);
 			width: 1px;
 			background-color: #bdbdbd;
+		}
+
+		&:nth-child(even):after {
+			content: '';
+			position: absolute;
+			left: 5px;
+			top: 43px;
+			bottom: -17px;
+			transform: translateX(1.5rem);
+			width: 1px;
+			background-color: #bdbdbd;
+		}
+
+		&:last-child:after {
+			all: unset;
 		}
 	}
 

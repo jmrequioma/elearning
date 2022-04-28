@@ -10,7 +10,9 @@
 			</div>
 		</div>
 		<div class="card__content">
-			<img :src="course?.icon" alt="course-image" class="course-image" />
+			<div class="card__image">
+				<img :src="course?.icon" alt="course-image" class="course-image" />
+			</div>
 			<div class="title">
 				{{ course?.title }}
 			</div>
@@ -92,7 +94,13 @@ function handleAction() {
 	}
 
 	&__content {
+		min-height: 160px;
 		text-align: center;
+	}
+
+	&__image {
+		display: flex;
+		justify-content: center;
 	}
 
 	&__action {
