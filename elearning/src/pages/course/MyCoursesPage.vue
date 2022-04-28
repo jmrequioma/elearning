@@ -63,14 +63,36 @@ async function fetchEnrollments() {
 	}
 }
 
-function handleAction(emittedAction: EmitCourseAction) {
+function startEnrollment(enrollmentId: number) {
+	let data = {
+		id: enrollmentId,
+		isStarted: true,
+	};
+	try {
+		return enrollmentStore.updateEnrollment(data);
+	} catch (error) {
+		console.error('error in starting enrollment', error);
+	}
+}
+
+function viewCourse(enrollmentId: number) {
+	router.push({
+		name: 'view-course',
+		params: { id: enrollmentId },
+	});
+}
+
+async function handleAction(emittedAction: EmitCourseAction) {
 	const { action, enrollmentId } = emittedAction;
 
-	if (action === 'start' || action === 'continue') {
-		router.push({
-			name: 'view-course',
-			params: { id: enrollmentId },
-		});
+	if (action === 'start') {
+		// update enrollment to start
+		const res = await startEnrollment(enrollmentId as number);
+		if (res) {
+			viewCourse(enrollmentId as number);
+		}
+	} else if (action === 'continue') {
+		viewCourse(enrollmentId as number);
 	}
 }
 

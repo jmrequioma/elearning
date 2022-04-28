@@ -143,4 +143,32 @@ export const enrollmentHandlers = [
 
 		return res(ctx.delay(DELAY), ctx.json(enrollment));
 	}),
+
+	// update enrollment
+	rest.patch(`${API_URL}/enrollments/:id`, (req, res, ctx) => {
+		const auth = validateAuth(req);
+		if (auth.errorMessage) {
+			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
+		}
+		const data = req.body as Record<string, string>;
+		const id = Number(req.params.id);
+
+		const date = new Date().toISOString();
+		const enrollment = db.enrollment.update({
+			where: { id: { equals: id } },
+			data: { ...data, updatedAt: date },
+		});
+
+		if (!enrollment) {
+			return res(
+				ctx.delay(DELAY),
+				ctx.status(404),
+				ctx.json({
+					message: 'Enrollment not found.',
+				})
+			);
+		}
+
+		return res(ctx.delay(DELAY), ctx.json(enrollment));
+	}),
 ];

@@ -12,7 +12,10 @@
 				<div class="nav-drawer__content">
 					<nav>
 						<div class="nav-item-header">
-							<p>MANAGEMENT</p>
+							<p v-if="userRole === 'admin' || userRole === 'instructor'">
+								MANAGEMENT
+							</p>
+							<p v-else>DASHBOARD</p>
 						</div>
 						<div class="drawer-items">
 							<div
@@ -107,7 +110,7 @@
 									>
 									<ui-menuitem-text>My Profile</ui-menuitem-text>
 								</ui-menuitem>
-								<ui-menuitem>
+								<ui-menuitem @click="router.push({ name: 'change-password' })">
 									<ui-menuitem-icon><ui-icon>lock</ui-icon></ui-menuitem-icon>
 									<ui-menuitem-text>Change Password</ui-menuitem-text>
 								</ui-menuitem>

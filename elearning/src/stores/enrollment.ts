@@ -20,5 +20,9 @@ export const useEnrollmentsStore = defineStore({
 		fetchEnrollmentDetails(data: DataBody) {
 			return apiClient.get(`/enrollments/${data.id}`);
 		},
+
+		updateEnrollment(data: DataBody) {
+			return apiClient.patch(`/enrollments/${data.id}`, data);
+		},
 	},
 });

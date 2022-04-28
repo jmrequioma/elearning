@@ -5,7 +5,11 @@
 				<div
 					v-for="(m, index) in fetchedEnrollment?.course.modules"
 					:key="m.id"
-					class="module-list__item"
+					@click="selectModule(m)"
+					:class="[
+						isActiveModuleItem(m) ? 'module-list__item--active' : '',
+						'module-list__item',
+					]"
 				>
 					<div class="sequence">
 						{{ index + 1 }}
@@ -18,7 +22,9 @@
 		</aside>
 		<div class="main">
 			<div class="secondary-bar">
-				<ui-icon-button>arrow_backward</ui-icon-button>
+				<ui-icon-button @click="router.push({ name: 'my-courses' })"
+					>arrow_backward</ui-icon-button
+				>
 				<h6 class="header">{{ fetchedEnrollment?.course.title }}</h6>
 			</div>
 			<div class="editor">
@@ -32,15 +38,14 @@ import { computed, onMounted, ref } from 'vue';
 
 import BaseEditor from '@/components/BaseEditor.vue';
 import { useEnrollmentsStore } from '@/stores/enrollment';
-import { useCoursesStore } from '@/stores/course';
-import { useRoute } from 'vue-router';
-import type { Course, Enrollment, Module } from '@/types';
+import { useRoute, useRouter } from 'vue-router';
+import type { Enrollment, Module } from '@/types';
 
 const fetchedEnrollment = ref<Enrollment>();
-const courseStore = useCoursesStore();
 const currentModule = ref<Module>();
 const enrollmentStore = useEnrollmentsStore();
 const route = useRoute();
+const router = useRouter();
 
 const enrollmentId = computed(() => {
 	const id = route.params.id;
@@ -53,6 +58,7 @@ const content = computed(() => {
 		? JSON.parse(currentModule.value?.contents[0].content)
 		: '';
 });
+
 onMounted(async () => {
 	await fetchSpecificEnrollment();
 });
@@ -70,14 +76,13 @@ async function fetchSpecificEnrollment() {
 	}
 }
 
-// async function fetchSpecificCourse() {
-// 	try {
-// 		const res = await courseStore.fetchCourseDetails({ id: courseId.value });
-// 		fetchedCourse.value = res.data;
-// 	} catch (error) {
-// 		console.error('fetching specific course failed', error);
-// 	}
-// }
+function isActiveModuleItem(m: Module) {
+	return m.id === currentModule.value?.id;
+}
+
+function selectModule(m: Module) {
+	currentModule.value = m;
+}
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
@@ -97,6 +102,20 @@ async function fetchSpecificEnrollment() {
 		align-items: center;
 		padding: 16px;
 		position: relative;
+		cursor: pointer;
+
+		.sequence {
+			display: flex;
+			align-content: center;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid #bdbdbd;
+			border-radius: 50%;
+			width: 25px;
+			height: 25px;
+			font-size: 12px;
+			color: $gray-6;
+		}
 
 		&:nth-child(even):before {
 			content: '';
@@ -107,6 +126,7 @@ async function fetchSpecificEnrollment() {
 			transform: translateX(1.5rem);
 			width: 1px;
 			background-color: #bdbdbd;
+			z-index: 1;
 		}
 
 		&:nth-child(even):after {
@@ -118,24 +138,28 @@ async function fetchSpecificEnrollment() {
 			transform: translateX(1.5rem);
 			width: 1px;
 			background-color: #bdbdbd;
+			z-index: 1;
 		}
 
 		&:last-child:after {
 			all: unset;
 		}
-	}
 
-	.sequence {
-		display: flex;
-		align-content: center;
-		align-items: center;
-		justify-content: center;
-		border: 1px solid #bdbdbd;
-		border-radius: 50%;
-		width: 25px;
-		height: 25px;
-		font-size: 12px;
-		color: $gray-6;
+		&--active {
+			background-color: $accent-50;
+
+			.sequence {
+				border: 3px solid $accent;
+			}
+
+			&:nth-child(even):before {
+				bottom: 47px;
+			}
+
+			&:nth-child(even):after {
+				top: 47px;
+			}
+		}
 	}
 
 	.title {
@@ -154,7 +178,6 @@ async function fetchSpecificEnrollment() {
 	background-color: $gray-5;
 }
 .secondary-bar {
-	width: 100%;
 	height: 64px;
 	padding-left: 16px;
 	background-color: $accent;
