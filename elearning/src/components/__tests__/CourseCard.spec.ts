@@ -1,13 +1,9 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import { mount, VueWrapper, flushPromises } from '@vue/test-utils';
+import { mount, VueWrapper } from '@vue/test-utils';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import { routes } from '@/router';
 import { setActivePinia, createPinia } from 'pinia';
-import { useEnrollmentsStore } from '@/stores/enrollment';
 import type { MockStorage } from '@/types/index';
-import { getAccessToken, setAccessToken } from '@/utils/auth';
-import apiClient from '@/lib/axios-api';
-import { users } from '@/mocks/mockedData';
 import faker from '@faker-js/faker';
 
 import CourseCard from '../CourseCard.vue';
