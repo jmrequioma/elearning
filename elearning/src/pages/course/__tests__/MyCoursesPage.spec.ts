@@ -8,6 +8,8 @@ import type { MockStorage } from '@/types/index';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
 import { users } from '@/mocks/mockedData';
+import faker from '@faker-js/faker';
+import { nextTick } from 'vue';
 
 import StudentCoursePage from '../StudentCoursePage.vue';
 
@@ -29,10 +31,12 @@ describe('StudentCoursePage', () => {
 			history: createWebHistory(),
 			routes: routes,
 		});
+		const courseStore = useCoursesStore();
 		wrapper = mount(StudentCoursePage, {
 			global: {
 				plugins: [router],
 			},
+			courseStore,
 		});
 		mockStorage = {};
 	});
@@ -43,31 +47,13 @@ describe('StudentCoursePage', () => {
 		expect(container).toBeDefined();
 	});
 
-	it('displays courses', async () => {
-		const accessToken = users[0].accessToken;
-		setAccessToken(accessToken);
-
-		apiClient.defaults.headers.common[
-			'Authorization'
-		] = `Bearer ${getAccessToken()}`;
-
+	it('displays fields', async () => {
 		const search = wrapper.find('ui-textfield');
 		const subject = wrapper.find('ui-select#subject');
 		const instructor = wrapper.find('ui-select#instructor');
 
-		const courseStore = useCoursesStore();
-		wrapper.vm.courses = await courseStore.fetchCourses({
-			full: true,
-			isPublished: true,
-		});
-
-		await flushPromises();
-
 		expect(search.html()).toContain('Search for a course');
 		expect(subject.html()).toContain('Subject');
 		expect(instructor.html()).toContain('Instructor');
-		// check if course card is displayed
-		const card = wrapper.find('.card');
-		expect(card).toBeDefined();
 	});
 });

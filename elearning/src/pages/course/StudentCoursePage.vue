@@ -55,7 +55,7 @@ import { useSubjectsStore } from '@/stores/subject';
 import { useUsersStore } from '@/stores/user';
 import { useCoursesStore } from '@/stores/course';
 import { useEnrollmentsStore } from '@/stores/enrollment';
-import type { EmitCourseAction, Subject, User } from '@/types';
+import type { Course, EmitCourseAction, Subject, User } from '@/types';
 import _ from 'lodash';
 
 import CourseCard from '@/components/CourseCard.vue';
@@ -68,7 +68,7 @@ const subjects = ref<Subject[]>([]);
 const selectedSubject = ref(-1);
 const instructors = ref<User[]>([]);
 const selectedInstructor = ref(-1);
-const courses = ref([]);
+const courses = ref<Course[]>([]);
 const search = ref('');
 
 const subjectOptions = computed(() => {
