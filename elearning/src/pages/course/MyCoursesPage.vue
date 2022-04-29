@@ -18,14 +18,14 @@
 			<h4 class="header">My Courses</h4>
 			<div class="my-courses__content">
 				<div class="scroll-container">
-					<div v-for="enrollment in enrollments" :key="enrollment.id">
+					<template v-for="enrollment in enrollments" :key="enrollment.id">
 						<CourseCard
 							:course="enrollment.course"
 							:enrollmentId="enrollment.id"
 							:action="getAction(enrollment)"
 							@handle-action="handleAction"
 						/>
-					</div>
+					</template>
 				</div>
 			</div>
 		</div>

@@ -56,7 +56,7 @@ describe('StudentCoursePage', () => {
 		const instructor = wrapper.find('ui-select#instructor');
 
 		const courseStore = useCoursesStore();
-		wrapper.vm.courses = await courseStore.fetchCourses({
+		wrapper.vm.courses.value = await courseStore.fetchCourses({
 			full: true,
 			isPublished: true,
 		});

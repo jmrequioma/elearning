@@ -3,17 +3,15 @@ import { mount, VueWrapper, flushPromises } from '@vue/test-utils';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import { routes } from '@/router';
 import { setActivePinia, createPinia } from 'pinia';
-import { useCoursesStore } from '@/stores/course';
+import { useEnrollmentsStore } from '@/stores/enrollment';
 import type { MockStorage } from '@/types/index';
 import { getAccessToken, setAccessToken } from '@/utils/auth';
 import apiClient from '@/lib/axios-api';
 import { users } from '@/mocks/mockedData';
-import faker from '@faker-js/faker';
-import { nextTick } from 'vue';
 
-import StudentCoursePage from '../StudentCoursePage.vue';
+import MyCoursesPage from '../MyCoursesPage.vue';
 
-describe('StudentCoursePage', () => {
+describe('MyCoursesPage', () => {
 	let wrapper: VueWrapper;
 	let router: Router;
 	// mock local storage
@@ -31,29 +29,40 @@ describe('StudentCoursePage', () => {
 			history: createWebHistory(),
 			routes: routes,
 		});
-		const courseStore = useCoursesStore();
-		wrapper = mount(StudentCoursePage, {
+		wrapper = mount(MyCoursesPage, {
 			global: {
 				plugins: [router],
 			},
-			courseStore,
 		});
 		mockStorage = {};
 	});
 
 	it('renders the component properly', async () => {
-		const container = wrapper.find('.student-course');
+		const container = wrapper.find('.page');
+		const header = wrapper.find('.header');
 
 		expect(container).toBeDefined();
+		expect(header.html()).toContain('My Courses');
 	});
 
-	it('displays fields', async () => {
-		const search = wrapper.find('ui-textfield');
-		const subject = wrapper.find('ui-select#subject');
-		const instructor = wrapper.find('ui-select#instructor');
+	it('displays courses enrolled in by the student', async () => {
+		const accessToken = users[0].accessToken;
+		setAccessToken(accessToken);
 
-		expect(search.html()).toContain('Search for a course');
-		expect(subject.html()).toContain('Subject');
-		expect(instructor.html()).toContain('Instructor');
+		apiClient.defaults.headers.common[
+			'Authorization'
+		] = `Bearer ${getAccessToken()}`;
+
+		const enrollmentStore = useEnrollmentsStore();
+
+		// create an enrollment
+		await enrollmentStore.createEnrollment({ courseId: 1 });
+		const res = await enrollmentStore.fetchEnrollments({
+			full: true,
+		});
+		wrapper.vm.enrollments.value = res.data.data;
+		await flushPromises();
+		const card = wrapper.find('.card');
+		expect(card).toBeDefined();
 	});
 });

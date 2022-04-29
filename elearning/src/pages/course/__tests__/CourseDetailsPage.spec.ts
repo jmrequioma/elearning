@@ -122,5 +122,5 @@ describe('CourseDetailsPage', () => {
 		const finalLength = courseStore.totalCount;
 
 		expect(finalLength).toBe(initialLength - 1);
-	});
+	}, 10000);
 });
