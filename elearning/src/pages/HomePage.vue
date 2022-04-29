@@ -12,7 +12,10 @@
 				<div class="nav-drawer__content">
 					<nav>
 						<div class="nav-item-header">
-							<p>MANAGEMENT</p>
+							<p v-if="userRole === 'admin' || userRole === 'instructor'">
+								MANAGEMENT
+							</p>
+							<p v-else>DASHBOARD</p>
 						</div>
 						<div class="drawer-items">
 							<div
@@ -31,15 +34,33 @@
 								</router-link>
 							</div>
 							<div
-								v-if="userRole === 'instructor'"
+								v-if="userRole === 'instructor' || userRole === 'student'"
 								:class="[courseRoute ? 'active' : '', 'nav-drawer__item']"
 							>
-								<router-link class="nav-drawer__link" :to="{ name: 'courses' }">
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: coursesLink }"
+								>
 									<img
 										src="@/assets/media/bookshelf.png"
 										alt="bookshelf-icon"
 									/>
 									Courses
+								</router-link>
+							</div>
+							<div
+								v-if="userRole === 'student'"
+								:class="[myCourseRoute ? 'active' : '', 'nav-drawer__item']"
+							>
+								<router-link
+									class="nav-drawer__link"
+									:to="{ name: 'my-courses' }"
+								>
+									<img
+										src="@/assets/media/bookshelf.png"
+										alt="bookshelf-icon"
+									/>
+									My Courses
 								</router-link>
 							</div>
 							<div
@@ -89,7 +110,7 @@
 									>
 									<ui-menuitem-text>My Profile</ui-menuitem-text>
 								</ui-menuitem>
-								<ui-menuitem>
+								<ui-menuitem @click="router.push({ name: 'change-password' })">
 									<ui-menuitem-icon><ui-icon>lock</ui-icon></ui-menuitem-icon>
 									<ui-menuitem-text>Change Password</ui-menuitem-text>
 								</ui-menuitem>
@@ -124,8 +145,12 @@ const courseRoute = computed(() => {
 	return (
 		route.name === 'courses' ||
 		route.name === 'add-course' ||
-		route.name === 'edit-course'
+		route.name === 'edit-course' ||
+		route.name === 'student-courses'
 	);
+});
+const myCourseRoute = computed(() => {
+	return route.name === 'my-courses' || route.name === 'view-course';
 });
 const moduleRoute = computed(() => {
 	return (
@@ -141,6 +166,10 @@ const userRoute = computed(() => {
 
 const userRole = computed(() => {
 	return authStore.loggedInUser?.role;
+});
+
+const coursesLink = computed(() => {
+	return userRole.value === 'instructor' ? 'courses' : 'student-courses';
 });
 
 function getUserDetails() {

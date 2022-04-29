@@ -4,7 +4,7 @@ import { getAccessToken } from '@/utils/auth';
 
 const apiClient = axios.create({
 	baseURL: API_URL,
-	timeout: 5000,
+	timeout: 8000,
 });
 
 const accessToken = getAccessToken();

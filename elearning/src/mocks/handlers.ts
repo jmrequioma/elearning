@@ -4,6 +4,7 @@ import { courseHandlers } from './course';
 import { moduleHandlers } from './module';
 import { contentHandlers } from './content';
 import { userHandlers } from './user';
+import { enrollmentHandlers } from './enrollment';
 
 export const handlers = [
 	...authHandlers,
@@ -12,4 +13,5 @@ export const handlers = [
 	...moduleHandlers,
 	...contentHandlers,
 	...userHandlers,
+	...enrollmentHandlers,
 ];

@@ -14,6 +14,7 @@
 				['image', 'video'],
 			]"
 			theme="bubble"
+			:readOnly="disabled"
 		>
 		</QuillEditor>
 	</div>
@@ -25,6 +26,10 @@ import '@vueup/vue-quill/dist/vue-quill.bubble.css';
 
 const props = defineProps({
 	editorContent: Object,
+	disabled: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const quill = ref<Quill>(null);
@@ -35,13 +40,11 @@ onMounted(() => {
 	// set props to a ref
 	content.value = props.editorContent as Delta;
 	setTimeout(() => {
-		// content.value = props.editorContent as Delta;
 		quill.value.setContents(props.editorContent);
 	}, 5000);
 });
 
 watch(content, (newContent) => {
-	// quill?.value.setContents(newContent);
 	emit('handleContent', newContent);
 });
 </script>

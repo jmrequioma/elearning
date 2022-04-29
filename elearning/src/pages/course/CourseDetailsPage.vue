@@ -201,10 +201,9 @@ import { useModulesStore } from '@/stores/module';
 import { useAuthStore } from '@/stores/auth';
 import { usePagination } from '@/composables/pagination';
 
-import { useRoute, onBeforeRouteLeave } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import type { Course, Subject, Module } from '@/types';
 import _ from 'lodash';
-import { useRouter } from 'vue-router';
 
 import ImageUploader from '@/components/ImageUploader.vue';
 import AlertModal from '@/components/AlertModal.vue';
@@ -308,9 +307,9 @@ onMounted(async () => {
 	if (!isAddCourseRoute?.value) {
 		const id = route.params.id;
 		courseId.value = parseInt(id?.toString());
-		// fetch specific subject
+		// fetch specific course
 		await fetchSpecificCourse();
-		// fetch related courses
+		// fetch related modules
 		fetchModules();
 	}
 	// fetch subjects for dropdown
@@ -356,7 +355,7 @@ function save() {
 
 async function fetchSpecificCourse() {
 	const data = { id: courseId.value };
-	// fetch specific subject
+	// fetch specific course
 	try {
 		const res = await courseStore.fetchCourseDetails(data);
 		fetchedCourse.value = res.data;

@@ -123,6 +123,7 @@ export default [
 					hideWhenAuthenticated: false,
 					allowedRoles: ['instructor'],
 				},
+				props: true,
 			},
 		],
 	},
@@ -162,6 +163,7 @@ export default [
 					hideWhenAuthenticated: false,
 					allowedRoles: ['instructor'],
 				},
+				props: true,
 			},
 		],
 	},
@@ -190,6 +192,54 @@ export default [
 					hideWhenAuthenticated: false,
 					allowedRoles: ['admin'],
 				},
+				props: true,
+			},
+		],
+	},
+	// student courses
+	{
+		path: '/student-courses',
+		component: () => import('@/pages/HomePage.vue'),
+		children: [
+			{
+				path: '',
+				name: 'student-courses',
+				component: () => import('@/pages/course/StudentCoursePage.vue'),
+				meta: {
+					title: 'Courses - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+					allowedRoles: ['student'],
+				},
+			},
+		],
+	},
+	{
+		path: '/my-courses',
+		component: () => import('@/pages/HomePage.vue'),
+		children: [
+			{
+				path: '',
+				name: 'my-courses',
+				component: () => import('@/pages/course/MyCoursesPage.vue'),
+				meta: {
+					title: 'My Courses - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+					allowedRoles: ['student'],
+				},
+			},
+			{
+				path: '/view-course/:id',
+				name: 'view-course',
+				component: () => import('@/pages/course/ViewCoursePage.vue'),
+				meta: {
+					title: 'My Courses - E-Learning',
+					authRequired: true,
+					hideWhenAuthenticated: false,
+					allowedRoles: ['student'],
+				},
+				props: true,
 			},
 		],
 	},

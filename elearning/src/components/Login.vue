@@ -78,6 +78,10 @@ const fieldsAreFilled = computed(() => {
 	return email.value && password.value;
 });
 
+const userRole = computed(() => {
+	return authStore.loggedInUser?.role;
+});
+
 watch([email, password], () => {
 	// reset alert
 	invalidCreds.value = false;
@@ -94,10 +98,12 @@ async function login() {
 	} else {
 		// log the user in
 		let routerName = '';
-		if (authStore.loggedInUser?.role === 'instructor') {
+		if (userRole.value === 'instructor') {
 			routerName = 'subjects';
-		} else if (authStore.loggedInUser?.role === 'admin') {
+		} else if (userRole.value === 'admin') {
 			routerName = 'users';
+		} else if (userRole.value === 'student') {
+			routerName = 'student-courses';
 		}
 		router.push({ name: routerName });
 	}

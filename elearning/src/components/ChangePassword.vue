@@ -84,7 +84,7 @@
 			</p>
 		</template>
 		<template v-slot:actions>
-			<ui-button @click="router.push({ name: 'login' })">Ok</ui-button>
+			<ui-button @click="logout">Ok</ui-button>
 		</template>
 	</AlertModal>
 </template>
@@ -131,6 +131,12 @@ async function changePassword() {
 			showSuccessModal.value = true;
 		}
 	}
+}
+
+function logout() {
+	// remove tokens and logout
+	authStore.logout();
+	router.push({ name: 'login' });
 }
 </script>
 <style scoped lang="scss">

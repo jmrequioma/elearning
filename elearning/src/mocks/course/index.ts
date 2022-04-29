@@ -9,6 +9,8 @@ export const courseHandlers = [
 	// get courses
 	rest.get(`${API_URL}/courses`, (req, res, ctx) => {
 		const auth = validateAuth(req);
+		const accessToken = extractAccessToken(req) as string;
+		const loggedInUser = checkAuth(accessToken);
 		if (auth.errorMessage) {
 			return res(ctx.delay(DELAY), ctx.status(401), ctx.json(auth));
 		}
@@ -19,9 +21,10 @@ export const courseHandlers = [
 		const subjectId = req.url.searchParams.get('subjectId') || '';
 		const authorId = req.url.searchParams.get('authorId') || '';
 		const full = req.url.searchParams.get('full') || false;
+		const enrolled = req.url.searchParams.get('enrolled') || false;
 
 		const skip = (page - 1) * limit;
-
+		let enrollments = [];
 		let query = {};
 
 		if (keyword) {
@@ -42,16 +45,6 @@ export const courseHandlers = [
 			};
 		}
 
-		if (full) {
-			const courses = db.course.findMany({
-				where: query,
-				orderBy: {
-					title: 'asc',
-				},
-			});
-			return res(ctx.delay(DELAY), ctx.json(courses));
-		}
-
 		if (subjectId) {
 			query = {
 				...query,
@@ -68,6 +61,66 @@ export const courseHandlers = [
 					equals: Number(authorId),
 				},
 			};
+		}
+
+		if (loggedInUser?.role === 'student') {
+			enrollments = db.enrollment.findMany({
+				where: {
+					userId: {
+						equals: loggedInUser.id,
+					},
+				},
+			});
+
+			const enrollmentCourseIds: Array<number> = [];
+
+			enrollments.forEach((enrollment) => {
+				if (enrollment.course?.id) {
+					enrollmentCourseIds.push(enrollment.course?.id);
+				}
+			});
+
+			// get only courses enrolled in
+			if (enrolled) {
+				query = {
+					...query,
+					id: {
+						in: enrollmentCourseIds,
+					},
+				};
+			} else {
+				query = {
+					...query,
+					id: {
+						notIn: enrollmentCourseIds,
+					},
+				};
+			}
+		}
+
+		if (full) {
+			const courses = db.course.findMany({
+				where: query,
+				orderBy: {
+					title: 'asc',
+				},
+			});
+
+			const data = courses.map((course) => {
+				const subject = db.subject.findFirst({
+					where: { id: { equals: course.subjectId } },
+				});
+				const author = db.user.findFirst({
+					where: { id: { equals: course.authorId } },
+				});
+
+				return {
+					...course,
+					subject,
+					author: `${author?.firstName} ${author?.lastName}`,
+				};
+			});
+			return res(ctx.delay(DELAY), ctx.json(data));
 		}
 
 		const courses = db.course.findMany({
