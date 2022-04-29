@@ -3,7 +3,7 @@
 		<aside>
 			<div class="module-list">
 				<div
-					v-for="(m, index) in fetchedEnrollment?.course.modules"
+					v-for="(m, index) in fetchedEnrollment?.course?.modules"
 					:key="m.id"
 					@click="selectModule(m)"
 					:class="[
@@ -15,7 +15,7 @@
 						{{ index + 1 }}
 					</div>
 					<div class="title">
-						{{ m.title }}
+						{{ m?.title }}
 					</div>
 				</div>
 			</div>
@@ -25,7 +25,7 @@
 				<ui-icon-button @click="router.push({ name: 'my-courses' })"
 					>arrow_backward</ui-icon-button
 				>
-				<h6 class="header">{{ fetchedEnrollment?.course.title }}</h6>
+				<h6 class="header">{{ fetchedEnrollment?.course?.title }}</h6>
 			</div>
 			<div class="editor">
 				<BaseEditor :editor-content="content" :disabled="true" />
