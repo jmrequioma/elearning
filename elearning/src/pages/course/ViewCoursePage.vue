@@ -94,6 +94,7 @@ function selectModule(m: Module) {
 	padding-top: 36px;
 	width: 228px;
 	height: calc(100vh - 68px);
+	overflow-y: auto;
 	background-color: $gray-4;
 
 	&__item {
