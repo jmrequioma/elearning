@@ -56,7 +56,7 @@
 			</div>
 		</div>
 		<div class="course-page__main">
-			<div v-if="search && !courseStore.fetchedCourses.length" class="empty">
+			<div v-if="search && !courseStore.fetchedCourses?.length" class="empty">
 				No results found.
 			</div>
 			<div v-else class="table-container">
