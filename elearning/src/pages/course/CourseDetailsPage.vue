@@ -163,7 +163,7 @@
 								</div>
 								<div class="table-control__pagination">
 									{{ currStart }} - {{ currTotal }} of
-									{{ fetchedCourse ? fetchedCourse.modules.length : 0 }}
+									{{ fetchedCourse ? fetchedCourse.modules?.length : 0 }}
 									<ui-icon
 										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 										@click="goPrev()"
@@ -330,6 +330,7 @@ async function createCourse() {
 		const res = await courseStore.createCourse({
 			title: title.value,
 			subjectId: selectedSubject.value,
+			description: desc.value,
 		});
 		if (res) {
 			showSuccessModal.value = true;
