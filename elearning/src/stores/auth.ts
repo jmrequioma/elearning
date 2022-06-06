@@ -32,10 +32,8 @@ export const useAuthStore = defineStore({
 		async signup(data: SignUpBody) {
 			try {
 				const res = await apiClient.post('/signup', data);
+				// at this point, the backend sends a verification email
 				this.user = res.data;
-				if (!res.data.errorMessage) {
-					// send verification email
-				}
 				return res;
 			} catch (error) {
 				console.error('signing up user failed', error);

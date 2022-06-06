@@ -208,6 +208,7 @@ async function register() {
 
 		const res = await authStore.signup(data);
 		if (res?.data.errorMessage === 'The email is already registered.') {
+			console.log(res.data);
 			emailErrorMsg.value = 'The email is already registered.';
 		} else {
 			// show alert modal
