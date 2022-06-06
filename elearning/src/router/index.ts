@@ -24,15 +24,7 @@ router.beforeEach(async (to, from) => {
 	} else if (authStore.isAuthenticated) {
 		await authStore.getLoggedInUserInfo();
 		if (to.meta.hideWhenAuthenticated) {
-			const role = authStore.loggedInUser?.role;
-			let routeName = '';
-			if (role === 'instructor') {
-				routeName = 'subjects';
-			} else if (role === 'admin') {
-				routeName = 'users';
-			} else if (role === 'student') {
-				routeName = 'student-courses';
-			}
+			const routeName = getUserRoleRoute();
 			return { name: routeName };
 		} else {
 			// check if logged in user is allowed to view page
@@ -43,5 +35,26 @@ router.beforeEach(async (to, from) => {
 	}
 	document.title = to.meta.title as string;
 });
+
+/**
+ * Helper function to redirect user to appropriate route
+ * based on role
+ *
+ */
+function getUserRoleRoute() {
+	const authStore = useAuthStore();
+
+	const role = authStore.loggedInUser?.role;
+	switch (role) {
+		case 'instructor':
+			return 'subjects';
+		case 'admin':
+			return 'users';
+		case 'student':
+			return 'student-courses';
+		default:
+			return '';
+	}
+}
 
 export default router;

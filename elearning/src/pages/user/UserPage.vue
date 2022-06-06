@@ -99,7 +99,7 @@
 					</tr>
 				</table>
 			</div>
-			<div class="table-control">
+			<div class="table-control control-absolute">
 				<div class="table-control__container">
 					<div class="table-control__dropdown">
 						<label for="items">Items per page:</label>
