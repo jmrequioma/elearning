@@ -137,6 +137,7 @@ import { ROLES } from '@/constants';
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import errorCodes from '@/error-codes.json';
 
 import AlertModal from './AlertModal.vue';
 
@@ -207,9 +208,8 @@ async function register() {
 		};
 
 		const res = await authStore.signup(data);
-		if (res?.data.errorMessage === 'The email is already registered.') {
-			console.log(res.data);
-			emailErrorMsg.value = 'The email is already registered.';
+		if (res?.data.errorMessage === errorCodes['email_already_registered']) {
+			emailErrorMsg.value = errorCodes['email_already_registered'];
 		} else {
 			// show alert modal
 			emailErrorMsg.value = '';
