@@ -143,7 +143,7 @@ async function fetchCourses() {
 		authorId?: number;
 	};
 
-	let data: filter = {
+	const data: filter = {
 		full: true,
 		keyword: search.value,
 		isPublished: true,

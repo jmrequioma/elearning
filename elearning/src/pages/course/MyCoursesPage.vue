@@ -10,7 +10,7 @@
 				/>
 				<ui-icon>arrow_forward</ui-icon>
 				<h6 class="module-title">
-					{{ currentLesson.course.modules[0].title }}
+					{{ currentLesson.course.modules![0].title }}
 				</h6>
 			</div>
 		</div>
@@ -64,7 +64,7 @@ async function fetchEnrollments() {
 }
 
 function startEnrollment(enrollmentId: number) {
-	let data = {
+	const data = {
 		id: enrollmentId,
 		isStarted: true,
 	};

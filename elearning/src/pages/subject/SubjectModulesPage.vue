@@ -265,7 +265,7 @@ async function fetchSpecificModule() {
 
 async function editContent() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedContent.value?.id,
 			content: JSON.stringify(content.value),
 		};
@@ -281,7 +281,7 @@ async function editContent() {
 
 async function editModule() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedModule.value?.id,
 			title: title.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,

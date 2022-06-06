@@ -194,7 +194,7 @@ async function fetchUsers() {
 		role?: string;
 	};
 
-	let data: filter = {
+	const data: filter = {
 		limit: selectedLimit.value,
 		page: currPage.value,
 		keyword: search.value,

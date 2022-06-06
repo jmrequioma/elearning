@@ -201,7 +201,7 @@ async function fetchSubjects() {
 		published?: boolean;
 	};
 
-	let data: filter = {
+	const data: filter = {
 		limit: selectedLimit.value,
 		page: currPage.value,
 		keyword: search.value,
@@ -235,7 +235,7 @@ function getCoursesCount(subject: Subject) {
 
 async function handleSubjectStatus() {
 	// publish/unpublish the subject
-	let data = {
+	const data = {
 		id: selectedSubject.id,
 		title: selectedSubject.title,
 		isPublished: !selectedSubject.isPublished,

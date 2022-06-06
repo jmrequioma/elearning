@@ -190,7 +190,7 @@ async function fetchModules() {
 		published?: boolean;
 	};
 
-	let data: filter = {
+	const data: filter = {
 		limit: selectedLimit.value,
 		page: currPage.value,
 		keyword: search.value,
@@ -218,7 +218,7 @@ function populateDropdownItems(module: Module) {
 
 async function handleModuleStatus() {
 	// publish/unpublish the module
-	let data = {
+	const data = {
 		id: selectedModule.id,
 		isPublished: !selectedModule.isPublished,
 	};

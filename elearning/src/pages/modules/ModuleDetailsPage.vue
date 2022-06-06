@@ -277,7 +277,7 @@ async function fetchSpecificModule() {
 
 async function editModule() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedModule.value?.id,
 			title: title.value,
 			courseId: selectedCourse.value,
@@ -296,7 +296,7 @@ async function editModule() {
 
 async function editContent() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedContent.value?.id,
 			content: JSON.stringify(content.value),
 		};

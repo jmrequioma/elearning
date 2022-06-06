@@ -354,7 +354,7 @@ async function fetchModules() {
 
 async function editCourse() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedCourse.value?.id,
 			title: title.value,
 			isPublished: selectedStatus.value === 'Draft' ? false : true,
@@ -379,7 +379,7 @@ function populateDropdownItems(module: Module) {
 
 async function handleModuleStatus() {
 	// publish/unpublish the module
-	let data = {
+	const data = {
 		id: selectedModule.value?.id,
 		title: selectedModule.value?.title,
 		isPublished: !selectedModule.value?.isPublished,

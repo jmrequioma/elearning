@@ -205,7 +205,7 @@ async function fetchCourses() {
 		published?: boolean;
 	};
 
-	let data: filter = {
+	const data: filter = {
 		limit: selectedLimit.value,
 		page: currPage.value,
 		keyword: search.value,
@@ -239,7 +239,7 @@ function getModulesCount(course: Course) {
 
 async function hanldeCourseStatus() {
 	// publish/unpublish the course
-	let data = {
+	const data = {
 		id: selectedCourse.id,
 		title: selectedCourse.title,
 		isPublished: !selectedCourse.isPublished,

@@ -389,7 +389,7 @@ async function fetchModules() {
 
 async function editCourse() {
 	try {
-		let data = {
+		const data = {
 			id: fetchedCourse.value?.id,
 			title: title.value,
 			subjectId: selectedSubject.value,
