@@ -72,7 +72,7 @@ function validateEmail() {
 async function sendRequest() {
 	validateEmail();
 	if (!emailErrorMsg.value) {
-		let data = {
+		const data = {
 			email: email.value,
 		};
 		const res = await authStore.requestPasswordReset(data);

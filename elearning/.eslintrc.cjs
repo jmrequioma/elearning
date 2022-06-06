@@ -22,5 +22,12 @@ module.exports = {
 		semi: ['error', 'always'],
 		'max-len': ['error', { code: 120 }],
 		'space-before-blocks': ['error'],
+		'prefer-const': [
+			'error',
+			{
+				destructuring: 'any',
+				ignoreReadBeforeAssign: false,
+			},
+		],
 	},
 };

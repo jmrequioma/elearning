@@ -88,7 +88,7 @@ watch([email, password], () => {
 });
 
 async function login() {
-	let data = {
+	const data = {
 		email: email.value,
 		password: password.value,
 	};
