@@ -233,7 +233,7 @@ function populateDropdownItems(course: Course) {
 
 function getModulesCount(course: Course) {
 	const length = course.modules?.length;
-	const unit = length == 1 ? 'Module' : 'Modules';
+	const unit = length === 1 ? 'Module' : 'Modules';
 	return `${length} ${unit}`;
 }
 
@@ -263,7 +263,7 @@ function handleAction(action: string) {
 				id: selectedCourse.id,
 			},
 		});
-	} else if (action == 'Delete') {
+	} else if (action === 'Delete') {
 		// show double confirmation
 		showDeleteModal.value = true;
 	}

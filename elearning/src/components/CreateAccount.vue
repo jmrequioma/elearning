@@ -168,7 +168,7 @@ const fieldsAreFilled = computed(() => {
 });
 
 const dialogText = computed(() => {
-	let role = selectedRole.value == 'student' ? 'a student' : 'an instructor';
+	let role = selectedRole.value === 'student' ? 'a student' : 'an instructor';
 	return `You’ve successfully registered as ${role}. Please check your email
 				to activate your account.`;
 });

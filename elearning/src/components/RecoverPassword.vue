@@ -77,7 +77,7 @@ async function sendRequest() {
 		};
 		const res = await authStore.requestPasswordReset(data);
 
-		if (res?.data.status == 'success') {
+		if (res?.data.status === 'success') {
 			showSuccessModal.value = true;
 			emailErrorMsg.value = '';
 		}

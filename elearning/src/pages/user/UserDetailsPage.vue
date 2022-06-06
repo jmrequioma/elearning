@@ -13,7 +13,7 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'User' ? 'tab__item--active' : '',
+						selectedTab === 'User' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'User'"
@@ -23,7 +23,7 @@
 			</div>
 			<div class="content">
 				<!-- user tab -->
-				<div v-if="selectedTab == 'User'" class="user">
+				<div v-if="selectedTab === 'User'" class="user">
 					<div class="col-2">
 						<div class="field">
 							<ui-textfield

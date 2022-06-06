@@ -15,7 +15,7 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Module' ? 'tab__item--active' : '',
+						selectedTab === 'Module' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Module'"
@@ -25,7 +25,7 @@
 			</div>
 			<div class="content">
 				<!-- module tab -->
-				<div v-if="selectedTab == 'Module'" class="module">
+				<div v-if="selectedTab === 'Module'" class="module">
 					<div class="col-2">
 						<div class="field">
 							<ui-textfield

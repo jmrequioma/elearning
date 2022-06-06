@@ -56,7 +56,10 @@
 			</div>
 		</div>
 		<div class="subject-page__main">
-			<div v-if="search && !subjectsStore.fetchedSubjects.length" class="empty">
+			<div
+				v-if="search && !subjectsStore.fetchedSubjects?.length"
+				class="empty"
+			>
 				No results found.
 			</div>
 			<div v-else class="table-container">
@@ -226,7 +229,7 @@ function populateDropdownItems(subject: Subject) {
 
 function getCoursesCount(subject: Subject) {
 	const length = subject.courses?.length;
-	const unit = length == 1 ? 'Course' : 'Courses';
+	const unit = length === 1 ? 'Course' : 'Courses';
 	return `${length} ${unit}`;
 }
 
@@ -256,7 +259,7 @@ function handleAction(action: string) {
 				id: selectedSubject.id,
 			},
 		});
-	} else if (action == 'Delete') {
+	} else if (action === 'Delete') {
 		// show double confirmation
 		showDeleteModal.value = true;
 	}

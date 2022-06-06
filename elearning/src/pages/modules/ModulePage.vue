@@ -56,7 +56,7 @@
 			</div>
 		</div>
 		<div class="module-page__main">
-			<div v-if="search && !moduleStore.fetchedModules.length" class="empty">
+			<div v-if="search && !moduleStore.fetchedModules?.length" class="empty">
 				No results found.
 			</div>
 			<div v-else class="table-container">
@@ -241,7 +241,7 @@ function handleAction(action: string) {
 				id: selectedModule.id,
 			},
 		});
-	} else if (action == 'Delete') {
+	} else if (action === 'Delete') {
 		// show double confirmation
 		deleteModule();
 	}

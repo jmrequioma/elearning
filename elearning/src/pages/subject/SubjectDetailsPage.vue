@@ -15,7 +15,7 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Subjects' ? 'tab__item--active' : '',
+						selectedTab === 'Subjects' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Subjects'"
@@ -24,7 +24,7 @@
 				</div>
 				<div
 					:class="[
-						selectedTab == 'Courses' ? 'tab__item--active' : '',
+						selectedTab === 'Courses' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Courses'"
@@ -34,7 +34,7 @@
 			</div>
 			<div class="content">
 				<!-- subjects tab -->
-				<div v-if="selectedTab == 'Subjects'" class="subject">
+				<div v-if="selectedTab === 'Subjects'" class="subject">
 					<div class="field">
 						<ui-textfield
 							id="title"
@@ -71,7 +71,7 @@
 					</ui-select>
 				</div>
 				<!-- courses tab -->
-				<div v-else-if="selectedTab == 'Courses'" class="course">
+				<div v-else-if="selectedTab === 'Courses'" class="course">
 					<div v-if="!isAddSubjectRoute" class="course-header">
 						<ui-button class="alt-btn" unelevated @click="goToSubjectCourses"
 							><span class="capitalize">Add New Course</span></ui-button
@@ -127,7 +127,7 @@
 								</div>
 								<div class="table-control__pagination">
 									{{ currStart }} - {{ currTotal }} of
-									{{ fetchedSubject ? fetchedSubject.courses.length : 0 }}
+									{{ fetchedSubject ? fetchedSubject.courses?.length : 0 }}
 									<ui-icon
 										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 										@click="goPrev()"
@@ -329,7 +329,7 @@ async function editSubject() {
 
 function getModulesCount(course: Course) {
 	const length = course.modules?.length;
-	const unit = length == 1 ? 'Module' : 'Modules';
+	const unit = length === 1 ? 'Module' : 'Modules';
 	return `${length} ${unit}`;
 }
 
@@ -369,7 +369,7 @@ function handleAction(action: string) {
 				courseId: selectedCourse.value?.id,
 			},
 		});
-	} else if (action == 'Delete') {
+	} else if (action === 'Delete') {
 		// delete the course
 		deleteCourse();
 	}

@@ -15,7 +15,7 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Course' ? 'tab__item--active' : '',
+						selectedTab === 'Course' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Course'"
@@ -24,7 +24,7 @@
 				</div>
 				<div
 					:class="[
-						selectedTab == 'Modules' ? 'tab__item--active' : '',
+						selectedTab === 'Modules' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Modules'"
@@ -34,7 +34,7 @@
 			</div>
 			<div class="content">
 				<!-- course tab -->
-				<div v-if="selectedTab == 'Course'" class="course">
+				<div v-if="selectedTab === 'Course'" class="course">
 					<div class="col-2">
 						<div class="field">
 							<ui-textfield
@@ -122,7 +122,7 @@
 					/>
 				</div>
 				<!-- modules tab -->
-				<div v-else-if="selectedTab == 'Modules'" class="module">
+				<div v-else-if="selectedTab === 'Modules'" class="module">
 					<div class="module-content">
 						<div class="table-container">
 							<table class="modules-table">

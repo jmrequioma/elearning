@@ -126,7 +126,7 @@ async function changePassword() {
 			currPasswordErrorMsg.value = res.data.errorMessage;
 		}
 
-		if (res?.data.status == 'success') {
+		if (res?.data.status === 'success') {
 			currPasswordErrorMsg.value = '';
 			showSuccessModal.value = true;
 		}

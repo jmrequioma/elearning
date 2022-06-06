@@ -15,7 +15,7 @@
 			<div class="tab">
 				<div
 					:class="[
-						selectedTab == 'Courses' ? 'tab__item--active' : '',
+						selectedTab === 'Courses' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Courses'"
@@ -24,7 +24,7 @@
 				</div>
 				<div
 					:class="[
-						selectedTab == 'Modules' ? 'tab__item--active' : '',
+						selectedTab === 'Modules' ? 'tab__item--active' : '',
 						'tab__item',
 					]"
 					@click="selectedTab = 'Modules'"
@@ -34,7 +34,7 @@
 			</div>
 			<div class="content">
 				<!-- courses tab -->
-				<div v-if="selectedTab == 'Courses'" class="course">
+				<div v-if="selectedTab === 'Courses'" class="course">
 					<div class="col-2">
 						<div class="field">
 							<ui-textfield
@@ -87,7 +87,7 @@
 					/>
 				</div>
 				<!-- modules tab -->
-				<div v-else-if="selectedTab == 'Modules'" class="module">
+				<div v-else-if="selectedTab === 'Modules'" class="module">
 					<div v-if="isEditSubjectEditCourseRoute" class="module-header">
 						<ui-button class="alt-btn" unelevated @click="goToSubjectModules"
 							><span class="capitalize">Add New Module</span></ui-button
@@ -140,7 +140,7 @@
 								</div>
 								<div class="table-control__pagination">
 									{{ currStart }} - {{ currTotal }} of
-									{{ fetchedSubject ? fetchedSubject.courses.length : 0 }}
+									{{ fetchedSubject ? fetchedSubject.courses?.length : 0 }}
 									<ui-icon
 										:class="[prevIsDisabled ? 'icon--disabled' : '', 'icon']"
 										@click="goPrev()"
@@ -407,7 +407,7 @@ function handleAction(action: string) {
 				moduleId: selectedModule.value?.id,
 			},
 		});
-	} else if (action == 'Delete') {
+	} else if (action === 'Delete') {
 		// delete the module
 		deleteModule();
 	}
