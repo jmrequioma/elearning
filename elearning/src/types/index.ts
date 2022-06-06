@@ -1,4 +1,4 @@
-export type User = {
+export interface User {
 	accessToken: string;
 	id: number;
 	email: string;
@@ -10,9 +10,9 @@ export type User = {
 	isActive: boolean;
 	createdAt?: string;
 	updatedAt?: string;
-};
+}
 
-export type Subject = {
+export interface Subject {
 	id: number;
 	title: string;
 	isPublished: boolean;
@@ -20,9 +20,9 @@ export type Subject = {
 	updatedAt: string;
 	ownerId: number;
 	courses?: Array<Course>;
-};
+}
 
-export type Course = {
+export interface Course {
 	id: number;
 	title: string;
 	description: string;
@@ -36,9 +36,9 @@ export type Course = {
 	author?: string;
 	subject?: Subject;
 	modules?: Array<Module>;
-};
+}
 
-export type Module = {
+export interface Module {
 	id: number;
 	title: string;
 	duration: number;
@@ -50,9 +50,9 @@ export type Module = {
 	courseId: number;
 	courseTitle: string;
 	contents?: Array<Content>;
-};
+}
 
-export type Content = {
+export interface Content {
 	id: number;
 	content: string;
 	type: string;
@@ -61,18 +61,18 @@ export type Content = {
 	updatedAt: string;
 	authorId: number;
 	moduleId: number;
-};
+}
 
-export type Enrollment = {
+export interface Enrollment {
 	id: number;
 	isStarted: boolean;
 	createdAt: string;
 	updatedAt: string;
 	userId: number;
 	course: Course;
-};
+}
 
-export type DataBody = {
+export interface DataBody {
 	id?: number;
 	subjectId?: number;
 	courseId?: number;
@@ -82,34 +82,34 @@ export type DataBody = {
 	duration?: number;
 	description?: string;
 	full?: boolean;
-};
+}
 
-export type LoginBody = {
+export interface LoginBody {
 	email: string;
 	password: string;
-};
+}
 
-export type SignUpBody = {
+export interface SignUpBody {
 	email: string;
 	password: string;
 	verifyPassword: string;
 	role: string;
 	firstName: string;
 	lastName: string;
-};
+}
 
-export type ChangePasswordBody = {
+export interface ChangePasswordBody {
 	currPassword: string;
 	password: string;
 	verifyPassword: string;
-};
+}
 
-export type MockStorage = {
+export interface MockStorage {
 	[key: string]: string;
-};
+}
 
-export type EmitCourseAction = {
+export interface EmitCourseAction {
 	courseId: number;
 	enrollmentId?: number;
 	action: string;
-};
+}
