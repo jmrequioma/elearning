@@ -1,0 +1,63 @@
+select {
+	// A reset of styles, including removing the default dropdown arrow
+	appearance: none;
+	background-color: transparent;
+	border: none;
+	padding: 4px 20px 4px 4px;
+	margin: 0;
+	width: 100%;
+	font-family: inherit;
+	font-size: 12px;
+	border-bottom: 1px solid $gray-1;
+	color: $gray-1;
+	cursor: inherit;
+	line-height: inherit;
+
+	// Stack above custom arrow
+	z-index: 1;
+	&::-ms-expand {
+		display: none;
+	}
+
+	// Remove focus outline, will add on alternate element
+	outline: none;
+
+	// Custom arrow
+	&:not(.select--multiple)::after {
+		content: '';
+		justify-self: end;
+		width: 0.8em;
+		height: 0.5em;
+		background-color: var(--select-arrow);
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	}
+}
+
+.select {
+	display: grid;
+	grid-template-areas: 'select';
+	align-items: center;
+	font-size: 12px;
+	position: relative;
+
+	select {
+		grid-area: select;
+	}
+
+	padding: 0.25em 0.5em;
+
+	font-size: 1.25rem;
+	cursor: pointer;
+	line-height: 1.1;
+
+	// Custom arrow
+	&::after {
+		grid-area: select;
+		content: '';
+		justify-self: end;
+		width: 10px;
+		height: 6px;
+		background-color: $gray-1;
+		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+	}
+}

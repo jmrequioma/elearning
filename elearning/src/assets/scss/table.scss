@@ -1,0 +1,82 @@
+.course-table, .module-table, .user-table, .subject-table, .user-table {
+	width: 100%;
+	color: $gray-1;
+	border-spacing: 0;
+
+	th {
+		padding: 12px 32px;
+		text-align: left;
+		border-bottom: 2px solid $gray-5;
+		box-sizing: border-box;
+	}
+
+	td {
+		padding: 12px 12px 12px 32px;
+		text-align: left;
+		border-bottom: 2px solid $gray-5;
+		max-height: 40px;
+	}
+
+	.row-action {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		justify-content: space-between;
+		height: 40px;
+
+		&__menu {
+			position: relative;
+		}
+	}
+}
+
+.table-control {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	font-size: 12px;
+	border-top: 1px solid $gray-4;
+	width: 100%;
+	bottom: 0;
+	height: 40px;
+
+	p,
+	label {
+		color: $gray-2;
+	}
+
+	&__container {
+		display: flex;
+		align-items: center;
+		align-content: center;
+		padding-right: 24px;
+		width: 324px;
+		justify-content: space-between;
+	}
+
+	&__dropdown {
+		display: flex;
+		align-items: center;
+	}
+
+	&__pagination {
+		display: flex;
+		width: 140px;
+		justify-content: space-between;
+		color: $gray-2;
+		align-items: center;
+	}
+}
+
+.icon {
+	color: $gray-1;
+	cursor: pointer;
+
+	&--disabled {
+		color: $gray-2;
+  }
+}
+
+.control-absolute {
+	position: absolute;
+}

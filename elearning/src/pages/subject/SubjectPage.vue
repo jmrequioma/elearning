@@ -63,7 +63,7 @@
 				No results found.
 			</div>
 			<div v-else class="table-container">
-				<table class="subjects-table">
+				<table class="subject-table">
 					<tr>
 						<th>Title</th>
 						<th>Courses</th>
@@ -90,7 +90,7 @@
 					</tr>
 				</table>
 			</div>
-			<div class="table-control">
+			<div class="table-control control-absolute">
 				<div class="table-control__container">
 					<div class="table-control__dropdown">
 						<label for="items">Items per page:</label>
@@ -290,6 +290,8 @@ function isOwner(subject: Subject) {
 </script>
 <style scoped lang="scss">
 @import '@/assets/scss/abstract/variables.scss';
+@import '@/assets/scss/select.scss';
+@import '@/assets/scss/table.scss';
 
 .subject-page {
 	background-color: $gray-4;
@@ -360,158 +362,6 @@ h6 {
 .table-container {
 	overflow-y: auto;
 	height: 85%;
-}
-
-.icon {
-	color: $gray-1;
-	cursor: pointer;
-
-	&--disabled {
-		color: $gray-2;
-	}
-}
-
-.subjects-table {
-	width: 100%;
-	color: $gray-1;
-	border-spacing: 0;
-
-	th {
-		padding: 12px 32px;
-		text-align: left;
-		border-bottom: 2px solid $gray-5;
-		box-sizing: border-box;
-
-		&:nth-child(2) {
-			width: 240px;
-		}
-
-		&:nth-child(3) {
-			width: 220px;
-		}
-	}
-
-	td {
-		padding: 12px 12px 12px 32px;
-		text-align: left;
-		border-bottom: 2px solid $gray-5;
-		max-height: 40px;
-	}
-
-	.row-action {
-		display: flex;
-		align-items: center;
-		align-content: center;
-		justify-content: space-between;
-		height: 40px;
-
-		&__menu {
-			position: relative;
-		}
-	}
-}
-
-.table-control {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	position: absolute;
-	font-size: 12px;
-	border-top: 1px solid $gray-4;
-	width: 100%;
-	bottom: 0;
-	height: 40px;
-
-	p,
-	label {
-		color: $gray-2;
-	}
-
-	&__container {
-		display: flex;
-		align-items: center;
-		align-content: center;
-		padding-right: 24px;
-		width: 324px;
-		justify-content: space-between;
-	}
-
-	&__dropdown {
-		display: flex;
-		align-items: center;
-	}
-
-	&__pagination {
-		display: flex;
-		width: 140px;
-		justify-content: space-between;
-		color: $gray-2;
-		align-items: center;
-	}
-}
-
-select {
-	// A reset of styles, including removing the default dropdown arrow
-	appearance: none;
-	background-color: transparent;
-	border: none;
-	padding: 4px 20px 4px 4px;
-	margin: 0;
-	width: 100%;
-	font-family: inherit;
-	font-size: 12px;
-	border-bottom: 1px solid $gray-1;
-	color: $gray-1;
-	cursor: inherit;
-	line-height: inherit;
-
-	// Stack above custom arrow
-	z-index: 1;
-	&::-ms-expand {
-		display: none;
-	}
-
-	// Remove focus outline, will add on alternate element
-	outline: none;
-
-	// Custom arrow
-	&:not(.select--multiple)::after {
-		content: '';
-		justify-self: end;
-		width: 0.8em;
-		height: 0.5em;
-		background-color: var(--select-arrow);
-		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
-	}
-}
-
-.select {
-	display: grid;
-	grid-template-areas: 'select';
-	align-items: center;
-	font-size: 12px;
-	position: relative;
-
-	select {
-		grid-area: select;
-	}
-
-	padding: 0.25em 0.5em;
-
-	font-size: 1.25rem;
-	cursor: pointer;
-	line-height: 1.1;
-
-	// Custom arrow
-	&::after {
-		grid-area: select;
-		content: '';
-		justify-self: end;
-		width: 10px;
-		height: 6px;
-		background-color: $gray-1;
-		clip-path: polygon(100% 0%, 0 0%, 50% 100%);
-	}
 }
 
 .empty {
