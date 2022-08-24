@@ -4,7 +4,6 @@
 			<div class="nav-drawer">
 				<div class="nav-drawer__header">
 					<div class="nav-drawer__header__left">
-						<img src="@/assets/media/arcanys-logo.png" alt="arcanys-logo" />
 						<p class="nav-drawer__title">eLearning Portal</p>
 					</div>
 					<ui-icon class="header-icon">menu</ui-icon>
