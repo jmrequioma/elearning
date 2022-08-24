@@ -1,5 +1,5 @@
 # JRequioma eLearning
-Arcanys eLearning platform created with Vue 3, [Mock Service Worker](https://mswjs.io/), and [mswjs/data](https://github.com/mswjs/data)
+eLearning platform created with Vue 3, [Mock Service Worker](https://mswjs.io/), and [mswjs/data](https://github.com/mswjs/data)
 
 ## Dummy Accounts
 On startup, there are three accounts that will be created with the help of mswjs/data that would persist data. These are:
